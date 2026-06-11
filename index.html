@@ -813,6 +813,83 @@ tr.ev-row td.has-event{background:transparent;}
   </button>
 </div>
 
+
+<!-- ═══ PANEL ZARZĄDZANIA UŻYTKOWNIKAMI ═══ -->
+<div id="fb-mgmt-modal" style="
+  display:none;position:fixed;inset:0;z-index:9998;
+  background:rgba(0,0,0,.7);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;
+  font-family:'DM Sans',sans-serif;">
+  <div style="
+    background:var(--surface,#181c27);
+    border:1px solid var(--border,#2a3045);
+    border-radius:16px;padding:2rem;width:520px;max-width:95vw;
+    max-height:85vh;overflow-y:auto;
+    box-shadow:0 20px 60px rgba(0,0,0,.6);">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+      <div style="font-size:1.2rem;font-weight:700;color:var(--fg,#e8eaf0);">👥 Zarządzanie dostępem</div>
+      <button onclick="fbCloseMgmt()" style="
+        background:transparent;border:none;color:var(--muted,#6b7280);
+        font-size:1.4rem;cursor:pointer;line-height:1;">×</button>
+    </div>
+
+    <!-- Dodaj użytkownika -->
+    <div style="
+      background:var(--bg,#0f1117);border:1px solid var(--border,#2a3045);
+      border-radius:10px;padding:1.25rem;margin-bottom:1.5rem;">
+      <div style="font-weight:600;color:var(--fg,#e8eaf0);margin-bottom:1rem;font-size:.95rem;">
+        ➕ Dodaj nowego użytkownika
+      </div>
+      <div id="fb-add-error" style="display:none;background:#ef444420;border:1px solid #ef4444;
+        color:#ef4444;border-radius:8px;padding:.6rem .9rem;margin-bottom:.75rem;font-size:.82rem;"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.6rem;">
+        <input id="fb-new-email" type="email" placeholder="Email" style="
+          background:var(--surface,#181c27);border:1px solid var(--border,#2a3045);
+          color:var(--fg,#e8eaf0);border-radius:7px;padding:.6rem .85rem;font-size:.88rem;outline:none;"/>
+        <input id="fb-new-pass" type="password" placeholder="Hasło (min. 6 znaków)" style="
+          background:var(--surface,#181c27);border:1px solid var(--border,#2a3045);
+          color:var(--fg,#e8eaf0);border-radius:7px;padding:.6rem .85rem;font-size:.88rem;outline:none;"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.85rem;">
+        <input id="fb-new-imie" type="text" placeholder="Imię i nazwisko" style="
+          background:var(--surface,#181c27);border:1px solid var(--border,#2a3045);
+          color:var(--fg,#e8eaf0);border-radius:7px;padding:.6rem .85rem;font-size:.88rem;outline:none;"/>
+        <select id="fb-new-rola" style="
+          background:var(--surface,#181c27);border:1px solid var(--border,#2a3045);
+          color:var(--fg,#e8eaf0);border-radius:7px;padding:.6rem .85rem;font-size:.88rem;outline:none;">
+          <option value="manager">🔑 Manager</option>
+          <option value="pracownik">👤 Pracownik</option>
+          <option value="admin">👑 Admin</option>
+        </select>
+      </div>
+      <div id="fb-pracownik-row" style="display:none;margin-bottom:.85rem;">
+        <label style="font-size:.82rem;color:var(--muted,#6b7280);display:block;margin-bottom:.4rem;">
+          Powiąż z pracownikiem (dla roli Pracownik):
+        </label>
+        <select id="fb-new-pracownik" style="
+          width:100%;background:var(--surface,#181c27);border:1px solid var(--border,#2a3045);
+          color:var(--fg,#e8eaf0);border-radius:7px;padding:.6rem .85rem;font-size:.88rem;outline:none;">
+          <option value="">— brak powiązania —</option>
+        </select>
+      </div>
+      <button onclick="fbAddUser()" style="
+        width:100%;padding:.7rem;border:none;border-radius:8px;
+        background:#3b82f6;color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;">
+        Dodaj użytkownika
+      </button>
+    </div>
+
+    <!-- Lista użytkowników -->
+    <div style="font-weight:600;color:var(--fg,#e8eaf0);margin-bottom:.75rem;font-size:.95rem;">
+      📋 Aktualni użytkownicy
+    </div>
+    <div id="fb-users-list" style="color:var(--muted,#6b7280);font-size:.88rem;">
+      Ładowanie...
+    </div>
+  </div>
+</div>
+
 <div class="shell">
 <div class="sb-overlay" onclick="toggleSidebar()"></div>
 
