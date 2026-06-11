@@ -1145,6 +1145,7 @@ tr.ev-row td.has-event{background:transparent;}
         padding:.4rem .9rem;border-radius:6px;border:1px solid #22c55e;
         background:rgba(34,197,94,.15);color:#22c55e;font-size:.82rem;
         font-weight:600;cursor:pointer;">🔒 Zablokuj prośby</button>
+      <span id="lock-status-label" style="font-size:.78rem;color:var(--muted,#6b7280);"></span>
       <button onclick="loadProsbyFromFirestore()" style="
         padding:.4rem .9rem;border-radius:6px;border:1px solid var(--border,#2a3045);
         background:transparent;color:var(--muted,#6b7280);font-size:.82rem;
@@ -3814,8 +3815,8 @@ async function loadStateFromFirestore(){
     reRenderAll();if(S.schedule)renderSchedule();
     renderEvents();
     applyRoleRestrictions();
-    // Sprawdź stan blokady prośb
-    if(p.prosbyZablokowane !== undefined) updateLockBtn(p.prosbyZablokowane);
+    // Sprawdź stan blokady prośb dla bieżącego miesiąca
+    checkLockState();
     setSt('idle','✓ Dane zsynchronizowane z chmury');
     updateLsInfo();
   }catch(e){ console.warn('Firestore load error:',e); }
@@ -4366,9 +4367,21 @@ document.addEventListener('DOMContentLoaded', ()=>{
 <!-- ══════════ WIDOK PROŚB PRACOWNIKA ══════════ -->
 <div id="prosba-view">
   <div class="p-header">
-    <div class="p-logo">Planista<span>/Grafik</span></div>
-    <h1>Prośby do grafiku</h1>
-    <div class="p-subtitle" id="prosba-subtitle">Zaznacz dni kiedy nie możesz lub masz ograniczoną dostępność</div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+      <div>
+        <div class="p-logo">Planista<span>/Grafik</span></div>
+        <h1>Prośby do grafiku</h1>
+        <div class="p-subtitle" id="prosba-subtitle">Zaznacz dni kiedy nie możesz lub masz ograniczoną dostępność</div>
+      </div>
+      <button onclick="fbLogout()" style="
+        flex-shrink:0;margin-top:4px;
+        background:transparent;border:1px solid #2a3347;
+        color:#8fa0bc;border-radius:6px;
+        padding:.35rem .75rem;cursor:pointer;font-size:.8rem;
+        font-family:'DM Sans',sans-serif;white-space:nowrap;">
+        Wyloguj
+      </button>
+    </div>
   </div>
 
   <!-- BLOKADA -->
@@ -4383,10 +4396,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
     <div class="p-card">
       <div class="p-card-title">Miesiąc</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:300px;">
-        <select id="p-selM" onchange="pBuildCal()" style="
+        <select id="p-selM" onchange="pReloadAndBuild()" style="
           background:#0f1117;border:1px solid #2a3347;color:#e8edf8;
           border-radius:6px;padding:9px 12px;font-size:14px;outline:none;"></select>
-        <select id="p-selY" onchange="pBuildCal()" style="
+        <select id="p-selY" onchange="pReloadAndBuild()" style="
           background:#0f1117;border:1px solid #2a3347;color:#e8edf8;
           border-radius:6px;padding:9px 12px;font-size:14px;outline:none;"></select>
       </div>
@@ -4471,7 +4484,7 @@ const P_MONTHS=['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec',
   'Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
 const P_MONTHS_GEN=['stycznia','lutego','marca','kwietnia','maja','czerwca',
   'lipca','sierpnia','września','października','listopada','grudnia'];
-const P_DAYS=['Nd','Pn','Wt','Śr','Cz','Pt','Sb'];
+const P_DAYS=['Pn','Wt','Śr','Cz','Pt','Sb','Nd'];
 let pDayState={}, pModalDay=null;
 
 function pPolishHolidays(y){
@@ -4498,16 +4511,32 @@ async function pShowView(){
   const view = document.getElementById('prosba-view');
   view.style.display = 'block';
 
-  // Sprawdź blokadę
+  // Sprawdź blokadę per miesiąc
   const adminUid = window._fbAdminUid || window._fbUser?.uid;
   if(adminUid && window._fbDb){
     try{
       const lockRef = window._fbDoc(window._fbDb, 'restauracje', adminUid);
       const snap = await window._fbGetDoc(lockRef);
-      const locked = snap.exists() && snap.data().prosbyZablokowane === true;
-      document.getElementById('prosba-locked').style.display = locked ? 'block' : 'none';
-      document.getElementById('prosba-content').style.display = locked ? 'none' : 'block';
-      if(locked) return;
+      // Pobierz miesiąc z selektu (może jeszcze nie być inicjowany)
+      const nowM = new Date().getDate()>20 ? (new Date().getMonth()+1)%12 : new Date().getMonth();
+      const nowY = new Date().getDate()>20 && new Date().getMonth()===11 ? new Date().getFullYear()+1 : new Date().getFullYear();
+      const key = `zablokowane_${nowM}_${nowY}`;
+      const locked = snap.exists() && snap.data()[key] === true;
+      const lockedEl = document.getElementById('prosba-locked');
+      const contentEl = document.getElementById('prosba-content');
+      if(locked){
+        lockedEl.style.display = 'block';
+        contentEl.style.display = 'none';
+        // Zaktualizuj komunikat blokady z miesiącem
+        const MPL_L=['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec',
+          'Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
+        const msgEl = lockedEl.querySelector('p');
+        if(msgEl) msgEl.innerHTML = `Kierownik zamknął składanie prośb na <strong>${MPL_L[nowM]} ${nowY}</strong>.<br>Możesz składać prośby na kolejne miesiące.`;
+        return;
+      } else {
+        lockedEl.style.display = 'none';
+        contentEl.style.display = 'block';
+      }
     }catch(e){ console.warn('Błąd sprawdzania blokady:', e); }
   }
 
@@ -4539,6 +4568,7 @@ async function pShowView(){
 async function pLoadExisting(){
   if(!window._fbUser || !window._fbDb) return;
   const adminUid = window._fbAdminUid || window._fbUser.uid;
+  pDayState = {}; // zawsze zacznij od czystego stanu
   try{
     const ref = window._fbDoc(window._fbDb, 'restauracje', adminUid,
                               'prosbyPracownikow', window._fbUser.uid);
@@ -4549,7 +4579,6 @@ async function pLoadExisting(){
       const y = +document.getElementById('p-selY').value;
       if(data.month === m && data.year === y && data.availJson){
         const avail = JSON.parse(data.availJson);
-        pDayState = {};
         avail.forEach((v,i)=>{
           if(v==='N') pDayState[i+1]='N';
           else if(v && v.includes('-')){
@@ -4557,20 +4586,24 @@ async function pLoadExisting(){
             pDayState[i+1]={from,to};
           }
         });
-        if(data.comment) document.getElementById('p-comment').value = data.comment;
+        const commentEl = document.getElementById('p-comment');
+        if(commentEl && data.comment) commentEl.value = data.comment;
       }
     }
   }catch(e){ console.warn('Błąd wczytywania prośb:', e); }
 }
 
 function pBuildCal(){
-  pDayState={};
+  // Nie resetuj pDayState tutaj — jest ustawiany przez pLoadExisting
   const m=+document.getElementById('p-selM').value;
   const y=+document.getElementById('p-selY').value;
   const days=pDim(m,y), hols=pPolishHolidays(y);
   document.getElementById('p-calHead').innerHTML=
-    P_DAYS.map((d,i)=>`<th class="${i===0||i===6?'wknd':''}">${d}</th>`).join('');
-  let firstDow=pDow(1,m,y), cells=[];
+    P_DAYS.map((d,i)=>`<th class="${i>=5?'wknd':''}">${d}</th>`).join('');
+  // Przesuń na poniedziałek: Nd(0)→6, Pn(1)→0, Wt(2)→1 ...
+  let rawDow=pDow(1,m,y);
+  let firstDow = rawDow===0 ? 6 : rawDow-1;
+  let cells=[];
   for(let i=0;i<firstDow;i++) cells.push(null);
   for(let d=1;d<=days;d++) cells.push(d);
   while(cells.length%7) cells.push(null);
@@ -4580,7 +4613,7 @@ function pBuildCal(){
     for(let c=0;c<7;c++){
       const d=cells[r*7+c];
       if(!d){html+='<td><div class="day-btn empty"></div></td>';continue;}
-      const w=pDow(d,m,y),isW=w===0||w===6;
+      const w=pDow(d,m,y),isW=w===0||w===6; // Sb i Nd
       const key=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
       html+=`<td><div class="day-btn${isW?' wknd':''}${hols.has(key)?' holiday':''}"
         id="pdb-${d}" onclick="pCycleDay(${d},${m},${y})">
@@ -4685,23 +4718,63 @@ function pSetStatus(type,msg){
 }
 function pResetCal(){pDayState={};pBuildCal();document.getElementById('p-comment').value='';}
 
+// Przeładuj prośby z Firestore przy zmianie miesiąca/roku
+async function pReloadAndBuild(){
+  await pLoadExisting();
+  pBuildCal();
+  // Odtwórz stan z pDayState po przebudowie
+  Object.keys(pDayState).forEach(d=>pUpdateCell(+d));
+}
+
 /* ══════════ ADMIN: PRZEŁĄCZNIK BLOKADY + WCZYTANIE PROŚB ══════════ */
 async function toggleProsbyLock(){
   if(!window._fbUser||!window._fbDb) return;
   const adminUid = window._fbAdminUid || window._fbUser.uid;
   const ref = window._fbDoc(window._fbDb,'restauracje',adminUid);
   const snap = await window._fbGetDoc(ref);
-  const current = snap.exists() && snap.data().prosbyZablokowane === true;
-  await window._fbSetDoc(ref, {prosbyZablokowane: !current}, {merge:true});
-  updateLockBtn(!current);
+  const data = snap.exists() ? snap.data() : {};
+  // Blokada per miesiąc — klucz: "zablokowane_M_Y"
+  const key = `zablokowane_${S.month}_${S.year}`;
+  const current = data[key] === true;
+  await window._fbSetDoc(ref, {[key]: !current}, {merge:true});
+  updateLockBtn(!current, S.month, S.year);
 }
-function updateLockBtn(locked){
+
+function updateLockBtn(locked, month, year){
   const btn = document.getElementById('btn-prosby-lock');
+  const label = document.getElementById('lock-status-label');
   if(!btn) return;
-  btn.textContent = locked ? '🔓 Odblokuj prośby' : '🔒 Zablokuj prośby';
-  btn.style.background = locked ? 'rgba(239,68,68,.15)' : 'rgba(34,197,94,.15)';
-  btn.style.borderColor = locked ? '#ef4444' : '#22c55e';
-  btn.style.color = locked ? '#ef4444' : '#22c55e';
+  const m = month ?? S.month;
+  const y = year ?? S.year;
+  const MPL_LOCK=['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec',
+    'Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
+  const miesiac = `${MPL_LOCK[m]} ${y}`;
+  if(locked){
+    btn.textContent = '🔓 Odblokuj prośby';
+    btn.style.background = 'rgba(239,68,68,.15)';
+    btn.style.borderColor = '#ef4444';
+    btn.style.color = '#ef4444';
+    if(label) label.textContent = `🔒 ${miesiac} — prośby zablokowane`;
+  } else {
+    btn.textContent = '🔒 Zablokuj prośby';
+    btn.style.background = 'rgba(34,197,94,.15)';
+    btn.style.borderColor = '#22c55e';
+    btn.style.color = '#22c55e';
+    if(label) label.textContent = `✓ ${miesiac} — prośby otwarte`;
+  }
+}
+
+// Sprawdź stan blokady dla bieżącego miesiąca (admin)
+async function checkLockState(){
+  if(!window._fbUser||!window._fbDb||window._fbRole!=='admin') return;
+  const adminUid = window._fbAdminUid || window._fbUser.uid;
+  const ref = window._fbDoc(window._fbDb,'restauracje',adminUid);
+  try{
+    const snap = await window._fbGetDoc(ref);
+    const data = snap.exists() ? snap.data() : {};
+    const key = `zablokowane_${S.month}_${S.year}`;
+    updateLockBtn(data[key]===true, S.month, S.year);
+  }catch(e){}
 }
 
 // Wczytaj wszystkie prośby pracowników do zakładki Prośby
