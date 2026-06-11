@@ -781,12 +781,7 @@ tr.ev-row td.has-event{background:transparent;}
       cursor:pointer;margin-bottom:.75rem;">
       Zaloguj się
     </button>
-    <button onclick="fbRegister()" style="
-      width:100%;padding:.85rem;border:1px solid var(--border,#2a3045);
-      border-radius:8px;background:transparent;
-      color:var(--muted,#6b7280);font-size:.9rem;cursor:pointer;">
-      Utwórz konto
-    </button>
+
   </div>
 </div>
 
@@ -3943,23 +3938,7 @@ function fbLogin(){
       errEl.style.display='block';
     });
 }
-function fbRegister(){
-  const email = document.getElementById('fb-email').value.trim();
-  const pass  = document.getElementById('fb-password').value;
-  const errEl = document.getElementById('fb-login-error');
-  errEl.style.display='none';
-  if(!email||!pass||pass.length<6){
-    errEl.textContent='Podaj email i hasło (min. 6 znaków).';
-    errEl.style.display='block';return;
-  }
-  window._fbSignUp(window._fbAuth, email, pass)
-    .catch(e=>{
-      errEl.textContent = e.code==='auth/email-already-in-use'
-        ? 'Ten email jest już zarejestrowany.'
-        : 'Błąd: ' + e.message;
-      errEl.style.display='block';
-    });
-}
+
 function fbLogout(){
   if(!confirm('Wylogować się?')) return;
   window._fbSignOut(window._fbAuth);
