@@ -639,6 +639,90 @@ tr.ev-row td.has-event{background:transparent;}
   /* legend hidden in print */
   .viol-legend-print { display: none; }
 }
+
+/* ══════════ WIDOK PROŚB PRACOWNIKA (z prosba.html) ══════════ */
+#prosba-view{display:none;position:fixed;inset:0;z-index:5000;
+  background:var(--bg,#0f1117);overflow-y:auto;
+  font-family:'DM Sans',sans-serif;padding:24px 12px 48px;}
+#prosba-view .p-header{width:100%;max-width:720px;margin:0 auto 24px;}
+#prosba-view .p-logo{font-family:'Space Mono',monospace;font-size:10px;
+  color:var(--muted,#4a5a75);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+#prosba-view .p-logo span{color:#06b6d4;}
+#prosba-view h1{font-size:22px;font-weight:700;margin-bottom:4px;color:var(--fg,#e8eaf0);}
+#prosba-view .p-subtitle{font-size:13px;color:var(--muted,#6b7280);}
+#prosba-view .p-card{width:100%;max-width:720px;margin:0 auto 14px;
+  background:#1e2638;border:1px solid #2a3347;border-radius:8px;padding:20px;}
+#prosba-view .p-card-title{font-family:'Space Mono',monospace;font-size:8px;font-weight:500;
+  letter-spacing:1.5px;text-transform:uppercase;color:#4a5a75;margin-bottom:14px;}
+/* kalendarz */
+#prosba-view .cal-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+#prosba-view table.cal{border-collapse:collapse;width:100%;min-width:400px;}
+#prosba-view table.cal th{font-family:'Space Mono',monospace;font-size:9px;font-weight:500;
+  letter-spacing:.5px;color:#4a5a75;padding:4px 2px;text-align:center;
+  border-bottom:1px solid #2a3347;}
+#prosba-view table.cal th.wknd{color:var(--red,#ef4444);}
+#prosba-view table.cal td{padding:2px;}
+#prosba-view .day-btn{display:flex;flex-direction:column;align-items:center;gap:1px;
+  width:100%;min-height:50px;border-radius:6px;border:1px solid transparent;
+  cursor:pointer;background:#161b27;transition:all .12s;padding:4px 2px;user-select:none;}
+#prosba-view .day-btn:hover{border-color:#2a3347;}
+#prosba-view .day-btn.empty{background:transparent;border:none;cursor:default;pointer-events:none;}
+#prosba-view .day-btn .dn{font-family:'Space Mono',monospace;font-size:11px;
+  font-weight:600;color:var(--fg,#e8eaf0);}
+#prosba-view .day-btn.wknd .dn{color:var(--red,#ef4444);}
+#prosba-view .day-btn.holiday .dn{color:var(--orange,#f59e0b);}
+#prosba-view .day-btn .ds{font-size:7px;font-family:'Space Mono',monospace;color:#4a5a75;}
+#prosba-view .day-btn.state-N{background:rgba(239,68,68,.18);border-color:var(--red,#ef4444);}
+#prosba-view .day-btn.state-N .dn{color:var(--red,#ef4444);}
+#prosba-view .day-btn.state-C{background:rgba(245,158,11,.15);border-color:var(--orange,#f59e0b);}
+#prosba-view .day-btn.state-C .dn{color:var(--orange,#f59e0b);}
+#prosba-view .p-tag{font-family:'Space Mono',monospace;font-size:7px;font-weight:700;
+  padding:1px 4px;border-radius:3px;line-height:1.4;display:none;}
+#prosba-view .state-N .p-tag{display:inline;background:var(--red,#ef4444);color:#fff;}
+#prosba-view .state-C .p-tag{display:inline;background:var(--orange,#f59e0b);color:#111;}
+#prosba-view .tag-time{font-family:'Space Mono',monospace;font-size:6px;
+  color:#8fa0bc;line-height:1.3;}
+#prosba-view .p-legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+#prosba-view .leg-item{display:flex;align-items:center;gap:5px;
+  font-size:11px;color:#8fa0bc;}
+#prosba-view .leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+#prosba-view .leg-hint{font-size:10px;color:#4a5a75;width:100%;}
+/* modal czasu */
+#prosba-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);
+  z-index:6000;align-items:center;justify-content:center;}
+#prosba-modal-bg.open{display:flex;}
+#prosba-modal-bg .p-modal{background:#1e2638;border:1px solid #2a3347;
+  border-radius:12px;padding:24px;width:300px;max-width:95vw;}
+#prosba-modal-bg .p-modal h3{font-size:15px;font-weight:700;
+  margin-bottom:14px;color:var(--fg,#e8eaf0);}
+#prosba-modal-bg input[type=time]{font-family:'Space Mono',monospace;font-size:16px;
+  background:#0f1117;border:1px solid #2a3347;color:var(--fg,#e8eaf0);
+  border-radius:6px;padding:9px 12px;width:100%;}
+#prosba-modal-bg .p-modal-btns{display:flex;gap:8px;justify-content:flex-end;
+  flex-wrap:wrap;margin-top:14px;}
+/* blokada */
+#prosba-locked{display:none;text-align:center;padding:40px 20px;}
+#prosba-locked .lock-icon{font-size:48px;margin-bottom:16px;}
+#prosba-locked h2{font-size:18px;font-weight:700;color:var(--fg,#e8eaf0);margin-bottom:8px;}
+#prosba-locked p{color:var(--muted,#6b7280);font-size:14px;}
+/* przyciski */
+#prosba-view .p-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+  padding:9px 18px;border-radius:6px;border:none;cursor:pointer;transition:all .15s;}
+#prosba-view .p-btn-primary{background:#3b82f6;color:#fff;}
+#prosba-view .p-btn-primary:hover{background:#2563eb;}
+#prosba-view .p-btn-secondary{background:#161b27;color:#8fa0bc;border:1px solid #2a3347;}
+#prosba-view .p-btn-danger{background:rgba(239,68,68,.15);color:#ef4444;
+  border:1px solid transparent;}
+#prosba-view .p-notice{font-size:12px;color:#8fa0bc;border-radius:6px;
+  padding:10px 12px;line-height:1.6;}
+#prosba-view .p-notice.info{background:rgba(59,130,246,.1);
+  border:1px solid rgba(59,130,246,.25);}
+#prosba-view .p-notice.ok{background:rgba(34,197,94,.1);
+  border:1px solid rgba(34,197,94,.3);color:#22c55e;}
+#prosba-view .p-notice.err{background:rgba(239,68,68,.1);
+  border:1px solid rgba(239,68,68,.3);color:#ef4444;}
+#prosba-status{margin-top:14px;}
+
 </style>
 
 <!-- Firebase SDK -->
@@ -747,18 +831,18 @@ tr.ev-row td.has-event{background:transparent;}
 <!-- ═══ FIREBASE LOGIN OVERLAY ═══ -->
 <div id="fb-login-overlay" style="
   position:fixed;inset:0;z-index:9999;
-  background:var(--bg,#0f1117);
+  background:#0f1117;
   display:flex;align-items:center;justify-content:center;
   font-family:'DM Sans',sans-serif;">
   <div style="
-    background:var(--surface,#181c27);
-    border:1px solid var(--border,#2a3045);
+    background:#181c27;
+    border:1px solid #2a3045;
     border-radius:16px;padding:2.5rem;width:340px;
     box-shadow:0 20px 60px rgba(0,0,0,.5);">
-    <div style="font-size:1.8rem;font-weight:700;color:var(--fg,#e8eaf0);margin-bottom:.3rem;">
+    <div style="font-size:1.8rem;font-weight:700;color:#e8eaf0;margin-bottom:.3rem;">
       🗓 Planista Grafiku
     </div>
-    <div style="color:var(--muted,#6b7280);margin-bottom:2rem;font-size:.9rem;">
+    <div style="color:#6b7280;margin-bottom:2rem;font-size:.9rem;">
       Zaloguj się aby kontynuować
     </div>
     <div id="fb-login-error" style="
@@ -767,13 +851,13 @@ tr.ev-row td.has-event{background:transparent;}
       margin-bottom:1rem;font-size:.85rem;"></div>
     <input id="fb-email" type="email" placeholder="Email" style="
       width:100%;box-sizing:border-box;
-      background:var(--bg,#0f1117);border:1px solid var(--border,#2a3045);
-      color:var(--fg,#e8eaf0);border-radius:8px;
+      background:#1e2333;border:1px solid #3a4060;
+      color:#e8eaf0;border-radius:8px;
       padding:.75rem 1rem;margin-bottom:.75rem;font-size:.95rem;outline:none;" />
     <input id="fb-password" type="password" placeholder="Hasło" style="
       width:100%;box-sizing:border-box;
-      background:var(--bg,#0f1117);border:1px solid var(--border,#2a3045);
-      color:var(--fg,#e8eaf0);border-radius:8px;
+      background:#1e2333;border:1px solid #3a4060;
+      color:#e8eaf0;border-radius:8px;
       padding:.75rem 1rem;margin-bottom:1.25rem;font-size:.95rem;outline:none;" />
     <button onclick="fbLogin()" style="
       width:100%;padding:.85rem;border:none;border-radius:8px;
@@ -873,11 +957,40 @@ tr.ev-row td.has-event{background:transparent;}
           <option value="">— brak powiązania —</option>
         </select>
       </div>
+      <!-- Hasło admina potrzebne do powrotu po utworzeniu konta -->
+      <div style="margin-bottom:.85rem;">
+        <label style="font-size:.82rem;color:var(--muted,#6b7280);display:block;margin-bottom:.4rem;">
+          Twoje hasło (wymagane do powrotu na konto admina):
+        </label>
+        <input id="fb-admin-pass-confirm" type="password" placeholder="Twoje aktualne hasło" style="
+          width:100%;box-sizing:border-box;
+          background:var(--surface,#181c27);border:1px solid var(--border,#2a3045);
+          color:var(--fg,#e8eaf0);border-radius:7px;padding:.6rem .85rem;font-size:.88rem;outline:none;"/>
+      </div>
       <button onclick="fbAddUser()" style="
         width:100%;padding:.7rem;border:none;border-radius:8px;
         background:#3b82f6;color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;">
         Dodaj użytkownika
       </button>
+
+      <!-- Panel z danymi do wysyłki — pojawia się po dodaniu -->
+      <div id="fb-invite-panel" style="display:none;margin-top:1rem;">
+        <div style="font-weight:600;color:#22c55e;font-size:.88rem;margin-bottom:.5rem;">
+          ✓ Użytkownik dodany! Skopiuj wiadomość i wyślij:
+        </div>
+        <textarea id="fb-invite-text" style="
+          width:100%;box-sizing:border-box;height:200px;
+          background:var(--bg,#0f1117);border:1px solid #22c55e40;
+          color:var(--fg,#e8eaf0);border-radius:8px;
+          padding:.75rem;font-size:.82rem;line-height:1.6;
+          font-family:'DM Sans',sans-serif;resize:vertical;outline:none;"></textarea>
+        <button onclick="fbCopyInvite()" style="
+          width:100%;margin-top:.5rem;padding:.6rem;border:1px solid #22c55e;
+          border-radius:7px;background:#22c55e20;color:#22c55e;
+          font-size:.88rem;font-weight:600;cursor:pointer;">
+          📋 Kopiuj do schowka
+        </button>
+      </div>
     </div>
 
     <!-- Lista użytkowników -->
@@ -1027,6 +1140,16 @@ tr.ev-row td.has-event{background:transparent;}
 
   <!-- PROŚBY -->
   <div id="tAvail" class="tab-content">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
+      <button id="btn-prosby-lock" onclick="toggleProsbyLock()" style="
+        padding:.4rem .9rem;border-radius:6px;border:1px solid #22c55e;
+        background:rgba(34,197,94,.15);color:#22c55e;font-size:.82rem;
+        font-weight:600;cursor:pointer;">🔒 Zablokuj prośby</button>
+      <button onclick="loadProsbyFromFirestore()" style="
+        padding:.4rem .9rem;border-radius:6px;border:1px solid var(--border,#2a3045);
+        background:transparent;color:var(--muted,#6b7280);font-size:.82rem;
+        font-weight:600;cursor:pointer;">☁️ Wczytaj prośby z chmury</button>
+    </div>
     <div class="notice info" style="margin-bottom:10px">
       Kliknij komórkę: puste → <b style="color:var(--red)">N</b> (cały dzień wolny) → <b style="color:var(--orange)">C</b> (zakres godzin, kliknij by wpisać) → puste.<br>
       Dla C system zaplanuje pracownika tylko w dostępnym zakresie.
@@ -1694,11 +1817,14 @@ function renderAvail(){
 }
 
 function toggleAvail(wi,d){
+  const role = window._fbRole || 'admin';
+  // Pracownik może edytować tylko swój wiersz
+  if(role === 'pracownik' && wi !== window._fbPracownikIndex) return;
+
   const cur=S.avail[wi]?.[d]||'';
   if(!S.avail[wi])S.avail[wi]=[];
   if(!cur){S.avail[wi][d]='N';}
   else if(cur==='N'){
-    // ask for time range
     const from=prompt('Dostępność częściowa OD (np. 1200):','');
     const to=prompt('Dostępność częściowa DO (np. 2000):','');
     const fH=fmtIn(from||''),tH=fmtIn(to||'');
@@ -1706,6 +1832,22 @@ function toggleAvail(wi,d){
   }
   else{S.avail[wi][d]='';}
   renderAvail();saveState();
+
+  // Pracownik: zapisz prośby dodatkowo do swojego dokumentu w Firestore
+  if(role === 'pracownik' && window._fbUser && window._fbDb){
+    const adminUid = window._fbAdminUid || window._fbUser.uid;
+    const prosbyRef = window._fbDoc(window._fbDb, 'restauracje', adminUid,
+                                    'prosbyPracownikow', window._fbUser.uid);
+    const availJson = JSON.stringify(S.avail[wi]);
+    window._fbSetDoc(prosbyRef, {
+      pracownikIndex: wi,
+      imie: window._fbImie || '',
+      availJson,
+      month: S.month,
+      year: S.year,
+      updatedAt: new Date().toISOString()
+    }).catch(e=>console.warn('Błąd zapisu prośby:', e));
+  }
 }
 
 /* ══════════ PREVIOUS MONTH ══════════ */
@@ -3672,6 +3814,8 @@ async function loadStateFromFirestore(){
     reRenderAll();if(S.schedule)renderSchedule();
     renderEvents();
     applyRoleRestrictions();
+    // Sprawdź stan blokady prośb
+    if(p.prosbyZablokowane !== undefined) updateLockBtn(p.prosbyZablokowane);
     setSt('idle','✓ Dane zsynchronizowane z chmury');
     updateLsInfo();
   }catch(e){ console.warn('Firestore load error:',e); }
@@ -3682,28 +3826,10 @@ function applyRoleRestrictions(){
   const role = window._fbRole || 'admin';
 
   if(role === 'pracownik'){
-    // Pracownik: ukryj wszystkie zakładki oprócz Grafiku
-    document.querySelectorAll('.tab').forEach(btn => {
-      const isGrafik = btn.getAttribute('onclick')?.includes('tSched');
-      btn.style.display = isGrafik ? '' : 'none';
-    });
-    // Zablokuj wszystkie przyciski akcji (generuj, edytuj itd.)
-    ['btnGen','btnClear','btnReset','addWorkerBtn','addShiftBtn'].forEach(id => {
-      const el = document.getElementById(id);
-      if(el) el.style.display = 'none';
-    });
-    // Ukryj sidebar z ustawieniami
-    const sb = document.getElementById('sidebar');
-    if(sb) sb.style.display = 'none';
-    // Podświetl wiersz zalogowanego pracownika
-    const idx = window._fbPracownikIndex;
-    if(idx !== null && S.schedule){
-      setTimeout(()=>{
-        const rows = document.querySelectorAll('#schedTable tr.worker-row');
-        if(rows[idx]) rows[idx].style.outline = '2px solid var(--blue,#3b82f6)';
-      }, 500);
-    }
-    setSt('idle', `👤 Widok pracownika: ${window._fbImie||''}`);
+    // Pracownik: ukryj całą aplikację planisty, pokaż dedykowany widok prośb
+    const shell = document.querySelector('.shell');
+    if(shell) shell.style.display = 'none';
+    pShowView();
   }
 
   if(role === 'manager'){
@@ -4129,17 +4255,23 @@ async function fbAddUser(){
   const pracIdx= document.getElementById('fb-new-pracownik').value;
   const errEl  = document.getElementById('fb-add-error');
   errEl.style.display='none';
+  errEl.style.background='#ef444420';errEl.style.borderColor='#ef4444';errEl.style.color='#ef4444';
 
   if(!email||!pass||pass.length<6||!imie){
     errEl.textContent='Wypełnij wszystkie pola (hasło min. 6 znaków).';
     errEl.style.display='block'; return;
   }
 
+  // Zapamiętaj dane admina przed utworzeniem nowego konta
+  const adminUser = window._fbUser;
+  const adminUid  = window._fbAdminUid || window._fbUser.uid;
+  const adminEmail = window._fbUser.email;
+  const adminPass  = document.getElementById('fb-admin-pass-confirm')?.value || '';
+
   try{
-    // Utwórz konto w Firebase Auth
+    // Utwórz konto nowego użytkownika
     const cred = await window._fbSignUp(window._fbAuth, email, pass);
     const newUid = cred.user.uid;
-    const adminUid = window._fbAdminUid || window._fbUser.uid;
 
     // Zapisz profil w Firestore
     const profileRef = window._fbDoc(window._fbDb, 'uzytkownicy', newUid);
@@ -4148,28 +4280,53 @@ async function fbAddUser(){
       adminUid,
       pracownikIndex: pracIdx !== '' ? parseInt(pracIdx) : null,
       createdAt: new Date().toISOString(),
-      createdBy: window._fbUser.uid
+      createdBy: adminUid
     });
 
+    // Firebase automatycznie zalogowało nowego użytkownika — wróć do admina
+    await window._fbSignIn(window._fbAuth, adminEmail, adminPass);
+
     // Wyczyść formularz
-    ['fb-new-email','fb-new-pass','fb-new-imie'].forEach(id=>document.getElementById(id).value='');
+    ['fb-new-email','fb-new-pass','fb-new-imie','fb-admin-pass-confirm'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.value='';
+    });
 
     // Odśwież listę
     fbLoadUsers();
 
-    // Wyloguj nowo utworzonego użytkownika — wróć do admina
-    // (Firebase Auth automatycznie przełącza na nowego — musimy wrócić)
-    errEl.style.background='#22c55e20';errEl.style.borderColor='#22c55e';
-    errEl.style.color='#22c55e';
-    errEl.textContent=`✓ Użytkownik ${imie} (${email}) dodany. Prośba: wyloguj się i zaloguj ponownie aby wrócić do konta admina.`;
-    errEl.style.display='block';
+    // Pokaż panel z danymi do wysyłki
+    fbShowInvitePanel(imie, email, pass, rola);
 
   }catch(e){
-    errEl.style.background='#ef444420';errEl.style.borderColor='#ef4444';errEl.style.color='#ef4444';
     errEl.textContent = e.code==='auth/email-already-in-use'
       ? 'Ten email jest już zarejestrowany.'
       : 'Błąd: ' + e.message;
     errEl.style.display='block';
+  }
+}
+
+function fbShowInvitePanel(imie, email, pass, rola){
+  const appUrl = window.location.origin + window.location.pathname;
+  const roleLabels = { admin:'Administrator', manager:'Manager', pracownik:'Pracownik' };
+  const tekst = `Cześć ${imie},
+
+Zostałeś/aś dodany/a do aplikacji Planista Grafiku jako ${roleLabels[rola]||rola}.
+
+Dane logowania:
+Adres aplikacji: ${appUrl}
+Email: ${email}
+Hasło: ${pass}
+
+${rola === 'pracownik' ? 'Po zalogowaniu możesz składać prośby dotyczące grafiku (dyspozycyjność, urlopy itp.).' : 'Po zalogowaniu masz dostęp do grafiku restauracji.'}
+
+Pozdrawiam`;
+
+  const panel = document.getElementById('fb-invite-panel');
+  const textarea = document.getElementById('fb-invite-text');
+  if(panel && textarea){
+    textarea.value = tekst;
+    panel.style.display = 'block';
+    textarea.select();
   }
 }
 
@@ -4184,6 +4341,18 @@ async function fbRemoveUser(uid){
   }
 }
 
+// Kopiuj zaproszenie do schowka
+function fbCopyInvite(){
+  const ta = document.getElementById('fb-invite-text');
+  if(!ta) return;
+  navigator.clipboard.writeText(ta.value).then(()=>{
+    const btn = ta.nextElementSibling;
+    if(btn){ btn.textContent='✓ Skopiowano!'; setTimeout(()=>btn.textContent='📋 Kopiuj do schowka',2000); }
+  }).catch(()=>{
+    ta.select(); document.execCommand('copy');
+  });
+}
+
 // ═══ INIT ═══
 document.addEventListener('DOMContentLoaded', ()=>{
   ['fb-email','fb-password'].forEach(id=>{
@@ -4191,6 +4360,383 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if(el) el.addEventListener('keydown', e=>{ if(e.key==='Enter') fbLogin(); });
   });
 });
+</script>
+
+
+<!-- ══════════ WIDOK PROŚB PRACOWNIKA ══════════ -->
+<div id="prosba-view">
+  <div class="p-header">
+    <div class="p-logo">Planista<span>/Grafik</span></div>
+    <h1>Prośby do grafiku</h1>
+    <div class="p-subtitle" id="prosba-subtitle">Zaznacz dni kiedy nie możesz lub masz ograniczoną dostępność</div>
+  </div>
+
+  <!-- BLOKADA -->
+  <div id="prosba-locked">
+    <div class="lock-icon">🔒</div>
+    <h2>Składanie prośb jest teraz zamknięte</h2>
+    <p>Kierownik wyłączył możliwość składania prośb.<br>Spróbuj ponownie później.</p>
+  </div>
+
+  <!-- KALENDARZ -->
+  <div id="prosba-content">
+    <div class="p-card">
+      <div class="p-card-title">Miesiąc</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:300px;">
+        <select id="p-selM" onchange="pBuildCal()" style="
+          background:#0f1117;border:1px solid #2a3347;color:#e8edf8;
+          border-radius:6px;padding:9px 12px;font-size:14px;outline:none;"></select>
+        <select id="p-selY" onchange="pBuildCal()" style="
+          background:#0f1117;border:1px solid #2a3347;color:#e8edf8;
+          border-radius:6px;padding:9px 12px;font-size:14px;outline:none;"></select>
+      </div>
+    </div>
+
+    <div class="p-card">
+      <div class="p-card-title">Zaznacz dni</div>
+      <div class="p-legend">
+        <div class="leg-item">
+          <div class="leg-dot" style="background:#161b27;border:1px solid #2a3347"></div>Dostępny
+        </div>
+        <div class="leg-item">
+          <div class="leg-dot" style="background:rgba(239,68,68,.4)"></div>N — nie mogę przyjść
+        </div>
+        <div class="leg-item">
+          <div class="leg-dot" style="background:rgba(245,158,11,.35)"></div>C — dostępny w wybranych godzinach
+        </div>
+        <div class="leg-hint">Kliknij raz = N &nbsp;·&nbsp; dwa razy = C z godzinami &nbsp;·&nbsp; trzy razy = usuń</div>
+      </div>
+      <div class="cal-wrap">
+        <table class="cal">
+          <thead><tr id="p-calHead"></tr></thead>
+          <tbody id="p-calBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="p-card">
+      <div class="p-card-title">Komentarz (opcjonalnie)</div>
+      <input type="text" id="p-comment" placeholder="np. urlop, wizyta lekarska, szkolenie…"
+        maxlength="200" style="
+        background:#0f1117;border:1px solid #2a3347;color:#e8edf8;
+        border-radius:6px;padding:9px 12px;font-size:14px;outline:none;width:100%;"/>
+    </div>
+
+    <div class="p-card">
+      <div class="p-card-title">Wyślij prośbę</div>
+      <div class="p-notice info" style="margin-bottom:16px;">
+        Po kliknięciu „Wyślij" Twoja prośba trafi bezpośrednio do kierownika.
+        Nie jest widoczna dla innych pracowników.
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <button class="p-btn p-btn-primary" id="p-btnSend" onclick="pSendRequest()">
+          📤 Wyślij prośbę
+        </button>
+        <button class="p-btn p-btn-secondary" onclick="pResetCal()">↺ Resetuj</button>
+      </div>
+      <div id="prosba-status"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CZASU (prośby) -->
+<div id="prosba-modal-bg">
+  <div class="p-modal">
+    <h3>Dostępność — <span id="p-modalDay"></span></h3>
+    <div class="p-notice info" style="margin-bottom:14px;font-size:11px;">
+      Podaj godziny, w których <strong>możesz</strong> pracować tego dnia.
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div>
+        <label style="font-size:12px;font-weight:600;color:#8fa0bc;display:block;margin-bottom:5px;">Od</label>
+        <input type="time" id="p-timeFrom" step="900" value="06:00">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:#8fa0bc;display:block;margin-bottom:5px;">Do</label>
+        <input type="time" id="p-timeTo" step="900" value="22:00">
+      </div>
+    </div>
+    <div class="p-modal-btns">
+      <button class="p-btn p-btn-danger" onclick="pCloseModal(true)">Usuń</button>
+      <button class="p-btn p-btn-secondary" onclick="pCloseModal(false)">Anuluj</button>
+      <button class="p-btn p-btn-primary" onclick="pSaveModal()">OK</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+/* ══════════ PROŚBY PRACOWNIKA ══════════ */
+const P_MONTHS=['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec',
+  'Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
+const P_MONTHS_GEN=['stycznia','lutego','marca','kwietnia','maja','czerwca',
+  'lipca','sierpnia','września','października','listopada','grudnia'];
+const P_DAYS=['Nd','Pn','Wt','Śr','Cz','Pt','Sb'];
+let pDayState={}, pModalDay=null;
+
+function pPolishHolidays(y){
+  const s=new Set([`${y}-01-01`,`${y}-01-06`,`${y}-05-01`,`${y}-05-03`,
+    `${y}-08-15`,`${y}-11-01`,`${y}-11-11`,`${y}-12-25`,`${y}-12-26`]);
+  const e=pEaster(y);
+  [0,1,49,60].forEach(n=>s.add(pFmtDate(new Date(e.getTime()+n*86400000))));
+  return s;
+}
+function pEaster(y){
+  const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,
+    f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,
+    i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,
+    m2=Math.floor((a+11*h+22*l)/451),
+    mo=Math.floor((h+l-7*m2+114)/31),da=((h+l-7*m2+114)%31)+1;
+  return new Date(y,mo-1,da);
+}
+function pFmtDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function pDim(m,y){return new Date(y,m+1,0).getDate();}
+function pDow(d,m,y){return new Date(y,m,d).getDay();}
+
+// Pokaż widok prośb (dla pracownika)
+async function pShowView(){
+  const view = document.getElementById('prosba-view');
+  view.style.display = 'block';
+
+  // Sprawdź blokadę
+  const adminUid = window._fbAdminUid || window._fbUser?.uid;
+  if(adminUid && window._fbDb){
+    try{
+      const lockRef = window._fbDoc(window._fbDb, 'restauracje', adminUid);
+      const snap = await window._fbGetDoc(lockRef);
+      const locked = snap.exists() && snap.data().prosbyZablokowane === true;
+      document.getElementById('prosba-locked').style.display = locked ? 'block' : 'none';
+      document.getElementById('prosba-content').style.display = locked ? 'none' : 'block';
+      if(locked) return;
+    }catch(e){ console.warn('Błąd sprawdzania blokady:', e); }
+  }
+
+  // Inicjuj selekty miesiąca/roku
+  const sm = document.getElementById('p-selM');
+  const sy = document.getElementById('p-selY');
+  if(!sm.options.length){
+    P_MONTHS.forEach((n,i)=>{const o=document.createElement('option');o.value=i;o.textContent=n;sm.appendChild(o);});
+    const now = new Date();
+    const defM = now.getDate()>20 ? (now.getMonth()+1)%12 : now.getMonth();
+    const defY = now.getDate()>20 && now.getMonth()===11 ? now.getFullYear()+1 : now.getFullYear();
+    sm.value = defM;
+    for(let y=now.getFullYear();y<=now.getFullYear()+2;y++){
+      const o=document.createElement('option');o.value=y;o.textContent=y;sy.appendChild(o);
+    }
+    sy.value = defY;
+  }
+
+  // Wczytaj istniejące prośby z Firestore
+  await pLoadExisting();
+  pBuildCal();
+
+  // Info dla pracownika
+  document.getElementById('prosba-subtitle').textContent =
+    `Cześć ${window._fbImie||''}! Zaznacz dni kiedy nie możesz lub masz ograniczoną dostępność.`;
+}
+
+// Wczytaj istniejące prośby pracownika z Firestore
+async function pLoadExisting(){
+  if(!window._fbUser || !window._fbDb) return;
+  const adminUid = window._fbAdminUid || window._fbUser.uid;
+  try{
+    const ref = window._fbDoc(window._fbDb, 'restauracje', adminUid,
+                              'prosbyPracownikow', window._fbUser.uid);
+    const snap = await window._fbGetDoc(ref);
+    if(snap.exists()){
+      const data = snap.data();
+      const m = +document.getElementById('p-selM').value;
+      const y = +document.getElementById('p-selY').value;
+      if(data.month === m && data.year === y && data.availJson){
+        const avail = JSON.parse(data.availJson);
+        pDayState = {};
+        avail.forEach((v,i)=>{
+          if(v==='N') pDayState[i+1]='N';
+          else if(v && v.includes('-')){
+            const [from,to]=v.split('-');
+            pDayState[i+1]={from,to};
+          }
+        });
+        if(data.comment) document.getElementById('p-comment').value = data.comment;
+      }
+    }
+  }catch(e){ console.warn('Błąd wczytywania prośb:', e); }
+}
+
+function pBuildCal(){
+  pDayState={};
+  const m=+document.getElementById('p-selM').value;
+  const y=+document.getElementById('p-selY').value;
+  const days=pDim(m,y), hols=pPolishHolidays(y);
+  document.getElementById('p-calHead').innerHTML=
+    P_DAYS.map((d,i)=>`<th class="${i===0||i===6?'wknd':''}">${d}</th>`).join('');
+  let firstDow=pDow(1,m,y), cells=[];
+  for(let i=0;i<firstDow;i++) cells.push(null);
+  for(let d=1;d<=days;d++) cells.push(d);
+  while(cells.length%7) cells.push(null);
+  let html='';
+  for(let r=0;r<cells.length/7;r++){
+    html+='<tr>';
+    for(let c=0;c<7;c++){
+      const d=cells[r*7+c];
+      if(!d){html+='<td><div class="day-btn empty"></div></td>';continue;}
+      const w=pDow(d,m,y),isW=w===0||w===6;
+      const key=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+      html+=`<td><div class="day-btn${isW?' wknd':''}${hols.has(key)?' holiday':''}"
+        id="pdb-${d}" onclick="pCycleDay(${d},${m},${y})">
+        <span class="dn">${d}</span>
+        <span class="ds">${P_DAYS[w]}</span>
+        <span class="p-tag" id="ptag-${d}"></span>
+        <span class="tag-time" id="ptt-${d}"></span>
+      </div></td>`;
+    }
+    html+='</tr>';
+  }
+  document.getElementById('p-calBody').innerHTML=html;
+  // Odtwórz stan
+  Object.keys(pDayState).forEach(d=>pUpdateCell(+d));
+}
+
+function pCycleDay(d,m,y){
+  const cur=pDayState[d]||'';
+  if(!cur){pDayState[d]='N';pUpdateCell(d);}
+  else if(cur==='N'){pDayState[d]='C_pending';pOpenModal(d,m,y);}
+  else{delete pDayState[d];pUpdateCell(d);}
+}
+function pUpdateCell(d){
+  const btn=document.getElementById('pdb-'+d);
+  const tag=document.getElementById('ptag-'+d);
+  const tt=document.getElementById('ptt-'+d);
+  if(!btn) return;
+  btn.className=btn.className.replace(/\s*state-\w+/g,'');
+  tag.textContent='';tt.textContent='';
+  const st=pDayState[d]||'';
+  if(st==='N'){btn.classList.add('state-N');tag.textContent='N';}
+  else if(typeof st==='object'){
+    btn.classList.add('state-C');tag.textContent='C';
+    tt.textContent=`${st.from}–${st.to}`;
+  }
+}
+
+function pOpenModal(d,m,y){
+  pModalDay=d;
+  document.getElementById('p-modalDay').textContent=`${d} ${P_MONTHS_GEN[m]}`;
+  const cur=pDayState[d];
+  document.getElementById('p-timeFrom').value=typeof cur==='object'?cur.from:'06:00';
+  document.getElementById('p-timeTo').value=typeof cur==='object'?cur.to:'22:00';
+  document.getElementById('prosba-modal-bg').classList.add('open');
+}
+function pCloseModal(clear){
+  document.getElementById('prosba-modal-bg').classList.remove('open');
+  if(clear&&pModalDay){delete pDayState[pModalDay];pUpdateCell(pModalDay);}
+  pModalDay=null;
+}
+function pSaveModal(){
+  const from=document.getElementById('p-timeFrom').value;
+  const to=document.getElementById('p-timeTo').value;
+  if(!from||!to){alert('Podaj obie godziny.');return;}
+  if(pModalDay){pDayState[pModalDay]={from,to};pUpdateCell(pModalDay);}
+  document.getElementById('prosba-modal-bg').classList.remove('open');
+  pModalDay=null;
+}
+document.addEventListener('click',e=>{
+  if(e.target===document.getElementById('prosba-modal-bg')) pCloseModal(false);
+});
+
+// Wyślij prośbę do Firestore
+async function pSendRequest(){
+  if(!window._fbUser||!window._fbDb){
+    pSetStatus('err','Błąd: nie jesteś zalogowany.');return;
+  }
+  const m=+document.getElementById('p-selM').value;
+  const y=+document.getElementById('p-selY').value;
+  const comment=document.getElementById('p-comment').value.trim();
+  const days=pDim(m,y);
+  const avail=[];
+  for(let d=1;d<=days;d++){
+    const s=pDayState[d]||'';
+    avail.push(s===''?'':s==='N'?'N':typeof s==='object'?`${s.from}-${s.to}`:'');
+  }
+  const adminUid = window._fbAdminUid || window._fbUser.uid;
+  const ref = window._fbDoc(window._fbDb,'restauracje',adminUid,'prosbyPracownikow',window._fbUser.uid);
+  pSetStatus('loading','Wysyłanie…');
+  document.getElementById('p-btnSend').disabled=true;
+  try{
+    await window._fbSetDoc(ref,{
+      pracownikIndex: window._fbPracownikIndex,
+      imie: window._fbImie||'',
+      availJson: JSON.stringify(avail),
+      comment, month:m, year:y,
+      updatedAt: new Date().toISOString()
+    });
+    pSetStatus('ok',`✓ Prośba wysłana! Kierownik otrzymał Twoje zgłoszenie dla ${P_MONTHS[m]} ${y}.`);
+  }catch(e){
+    pSetStatus('err','Błąd wysyłania: '+e.message);
+  }finally{
+    document.getElementById('p-btnSend').disabled=false;
+  }
+}
+
+function pSetStatus(type,msg){
+  const box=document.getElementById('prosba-status');
+  if(!type){box.innerHTML='';return;}
+  const cls=type==='ok'?'ok':type==='err'?'err':'info';
+  box.innerHTML=`<div class="p-notice ${cls}" style="margin-top:14px">${msg}</div>`;
+}
+function pResetCal(){pDayState={};pBuildCal();document.getElementById('p-comment').value='';}
+
+/* ══════════ ADMIN: PRZEŁĄCZNIK BLOKADY + WCZYTANIE PROŚB ══════════ */
+async function toggleProsbyLock(){
+  if(!window._fbUser||!window._fbDb) return;
+  const adminUid = window._fbAdminUid || window._fbUser.uid;
+  const ref = window._fbDoc(window._fbDb,'restauracje',adminUid);
+  const snap = await window._fbGetDoc(ref);
+  const current = snap.exists() && snap.data().prosbyZablokowane === true;
+  await window._fbSetDoc(ref, {prosbyZablokowane: !current}, {merge:true});
+  updateLockBtn(!current);
+}
+function updateLockBtn(locked){
+  const btn = document.getElementById('btn-prosby-lock');
+  if(!btn) return;
+  btn.textContent = locked ? '🔓 Odblokuj prośby' : '🔒 Zablokuj prośby';
+  btn.style.background = locked ? 'rgba(239,68,68,.15)' : 'rgba(34,197,94,.15)';
+  btn.style.borderColor = locked ? '#ef4444' : '#22c55e';
+  btn.style.color = locked ? '#ef4444' : '#22c55e';
+}
+
+// Wczytaj wszystkie prośby pracowników do zakładki Prośby
+async function loadProsbyFromFirestore(){
+  if(!window._fbUser||!window._fbDb||window._fbRole!=='admin') return;
+  const adminUid = window._fbAdminUid || window._fbUser.uid;
+  try{
+    const col = window._fbCollection(window._fbDb,'restauracje',adminUid,'prosbyPracownikow');
+    const snap = await window._fbGetDocs(col);
+    let loaded=0;
+    snap.forEach(docSnap=>{
+      const data = docSnap.data();
+      const wi = data.pracownikIndex;
+      if(wi===null||wi===undefined||!data.availJson) return;
+      if(data.month!==S.month||data.year!==S.year) return;
+      const avail = JSON.parse(data.availJson);
+      while(S.avail.length<=wi) S.avail.push([]);
+      avail.forEach((v,d)=>{
+        if(v==='N') S.avail[wi][d]='N';
+        else if(v&&v.includes('-')){
+          const [from,to]=v.split('-');
+          S.avail[wi][d]={from,to};
+        } else { S.avail[wi][d]=''; }
+      });
+      loaded++;
+    });
+    saveState();
+    renderAvail();
+    setSt('ok',`✓ Wczytano prośby ${loaded} pracowników`);
+    setTimeout(()=>setSt('idle','Gotowy'),3000);
+  }catch(e){
+    console.warn('Błąd wczytywania prośb z Firestore:',e);
+    setSt('err','Błąd wczytywania prośb: '+e.message);
+  }
+}
 </script>
 
 </body>
