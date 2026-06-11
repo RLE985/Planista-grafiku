@@ -640,8 +640,126 @@ tr.ev-row td.has-event{background:transparent;}
   .viol-legend-print { display: none; }
 }
 </style>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+           signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, setDoc, getDoc, onSnapshot }
+           from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAjmlKahVrY7QQzN8isxvRqXfvsUGWBKMs",
+    authDomain: "planista-grafiku-efc95.firebaseapp.com",
+    projectId: "planista-grafiku-efc95",
+    storageBucket: "planista-grafiku-efc95.firebasestorage.app",
+    messagingSenderId: "851975942066",
+    appId: "1:851975942066:web:29dfba1f2a66cc76c07eab"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Globalne referencje (dostępne dla reszty kodu)
+  window._fbAuth = auth;
+  window._fbDb = db;
+  window._fbDoc = doc;
+  window._fbSetDoc = setDoc;
+  window._fbGetDoc = getDoc;
+  window._fbOnSnapshot = onSnapshot;
+  window._fbSignIn = signInWithEmailAndPassword;
+  window._fbSignUp = createUserWithEmailAndPassword;
+  window._fbSignOut = signOut;
+  window._fbOnAuthStateChanged = onAuthStateChanged;
+
+  // Nasłuchuj zmiany stanu logowania
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      window._fbUser = user;
+      document.getElementById('fb-login-overlay').style.display = 'none';
+      document.getElementById('fb-user-bar').style.display = 'flex';
+      document.getElementById('fb-user-email').textContent = user.email;
+      // Wczytaj dane z Firestore po zalogowaniu
+      if (typeof loadStateFromFirestore === 'function') loadStateFromFirestore();
+    } else {
+      window._fbUser = null;
+      document.getElementById('fb-login-overlay').style.display = 'flex';
+      document.getElementById('fb-user-bar').style.display = 'none';
+    }
+  });
+</script>
 </head>
 <body>
+
+<!-- ═══ FIREBASE LOGIN OVERLAY ═══ -->
+<div id="fb-login-overlay" style="
+  position:fixed;inset:0;z-index:9999;
+  background:var(--bg,#0f1117);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Sans',sans-serif;">
+  <div style="
+    background:var(--surface,#181c27);
+    border:1px solid var(--border,#2a3045);
+    border-radius:16px;padding:2.5rem;width:340px;
+    box-shadow:0 20px 60px rgba(0,0,0,.5);">
+    <div style="font-size:1.8rem;font-weight:700;color:var(--fg,#e8eaf0);margin-bottom:.3rem;">
+      🗓 Planista Grafiku
+    </div>
+    <div style="color:var(--muted,#6b7280);margin-bottom:2rem;font-size:.9rem;">
+      Zaloguj się aby kontynuować
+    </div>
+    <div id="fb-login-error" style="
+      display:none;background:#ef444420;border:1px solid #ef4444;
+      color:#ef4444;border-radius:8px;padding:.75rem 1rem;
+      margin-bottom:1rem;font-size:.85rem;"></div>
+    <input id="fb-email" type="email" placeholder="Email" style="
+      width:100%;box-sizing:border-box;
+      background:var(--bg,#0f1117);border:1px solid var(--border,#2a3045);
+      color:var(--fg,#e8eaf0);border-radius:8px;
+      padding:.75rem 1rem;margin-bottom:.75rem;font-size:.95rem;outline:none;" />
+    <input id="fb-password" type="password" placeholder="Hasło" style="
+      width:100%;box-sizing:border-box;
+      background:var(--bg,#0f1117);border:1px solid var(--border,#2a3045);
+      color:var(--fg,#e8eaf0);border-radius:8px;
+      padding:.75rem 1rem;margin-bottom:1.25rem;font-size:.95rem;outline:none;" />
+    <button onclick="fbLogin()" style="
+      width:100%;padding:.85rem;border:none;border-radius:8px;
+      background:#3b82f6;color:#fff;font-size:1rem;font-weight:600;
+      cursor:pointer;margin-bottom:.75rem;">
+      Zaloguj się
+    </button>
+    <button onclick="fbRegister()" style="
+      width:100%;padding:.85rem;border:1px solid var(--border,#2a3045);
+      border-radius:8px;background:transparent;
+      color:var(--muted,#6b7280);font-size:.9rem;cursor:pointer;">
+      Utwórz konto
+    </button>
+  </div>
+</div>
+
+<!-- ═══ PASEK UŻYTKOWNIKA ═══ -->
+<div id="fb-user-bar" style="
+  display:none;position:fixed;top:0;right:0;z-index:1000;
+  padding:.4rem .75rem;
+  background:var(--surface,#181c27);
+  border-bottom-left-radius:10px;
+  border:1px solid var(--border,#2a3045);
+  border-top:none;border-right:none;
+  font-family:'DM Sans',sans-serif;font-size:.8rem;
+  color:var(--muted,#6b7280);
+  align-items:center;gap:.75rem;">
+  <span>☁️ <span id="fb-user-email"></span></span>
+  <span id="fb-save-indicator" style="color:var(--green,#22c55e);display:none;">✓ zapisano</span>
+  <button onclick="fbLogout()" style="
+    background:transparent;border:1px solid var(--border,#2a3045);
+    color:var(--muted,#6b7280);border-radius:6px;
+    padding:.2rem .6rem;cursor:pointer;font-size:.8rem;">
+    Wyloguj
+  </button>
+</div>
+
 <div class="shell">
 <div class="sb-overlay" onclick="toggleSidebar()"></div>
 
@@ -3360,6 +3478,7 @@ function loadMonthData(m,y){
 
 function saveState(){
   saveMonthData(); // najpierw zapisz bieżący miesiąc
+  // Zawsze zapisuj do localStorage jako backup
   try{
     const payload={
       month:S.month,year:S.year,
@@ -3369,6 +3488,50 @@ function saveState(){
     };
     localStorage.setItem(STORE_KEY,JSON.stringify(payload));
   }catch(e){}
+  // Zapisz do Firebase jeśli zalogowany
+  if(window._fbUser && window._fbDb){
+    const payload={
+      month:S.month,year:S.year,
+      workers:S.workers,shifts:S.shifts,coverage:S.coverage,covPlan:S.covPlan,
+      settings:S.settings,events:S.events||[],monthData:S.monthData||{},
+      darkMode:document.getElementById('togDark')?.checked!==false,
+      updatedAt: new Date().toISOString()
+    };
+    const ref = window._fbDoc(window._fbDb, 'restauracje', window._fbUser.uid);
+    window._fbSetDoc(ref, payload)
+      .then(()=>{
+        const ind = document.getElementById('fb-save-indicator');
+        if(ind){ ind.style.display='inline'; setTimeout(()=>ind.style.display='none', 2000); }
+      })
+      .catch(e=>console.warn('Firestore save error:',e));
+  }
+}
+
+async function loadStateFromFirestore(){
+  if(!window._fbUser || !window._fbDb) return;
+  try{
+    const ref = window._fbDoc(window._fbDb, 'restauracje', window._fbUser.uid);
+    const snap = await window._fbGetDoc(ref);
+    if(!snap.exists()) return; // brak danych w chmurze, zostań przy localStorage
+    const p = snap.data();
+    S.month=p.month??S.month;S.year=p.year??S.year;
+    S.workers=p.workers||[];S.shifts=p.shifts||S.shifts;S.coverage=p.coverage||{};
+    S.covPlan=p.covPlan||{};
+    if(p.settings) S.settings=Object.assign(S.settings,p.settings);
+    S.events=p.events||[];
+    S.monthData=p.monthData||{};
+    loadMonthData(S.month,S.year);
+    const dark=p.darkMode!==false;
+    document.getElementById('togDark').checked=dark;
+    document.body.classList.toggle('light',!dark);
+    document.getElementById('selM').value=S.month;
+    document.getElementById('selY').value=S.year;
+    S.shifts.forEach(s=>ensureCoverage(s.code));ensureCovPlan();ensurePerms();
+    reRenderAll();if(S.schedule)renderSchedule();
+    renderEvents();
+    setSt('idle','✓ Dane zsynchronizowane z chmury');
+    updateLsInfo();
+  }catch(e){ console.warn('Firestore load error:',e); }
 }
 
 function loadState(){
@@ -3432,7 +3595,13 @@ function clearResults(){
 
 function resetAll(){
   if(!confirm('Usunąć wszystkie dane planisty? Nie można cofnąć.'))return;
-  localStorage.removeItem(STORE_KEY);location.reload();
+  localStorage.removeItem(STORE_KEY);
+  // Opcjonalnie wyczyść też Firestore
+  if(window._fbUser && window._fbDb){
+    const ref = window._fbDoc(window._fbDb, 'restauracje', window._fbUser.uid);
+    window._fbSetDoc(ref, {cleared: true, updatedAt: new Date().toISOString()}).catch(()=>{});
+  }
+  location.reload();
 }
 
 /* ══════════ EVENTS (kalendarz wydarzeń) ══════════ */
@@ -3655,5 +3824,51 @@ function applyWorkerRequest(p){
   setTimeout(()=>setSt('idle','Gotowy'),4000);
 }
 </script>
+
+<script>
+function fbLogin(){
+  const email = document.getElementById('fb-email').value.trim();
+  const pass  = document.getElementById('fb-password').value;
+  const errEl = document.getElementById('fb-login-error');
+  errEl.style.display='none';
+  if(!email||!pass){ errEl.textContent='Podaj email i hasło.';errEl.style.display='block';return; }
+  window._fbSignIn(window._fbAuth, email, pass)
+    .catch(e=>{
+      errEl.textContent = e.code==='auth/invalid-credential'
+        ? 'Błędny email lub hasło.'
+        : 'Błąd: ' + e.message;
+      errEl.style.display='block';
+    });
+}
+function fbRegister(){
+  const email = document.getElementById('fb-email').value.trim();
+  const pass  = document.getElementById('fb-password').value;
+  const errEl = document.getElementById('fb-login-error');
+  errEl.style.display='none';
+  if(!email||!pass||pass.length<6){
+    errEl.textContent='Podaj email i hasło (min. 6 znaków).';
+    errEl.style.display='block';return;
+  }
+  window._fbSignUp(window._fbAuth, email, pass)
+    .catch(e=>{
+      errEl.textContent = e.code==='auth/email-already-in-use'
+        ? 'Ten email jest już zarejestrowany.'
+        : 'Błąd: ' + e.message;
+      errEl.style.display='block';
+    });
+}
+function fbLogout(){
+  if(!confirm('Wylogować się?')) return;
+  window._fbSignOut(window._fbAuth);
+}
+// Enter w polach logowania
+document.addEventListener('DOMContentLoaded', ()=>{
+  ['fb-email','fb-password'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('keydown', e=>{ if(e.key==='Enter') fbLogin(); });
+  });
+});
+</script>
+
 </body>
 </html>
