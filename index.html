@@ -722,7 +722,111 @@ tr.ev-row td.has-event{background:transparent;}
 #prosba-view .p-notice.err{background:rgba(239,68,68,.1);
   border:1px solid rgba(239,68,68,.3);color:#ef4444;}
 #prosba-status{margin-top:14px;}
+/* tryb readonly — przyciemniony kalendarz bez interakcji */
+#prosba-view.readonly .day-btn{
+  cursor:default;pointer-events:none;opacity:.75;}
+#prosba-view.readonly .day-btn.state-N{opacity:1;}
+#prosba-view.readonly .day-btn.state-C{opacity:1;}
+#prosba-view.readonly #p-btnSend,
+#prosba-view.readonly #p-comment,
+#prosba-view.readonly .p-btn-secondary{
+  display:none;}
+#prosba-view.readonly #p-selM,
+#prosba-view.readonly #p-selY{
+  pointer-events:auto;opacity:1;}
+#prosba-locked-banner{
+  display:none;
+  background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);
+  border-radius:8px;padding:12px 16px;margin-bottom:16px;
+  color:#ef4444;font-size:.88rem;line-height:1.5;
+  max-width:720px;width:100%;margin-left:auto;margin-right:auto;}
 
+/* ════════════════ PULPIT / DASHBOARD ════════════════ */
+.dash{display:flex;flex-direction:column;gap:14px;}
+.dash-hero{
+  background:linear-gradient(135deg,var(--card),var(--surface));
+  border:1px solid var(--border);border-radius:14px;
+  padding:20px 22px;display:flex;align-items:flex-end;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+.dash-hero::after{content:"";position:absolute;top:-40%;right:-6%;width:200px;height:200px;
+  background:radial-gradient(circle,var(--blue)22,transparent 70%);pointer-events:none;}
+.dash-hero .dh-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--ink2);margin-bottom:6px;}
+.dash-hero .dh-date{font-size:30px;font-weight:700;line-height:1.05;letter-spacing:-.5px;}
+.dash-hero .dh-date .dh-dow{color:var(--blue);}
+.dash-hero .dh-sub{font-family:var(--mono);font-size:11px;color:var(--ink2);margin-top:6px;}
+.dash-hero .dh-greet{font-family:var(--mono);font-size:11px;color:var(--ink3);
+  text-align:right;max-width:50%;}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;}
+.dash-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0;}
+.dash-card.span2{grid-column:1/-1;}
+.dc-head{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.dc-title{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--ink2);display:flex;align-items:center;gap:7px;}
+.dc-count{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--ink);
+  background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2px 10px;}
+/* metryki dnia */
+.dash-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;}
+.metric{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+.metric .mv{font-family:var(--mono);font-size:26px;font-weight:700;line-height:1;}
+.metric .ml{font-size:11px;color:var(--ink2);margin-top:5px;}
+.metric.warn .mv{color:var(--orange);} .metric.ok .mv{color:var(--green);}
+.metric.blue .mv{color:var(--blue);} .metric.viol .mv{color:var(--red);}
+/* lista osób dziś w pracy */
+.shift-group{display:flex;flex-direction:column;gap:6px;}
+.sg-head{font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--ink3);display:flex;align-items:center;gap:6px;margin-top:4px;}
+.sg-head::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--gc,var(--blue));}
+.person-row{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:8px;
+  background:var(--card);border:1px solid var(--border);}
+.person-row .pr-av{width:26px;height:26px;border-radius:7px;flex:0 0 auto;display:flex;
+  align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;color:#fff;}
+.person-row .pr-name{flex:1;min-width:0;font-size:13px;font-weight:500;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.person-row .pr-pos{font-size:10px;color:var(--ink3);}
+.person-row .pr-time{font-family:var(--mono);font-size:11px;color:var(--ink2);
+  background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:2px 7px;white-space:nowrap;}
+/* wydarzenia */
+.dash-ev{display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border-radius:9px;
+  background:var(--card);border:1px solid var(--border);border-left:3px solid var(--ec,var(--cyan));}
+.dash-ev .de-ic{font-size:18px;line-height:1;}
+.dash-ev .de-t{font-size:13px;font-weight:600;}
+.dash-ev .de-d{font-size:11px;color:var(--ink2);margin-top:2px;line-height:1.4;}
+.dash-ev .de-when{font-family:var(--mono);font-size:9px;color:var(--ink3);margin-top:3px;letter-spacing:.5px;}
+/* braki obsady */
+.cov-chip{display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border-radius:8px;
+  font-family:var(--mono);font-size:11px;background:var(--card);border:1px solid var(--border);}
+.cov-chip .cc-dot{width:8px;height:8px;border-radius:50%;}
+.cov-chip.deficit{border-color:var(--red);background:rgba(239,68,68,.08);color:var(--red);}
+.cov-chip.full{color:var(--green);}
+.cov-wrap{display:flex;flex-wrap:wrap;gap:8px;}
+/* przyciski szybkich akcji */
+.dash-actions{display:flex;flex-wrap:wrap;gap:8px;}
+.dash-actions button{font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;
+  padding:9px 14px;border-radius:9px;border:1px solid var(--border);background:var(--card);
+  color:var(--ink);display:flex;align-items:center;gap:7px;transition:border-color .15s,transform .1s;}
+.dash-actions button:hover{border-color:var(--blue);}
+.dash-actions button:active{transform:translateY(1px);}
+.dash-actions button.primary{background:var(--blue);border-color:var(--blue);color:#fff;}
+.dash-empty{font-size:12px;color:var(--ink3);font-style:italic;padding:6px 0;line-height:1.5;}
+/* karta konta w ustawieniach */
+.acct-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;}
+.acct-badge{font-family:var(--mono);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;
+  background:var(--card);border:1px solid var(--border);}
+.acct-email{font-family:var(--mono);font-size:11px;color:var(--ink2);word-break:break-all;}
+.acct-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+.acct-btns button{font-size:12px;font-weight:600;cursor:pointer;padding:8px 14px;border-radius:8px;}
+.acct-btns .ab-mgmt{background:#3b82f620;border:1px solid var(--blue);color:var(--blue);}
+.acct-btns .ab-out{background:transparent;border:1px solid var(--border);color:var(--ink2);}
+
+@media (max-width:639px){
+  .dash-hero{padding:15px 16px;}
+  .dash-hero .dh-date{font-size:23px;}
+  .dash-hero .dh-greet{max-width:100%;text-align:left;}
+  .dash-grid{grid-template-columns:1fr;}
+  .metric .mv{font-size:22px;}
+}
 </style>
 
 <!-- Firebase SDK -->
@@ -769,8 +873,8 @@ tr.ev-row td.has-event{background:transparent;}
     if (user) {
       window._fbUser = user;
       document.getElementById('fb-login-overlay').style.display = 'none';
-      document.getElementById('fb-user-bar').style.display = 'flex';
-      document.getElementById('fb-user-email').textContent = user.email;
+      const _em=document.getElementById('fb-user-email'); if(_em) _em.textContent = user.email;
+      const _se=document.getElementById('set-user-email'); if(_se) _se.textContent = user.email;
 
       // Wczytaj profil użytkownika (rola)
       try {
@@ -807,10 +911,17 @@ tr.ev-row td.has-event{background:transparent;}
       const roleLabels = { admin: '👑 Admin', manager: '🔑 Manager', pracownik: '👤 Pracownik' };
       const roleEl = document.getElementById('fb-user-role');
       if (roleEl) roleEl.textContent = roleLabels[window._fbRole] || window._fbRole;
+      // Karta konta w Ustawieniach
+      const setRole = document.getElementById('set-user-role');
+      if (setRole) setRole.textContent = roleLabels[window._fbRole] || window._fbRole;
+      const setHint = document.getElementById('set-user-hint');
+      if (setHint) setHint.textContent = window._fbImie ? `Zalogowano jako ${window._fbImie}.` : 'Operacje na kontach i wylogowanie znajdują się tutaj.';
 
       // Pokaż/ukryj panel zarządzania użytkownikami (tylko admin)
       const mgmtBtn = document.getElementById('fb-mgmt-btn');
       if (mgmtBtn) mgmtBtn.style.display = window._fbRole === 'admin' ? 'inline-block' : 'none';
+      const setMgmt = document.getElementById('set-mgmt-btn');
+      if (setMgmt) setMgmt.style.display = window._fbRole === 'admin' ? 'inline-flex' : 'none';
 
       // Zastosuj ograniczenia ról
       if (typeof applyRoleRestrictions === 'function') applyRoleRestrictions();
@@ -821,7 +932,9 @@ tr.ev-row td.has-event{background:transparent;}
       window._fbUser = null;
       window._fbRole = null;
       document.getElementById('fb-login-overlay').style.display = 'flex';
-      document.getElementById('fb-user-bar').style.display = 'none';
+      const _se=document.getElementById('set-user-email'); if(_se) _se.textContent='niezalogowany';
+      const _sr=document.getElementById('set-user-role'); if(_sr) _sr.textContent='—';
+      const _sm=document.getElementById('set-mgmt-btn'); if(_sm) _sm.style.display='none';
     }
   });
 </script>
@@ -869,32 +982,11 @@ tr.ev-row td.has-event{background:transparent;}
   </div>
 </div>
 
-<!-- ═══ PASEK UŻYTKOWNIKA ═══ -->
-<div id="fb-user-bar" style="
-  display:none;position:fixed;top:0;right:0;z-index:1000;
-  padding:.4rem .75rem;
-  background:var(--surface,#181c27);
-  border-bottom-left-radius:10px;
-  border:1px solid var(--border,#2a3045);
-  border-top:none;border-right:none;
-  font-family:'DM Sans',sans-serif;font-size:.8rem;
-  color:var(--muted,#6b7280);
-  align-items:center;gap:.75rem;">
-  <span id="fb-user-role" style="font-weight:600;color:var(--blue,#3b82f6)"></span>
-  <span>☁️ <span id="fb-user-email"></span></span>
-  <span id="fb-save-indicator" style="color:var(--green,#22c55e);display:none;">✓ zapisano</span>
-  <button id="fb-mgmt-btn" onclick="fbShowMgmt()" style="
-    display:none;background:#3b82f620;border:1px solid #3b82f6;
-    color:#3b82f6;border-radius:6px;
-    padding:.2rem .7rem;cursor:pointer;font-size:.8rem;">
-    👥 Użytkownicy
-  </button>
-  <button onclick="fbLogout()" style="
-    background:transparent;border:1px solid var(--border,#2a3045);
-    color:var(--muted,#6b7280);border-radius:6px;
-    padding:.2rem .6rem;cursor:pointer;font-size:.8rem;">
-    Wyloguj
-  </button>
+<!-- ═══ PASEK UŻYTKOWNIKA (ukryty — operacje przeniesione do Ustawień) ═══ -->
+<div id="fb-user-bar" style="display:none !important;">
+  <span id="fb-user-role"></span>
+  <span id="fb-user-email"></span>
+  <button id="fb-mgmt-btn" style="display:none" onclick="fbShowMgmt()"></button>
 </div>
 
 
@@ -1025,6 +1117,7 @@ tr.ev-row td.has-event{background:transparent;}
   <button class="btn-sm exp" onclick="printSchedule()">🖨 Drukuj / PDF</button>
   <button class="btn-sm" onclick="activateSettings()">⚙ Ustawienia</button>
   <div id="statusBar" class="status-bar"><div class="sdot idle" id="sDot"></div><span id="sMsg">Gotowy</span></div>
+  <span id="fb-save-indicator" style="font-family:var(--mono);font-size:10px;color:var(--green);display:none;">✓ zapisano</span>
 </div>
 
 <!-- SIDEBAR -->
@@ -1095,7 +1188,8 @@ tr.ev-row td.has-event{background:transparent;}
 <!-- MAIN -->
 <div class="main">
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('tSched',this)">Grafik</button>
+    <button class="tab active" onclick="switchTab('tDash',this)">Pulpit</button>
+    <button class="tab" onclick="switchTab('tSched',this)">Grafik</button>
     <button class="tab" onclick="switchTab('tCov',this)">Godziny stałe</button>
     <button class="tab" onclick="switchTab('tAvail',this)">Prośby</button>
     <button class="tab" onclick="switchTab('tPrev',this)">Poprz. miesiąc</button>
@@ -1103,8 +1197,13 @@ tr.ev-row td.has-event{background:transparent;}
     <button class="tab" onclick="switchTab('tLog',this)">Dziennik</button>
   </div>
 
+  <!-- PULPIT -->
+  <div id="tDash" class="tab-content active">
+    <div id="dashWrap" class="dash"></div>
+  </div>
+
   <!-- GRAFIK -->
-  <div id="tSched" class="tab-content active">
+  <div id="tSched" class="tab-content">
     <div class="score-bar" id="scoreBar" style="display:none"></div>
     <div class="prog-wrap" id="progWrap" style="display:none;margin-top:4px;"><div class="prog-bar" id="progBar" style="width:0%"></div></div>
     <div id="schedWrap"><div class="notice info">Skonfiguruj pracowników, zmiany, obsadę — potem kliknij <b>⚡ Ułóż grafik</b>.</div></div>
@@ -1171,7 +1270,18 @@ tr.ev-row td.has-event{background:transparent;}
   <!-- USTAWIENIA -->
   <div id="tSettings" class="tab-content">
     <div class="settings-grid">
-      <div class="settings-card">
+      <div class="settings-card" id="acctCard">
+        <h4>Konto i dostęp</h4>
+        <div class="acct-row" style="margin-bottom:8px">
+          <span class="acct-badge" id="set-user-role">—</span>
+          <span class="acct-email" id="set-user-email">niezalogowany</span>
+        </div>
+        <div class="setting-desc" id="set-user-hint">Operacje na kontach i wylogowanie znajdują się tutaj.</div>
+        <div class="acct-btns">
+          <button class="ab-mgmt" id="set-mgmt-btn" style="display:none" onclick="fbShowMgmt()">👥 Zarządzaj użytkownikami</button>
+          <button class="ab-out" onclick="fbLogout()">Wyloguj się</button>
+        </div>
+      </div>
         <h4>Parametry silnika</h4>
         <div class="setting-row">
           <div>
@@ -1378,6 +1488,7 @@ function switchTab(id,btn){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   if(btn) btn.classList.add('active');
+  if(id==='tDash')renderDashboard();
   if(id==='tAvail')renderAvail();
   if(id==='tCov')renderCov();
   if(id==='tPrev')renderPrevMonth();
@@ -2089,7 +2200,7 @@ async function runScheduler(){
   renderSchedule();renderScores(bestSc,days,nw,m,y);renderStats();
   setSt('ok',`Gotowy · wynik ${bestSc.toFixed(0)} · ${viols.length} naruszeń`);
   document.getElementById('btnGen').disabled=false;setProg(100);
-  switchTab('tSched',document.querySelectorAll('.tab')[0]);
+  switchTab('tSched',document.querySelector('.tab[onclick*="tSched"]'));
   saveState();
 }
 
@@ -4059,6 +4170,174 @@ function initSidebarState(){
 function reRenderAll(){
   renderWorkers();renderShiftEditor();renderCov();renderAvail();
   renderSchedule();
+  if(document.getElementById('tDash')?.classList.contains('active')) renderDashboard();
+}
+
+/* ══════════ PULPIT / DASHBOARD ══════════ */
+const _MPLgen=['stycznia','lutego','marca','kwietnia','maja','czerwca','lipca','sierpnia','września','października','listopada','grudnia'];
+const _DOWfull=['Niedziela','Poniedziałek','Wtorek','Środa','Czwartek','Piątek','Sobota'];
+function _esc(s){return (s==null?'':''+s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function _initials(name){return (name||'?').trim().split(/\s+/).slice(0,2).map(p=>p[0]||'').join('').toUpperCase()||'?';}
+
+function renderDashboard(){
+  const wrap=document.getElementById('dashWrap'); if(!wrap) return;
+  const today=new Date();
+  const curM=today.getMonth(), curY=today.getFullYear(), dno=today.getDate(), dIdx=dno-1;
+  const todKey=`${curY}-${String(curM+1).padStart(2,'0')}-${String(dno).padStart(2,'0')}`;
+  const hols=polishHolidays(curY), isHol=hols.has(todKey), isSun=today.getDay()===0;
+  const dateStr=`${dno} ${_MPLgen[curM]} ${curY}`;
+  const greetName=window._fbImie||window._fbUser?.email||'';
+  const hr=today.getHours();
+  const greet=hr<5?'Dobrej nocy':hr<18?'Dzień dobry':'Dobry wieczór';
+
+  // Grafik dnia — z miesiąca zawierającego dziś (nawet jeśli planer ma wybrany inny miesiąc)
+  const sameMonth = (curM===S.month && curY===S.year);
+  const sched = sameMonth ? S.schedule : (S.monthData?.[monthKey(curM,curY)]?.schedule || null);
+  const days = dim(curM,curY);
+
+  // kto pracuje dziś, pogrupowane wg zmiany (kolejność zmian wg definicji)
+  const byShift={};
+  if(sched && dIdx<days){
+    for(let wi=0;wi<S.workers.length;wi++){
+      const code=sched[wi]?.[dIdx]; if(!code) continue;
+      (byShift[code]=byShift[code]||[]).push(wi);
+    }
+  }
+  const workingCount=Object.values(byShift).reduce((a,b)=>a+b.length,0);
+  const offCount=Math.max(0,S.workers.length-workingCount);
+
+  // obsada dnia — porównanie z godzinami stałymi
+  const covChips=[]; let deficits=0;
+  S.shifts.forEach(s=>{
+    const target=S.covPlan?.[s.code]?.[dIdx]||0; if(!target) return;
+    const got=(byShift[s.code]||[]).length;
+    const def=got<target;
+    if(def) deficits++;
+    covChips.push(`<span class="cov-chip ${def?'deficit':'full'}">
+      <span class="cc-dot" style="background:${s.color}"></span>${_esc(s.code)} ${got}/${target}${def?' ⚠':' ✓'}</span>`);
+  });
+
+  // wydarzenia dziś + nadchodzące (14 dni)
+  const evToday=[], evSoon=[];
+  (S.events||[]).forEach(e=>{
+    const from=e.dateFrom||e.date||''; const to=e.dateTo||from; if(!from) return;
+    if(todKey>=from && todKey<=to){ evToday.push({e,from,to}); return; }
+    if(from>todKey){
+      const days14=new Date(curY,curM,dno+14);
+      const k14=`${days14.getFullYear()}-${String(days14.getMonth()+1).padStart(2,'0')}-${String(days14.getDate()).padStart(2,'0')}`;
+      if(from<=k14) evSoon.push({e,from,to});
+    }
+  });
+  evSoon.sort((a,b)=>a.from<b.from?-1:1);
+
+  const fmtRange=(from,to)=>{
+    const f=`${+from.slice(8)} ${_MPLgen[+from.slice(5,7)-1]}`;
+    if(from===to) return f;
+    return `${+from.slice(8)}–${+to.slice(8)} ${_MPLgen[+to.slice(5,7)-1]}`;
+  };
+
+  /* ── HERO ── */
+  let html=`<div class="dash-hero">
+    <div>
+      <div class="dh-eyebrow">Pulpit · dziś</div>
+      <div class="dh-date"><span class="dh-dow">${_DOWfull[today.getDay()]}</span>, ${dno} ${_MPLgen[curM]}</div>
+      <div class="dh-sub">${dateStr}${isHol?' · 🔴 dzień świąteczny':isSun?' · niedziela':''}</div>
+    </div>
+    <div class="dh-greet">${greet}${greetName?',<br>'+_esc(greetName):''}</div>
+  </div>`;
+
+  /* ── METRYKI ── */
+  html+=`<div class="dash-metrics">
+    <div class="metric blue"><div class="mv">${workingCount}</div><div class="ml">pracuje dziś</div></div>
+    <div class="metric"><div class="mv">${offCount}</div><div class="ml">dzień wolny</div></div>
+    <div class="metric ${deficits?'warn':'ok'}"><div class="mv">${deficits}</div><div class="ml">braki obsady</div></div>
+    <div class="metric"><div class="mv">${evToday.length}</div><div class="ml">wydarzenia dziś</div></div>
+  </div>`;
+
+  html+=`<div class="dash-grid">`;
+
+  /* ── KARTA: KTO DZIŚ W PRACY ── */
+  html+=`<div class="dash-card span2">
+    <div class="dc-head"><div class="dc-title">🧑‍🍳 Dziś w pracy</div>
+      <span class="dc-count">${workingCount} ${workingCount===1?'osoba':'os.'}</span></div>`;
+  if(!sched){
+    html+=`<div class="dash-empty">Grafik na ${MPL[curM]} ${curY} nie został jeszcze ułożony. Kliknij „⚡ Ułóż grafik", aby zaplanować zmiany.</div>`;
+  } else if(workingCount===0){
+    html+=`<div class="dash-empty">Nikt nie ma dziś przypisanej zmiany.</div>`;
+  } else {
+    S.shifts.forEach(s=>{
+      const list=byShift[s.code]; if(!list||!list.length) return;
+      html+=`<div class="shift-group"><div class="sg-head" style="--gc:${s.color}">${_esc(s.code)} · ${_esc(s.name)} · ${_esc(s.od)}–${_esc(s.do)}</div>`;
+      list.forEach(wi=>{
+        const w=S.workers[wi]; const col=w.color||COLORS[wi%COLORS.length];
+        const ct = sameMonth ? (S.customTimes?.[wi]?.[dIdx]||null) : null;
+        const od=ct?.od||s.od, doo=ct?.do||s.do;
+        html+=`<div class="person-row">
+          <div class="pr-av" style="background:${col}">${_esc(_initials(w.name))}</div>
+          <div class="pr-name">${_esc(w.name)}${w.pos?` <span class="pr-pos">· ${_esc(w.pos)}</span>`:''}</div>
+          <div class="pr-time">${_esc(od)}–${_esc(doo)}</div>
+        </div>`;
+      });
+      html+=`</div>`;
+    });
+  }
+  html+=`</div>`;
+
+  /* ── KARTA: OBSADA DNIA ── */
+  html+=`<div class="dash-card">
+    <div class="dc-head"><div class="dc-title">📊 Obsada dnia</div></div>`;
+  if(!covChips.length){
+    html+=`<div class="dash-empty">Brak zdefiniowanych godzin stałych na dziś.</div>`;
+  } else {
+    html+=`<div class="cov-wrap">${covChips.join('')}</div>`;
+    if(deficits) html+=`<div class="dash-empty" style="color:var(--orange)">⚠ ${deficits} ${deficits===1?'zmiana ma':'zmiany mają'} niepełną obsadę względem planu.</div>`;
+  }
+  html+=`</div>`;
+
+  /* ── KARTA: WYDARZENIA ── */
+  html+=`<div class="dash-card">
+    <div class="dc-head"><div class="dc-title">📅 Wydarzenia</div></div>`;
+  if(!evToday.length && !evSoon.length){
+    html+=`<div class="dash-empty">Brak wydarzeń dziś i w najbliższych 14 dniach.</div>`;
+  } else {
+    evToday.forEach(({e,from,to})=>{
+      html+=`<div class="dash-ev" style="--ec:${e.color||'var(--cyan)'}">
+        <div class="de-ic">${e.icon||'📌'}</div>
+        <div style="min-width:0"><div class="de-t">${_esc(e.title)}</div>
+          ${e.desc?`<div class="de-d">${_esc(e.desc)}</div>`:''}
+          <div class="de-when">DZIŚ${from!==to?' · '+_esc(fmtRange(from,to)):''}</div></div></div>`;
+    });
+    evSoon.slice(0,4).forEach(({e,from,to})=>{
+      html+=`<div class="dash-ev" style="--ec:${e.color||'var(--ink3)'};opacity:.85">
+        <div class="de-ic">${e.icon||'📌'}</div>
+        <div style="min-width:0"><div class="de-t">${_esc(e.title)}</div>
+          <div class="de-when">${_esc(fmtRange(from,to))}</div></div></div>`;
+    });
+  }
+  html+=`</div>`;
+
+  html+=`</div>`; // /dash-grid
+
+  /* ── SZYBKIE AKCJE ── */
+  html+=`<div class="dash-card"><div class="dc-title" style="margin-bottom:2px">⚡ Szybkie akcje</div>
+    <div class="dash-actions">
+      <button class="primary" onclick="runScheduler()">⚡ Ułóż grafik</button>
+      <button onclick="switchTab('tSched',document.querySelector('.tab[onclick*=tSched]'))">📋 Otwórz grafik</button>
+      <button onclick="switchTab('tCov',document.querySelector('.tab[onclick*=tCov]'))">🕑 Godziny stałe</button>
+      <button onclick="switchTab('tAvail',document.querySelector('.tab[onclick*=tAvail]'))">✉ Prośby</button>
+      ${!sameMonth?`<button onclick="dashGoToToday()">📆 Przejdź do ${MPL[curM]} ${curY}</button>`:''}
+    </div></div>`;
+
+  wrap.innerHTML=html;
+}
+
+function dashGoToToday(){
+  const today=new Date();
+  S.month=today.getMonth(); S.year=today.getFullYear();
+  document.getElementById('selM').value=S.month;
+  document.getElementById('selY').value=S.year;
+  refreshMonth();
+  renderDashboard();
 }
 
 /* ══════════ INIT ══════════ */
@@ -4384,13 +4663,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
     </div>
   </div>
 
-  <!-- BLOKADA -->
-  <div id="prosba-locked">
-    <div class="lock-icon">🔒</div>
-    <h2>Składanie prośb jest teraz zamknięte</h2>
-    <p>Kierownik wyłączył możliwość składania prośb.<br>Spróbuj ponownie później.</p>
-  </div>
-
   <!-- KALENDARZ -->
   <div id="prosba-content">
     <div class="p-card">
@@ -4405,6 +4677,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
       </div>
     </div>
 
+    <div id="prosba-locked-banner">
+      🔒 <strong>Składanie prośb na ten miesiąc zostało zamknięte.</strong><br>
+      Widzisz swoje wcześniej wprowadzone prośby — nie możesz ich już edytować.
+    </div>
     <div class="p-card">
       <div class="p-card-title">Zaznacz dni</div>
       <div class="p-legend">
@@ -4511,36 +4787,7 @@ async function pShowView(){
   const view = document.getElementById('prosba-view');
   view.style.display = 'block';
 
-  // Sprawdź blokadę per miesiąc
-  const adminUid = window._fbAdminUid || window._fbUser?.uid;
-  if(adminUid && window._fbDb){
-    try{
-      const lockRef = window._fbDoc(window._fbDb, 'restauracje', adminUid);
-      const snap = await window._fbGetDoc(lockRef);
-      // Pobierz miesiąc z selektu (może jeszcze nie być inicjowany)
-      const nowM = new Date().getDate()>20 ? (new Date().getMonth()+1)%12 : new Date().getMonth();
-      const nowY = new Date().getDate()>20 && new Date().getMonth()===11 ? new Date().getFullYear()+1 : new Date().getFullYear();
-      const key = `zablokowane_${nowM}_${nowY}`;
-      const locked = snap.exists() && snap.data()[key] === true;
-      const lockedEl = document.getElementById('prosba-locked');
-      const contentEl = document.getElementById('prosba-content');
-      if(locked){
-        lockedEl.style.display = 'block';
-        contentEl.style.display = 'none';
-        // Zaktualizuj komunikat blokady z miesiącem
-        const MPL_L=['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec',
-          'Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
-        const msgEl = lockedEl.querySelector('p');
-        if(msgEl) msgEl.innerHTML = `Kierownik zamknął składanie prośb na <strong>${MPL_L[nowM]} ${nowY}</strong>.<br>Możesz składać prośby na kolejne miesiące.`;
-        return;
-      } else {
-        lockedEl.style.display = 'none';
-        contentEl.style.display = 'block';
-      }
-    }catch(e){ console.warn('Błąd sprawdzania blokady:', e); }
-  }
-
-  // Inicjuj selekty miesiąca/roku
+  // Inicjuj selekty miesiąca/roku NAJPIERW (potrzebne do sprawdzenia blokady)
   const sm = document.getElementById('p-selM');
   const sy = document.getElementById('p-selY');
   if(!sm.options.length){
@@ -4555,6 +4802,9 @@ async function pShowView(){
     sy.value = defY;
   }
 
+  // Sprawdź blokadę per miesiąc i ustaw tryb readonly/edycja
+  await pCheckAndApplyLock();
+
   // Wczytaj istniejące prośby z Firestore
   await pLoadExisting();
   pBuildCal();
@@ -4565,6 +4815,39 @@ async function pShowView(){
 }
 
 // Wczytaj istniejące prośby pracownika z Firestore
+// Sprawdź blokadę i zastosuj tryb readonly lub edycji
+async function pCheckAndApplyLock(){
+  const view = document.getElementById('prosba-view');
+  const banner = document.getElementById('prosba-locked-banner');
+  const adminUid = window._fbAdminUid || window._fbUser?.uid;
+
+  // Domyślnie tryb edycji
+  view.classList.remove('readonly');
+  if(banner) banner.style.display = 'none';
+
+  if(!adminUid || !window._fbDb) return;
+  try{
+    const m = +document.getElementById('p-selM').value;
+    const y = +document.getElementById('p-selY').value;
+    const lockRef = window._fbDoc(window._fbDb, 'restauracje', adminUid);
+    const snap = await window._fbGetDoc(lockRef);
+    const key = `zablokowane_${m}_${y}`;
+    const locked = snap.exists() && snap.data()[key] === true;
+
+    if(locked){
+      // Tryb readonly — pokaż kalendarz ale bez edycji
+      view.classList.add('readonly');
+      if(banner){
+        const MPL_L=['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec',
+          'Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
+        banner.innerHTML = `🔒 <strong>Składanie prośb na ${MPL_L[m]} ${y} zostało zamknięte.</strong><br>
+          Widzisz swoje wcześniej wprowadzone prośby — nie możesz ich już edytować.`;
+        banner.style.display = 'block';
+      }
+    }
+  }catch(e){ console.warn('Błąd sprawdzania blokady:', e); }
+}
+
 async function pLoadExisting(){
   if(!window._fbUser || !window._fbDb) return;
   const adminUid = window._fbAdminUid || window._fbUser.uid;
@@ -4631,6 +4914,8 @@ function pBuildCal(){
 }
 
 function pCycleDay(d,m,y){
+  // Blokada edycji w trybie readonly (zablokowany miesiąc)
+  if(document.getElementById('prosba-view').classList.contains('readonly')) return;
   const cur=pDayState[d]||'';
   if(!cur){pDayState[d]='N';pUpdateCell(d);}
   else if(cur==='N'){pDayState[d]='C_pending';pOpenModal(d,m,y);}
@@ -4720,9 +5005,9 @@ function pResetCal(){pDayState={};pBuildCal();document.getElementById('p-comment
 
 // Przeładuj prośby z Firestore przy zmianie miesiąca/roku
 async function pReloadAndBuild(){
+  await pCheckAndApplyLock();
   await pLoadExisting();
   pBuildCal();
-  // Odtwórz stan z pDayState po przebudowie
   Object.keys(pDayState).forEach(d=>pUpdateCell(+d));
 }
 
