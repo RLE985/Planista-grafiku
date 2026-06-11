@@ -646,7 +646,8 @@ tr.ev-row td.has-event{background:transparent;}
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
   import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
            signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-  import { getFirestore, doc, setDoc, getDoc, onSnapshot }
+  import { getFirestore, doc, setDoc, getDoc, getDoc as fbGetDoc,
+           collection, query, getDocs, deleteDoc, onSnapshot }
            from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
   const firebaseConfig = {
@@ -673,18 +674,68 @@ tr.ev-row td.has-event{background:transparent;}
   window._fbSignUp = createUserWithEmailAndPassword;
   window._fbSignOut = signOut;
   window._fbOnAuthStateChanged = onAuthStateChanged;
+  window._fbCollection = collection;
+  window._fbQuery = query;
+  window._fbGetDocs = getDocs;
+  window._fbDeleteDoc = deleteDoc;
+  window._ADMIN_UID = null; // zostanie ustawiony po zalogowaniu
 
   // Nasłuchuj zmiany stanu logowania
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, async (user) => {
     if (user) {
       window._fbUser = user;
       document.getElementById('fb-login-overlay').style.display = 'none';
       document.getElementById('fb-user-bar').style.display = 'flex';
       document.getElementById('fb-user-email').textContent = user.email;
-      // Wczytaj dane z Firestore po zalogowaniu
+
+      // Wczytaj profil użytkownika (rola)
+      try {
+        const profileRef = doc(db, 'uzytkownicy', user.uid);
+        const profileSnap = await getDoc(profileRef);
+
+        if (profileSnap.exists()) {
+          const profile = profileSnap.data();
+          window._fbRole = profile.rola || 'pracownik';
+          window._fbAdminUid = profile.adminUid || user.uid;
+          window._fbImie = profile.imie || user.email;
+          window._fbPracownikIndex = profile.pracownikIndex ?? null;
+        } else {
+          // Pierwszy login — utwórz profil admina
+          await setDoc(profileRef, {
+            email: user.email,
+            rola: 'admin',
+            adminUid: user.uid,
+            imie: user.email,
+            createdAt: new Date().toISOString()
+          });
+          window._fbRole = 'admin';
+          window._fbAdminUid = user.uid;
+          window._fbImie = user.email;
+          window._fbPracownikIndex = null;
+        }
+      } catch(e) {
+        console.warn('Błąd wczytywania profilu:', e);
+        window._fbRole = 'admin';
+        window._fbAdminUid = user.uid;
+      }
+
+      // Zaktualizuj UI paska
+      const roleLabels = { admin: '👑 Admin', manager: '🔑 Manager', pracownik: '👤 Pracownik' };
+      const roleEl = document.getElementById('fb-user-role');
+      if (roleEl) roleEl.textContent = roleLabels[window._fbRole] || window._fbRole;
+
+      // Pokaż/ukryj panel zarządzania użytkownikami (tylko admin)
+      const mgmtBtn = document.getElementById('fb-mgmt-btn');
+      if (mgmtBtn) mgmtBtn.style.display = window._fbRole === 'admin' ? 'inline-block' : 'none';
+
+      // Zastosuj ograniczenia ról
+      if (typeof applyRoleRestrictions === 'function') applyRoleRestrictions();
+
+      // Wczytaj dane
       if (typeof loadStateFromFirestore === 'function') loadStateFromFirestore();
     } else {
       window._fbUser = null;
+      window._fbRole = null;
       document.getElementById('fb-login-overlay').style.display = 'flex';
       document.getElementById('fb-user-bar').style.display = 'none';
     }
@@ -750,8 +801,15 @@ tr.ev-row td.has-event{background:transparent;}
   font-family:'DM Sans',sans-serif;font-size:.8rem;
   color:var(--muted,#6b7280);
   align-items:center;gap:.75rem;">
+  <span id="fb-user-role" style="font-weight:600;color:var(--blue,#3b82f6)"></span>
   <span>☁️ <span id="fb-user-email"></span></span>
   <span id="fb-save-indicator" style="color:var(--green,#22c55e);display:none;">✓ zapisano</span>
+  <button id="fb-mgmt-btn" onclick="fbShowMgmt()" style="
+    display:none;background:#3b82f620;border:1px solid #3b82f6;
+    color:#3b82f6;border-radius:6px;
+    padding:.2rem .7rem;cursor:pointer;font-size:.8rem;">
+    👥 Użytkownicy
+  </button>
   <button onclick="fbLogout()" style="
     background:transparent;border:1px solid var(--border,#2a3045);
     color:var(--muted,#6b7280);border-radius:6px;
@@ -3488,8 +3546,9 @@ function saveState(){
     };
     localStorage.setItem(STORE_KEY,JSON.stringify(payload));
   }catch(e){}
-  // Zapisz do Firebase jeśli zalogowany
-  if(window._fbUser && window._fbDb){
+  // Zapisz do Firebase jeśli zalogowany i ma uprawnienia zapisu
+  const canWrite = !window._fbRole || window._fbRole === 'admin' || window._fbRole === 'manager';
+  if(window._fbUser && window._fbDb && canWrite){
     const payload={
       month:S.month,year:S.year,
       workers:S.workers,shifts:S.shifts,coverage:S.coverage,covPlan:S.covPlan,
@@ -3497,7 +3556,8 @@ function saveState(){
       darkMode:document.getElementById('togDark')?.checked!==false,
       updatedAt: new Date().toISOString()
     };
-    const ref = window._fbDoc(window._fbDb, 'restauracje', window._fbUser.uid);
+    const adminUid = window._fbAdminUid || window._fbUser.uid;
+    const ref = window._fbDoc(window._fbDb, 'restauracje', adminUid);
     window._fbSetDoc(ref, payload)
       .then(()=>{
         const ind = document.getElementById('fb-save-indicator');
@@ -3510,9 +3570,11 @@ function saveState(){
 async function loadStateFromFirestore(){
   if(!window._fbUser || !window._fbDb) return;
   try{
-    const ref = window._fbDoc(window._fbDb, 'restauracje', window._fbUser.uid);
+    // Zawsze wczytuj dane admina (nawet gdy zalogowany manager/pracownik)
+    const adminUid = window._fbAdminUid || window._fbUser.uid;
+    const ref = window._fbDoc(window._fbDb, 'restauracje', adminUid);
     const snap = await window._fbGetDoc(ref);
-    if(!snap.exists()) return; // brak danych w chmurze, zostań przy localStorage
+    if(!snap.exists()) return;
     const p = snap.data();
     S.month=p.month??S.month;S.year=p.year??S.year;
     S.workers=p.workers||[];S.shifts=p.shifts||S.shifts;S.coverage=p.coverage||{};
@@ -3529,9 +3591,49 @@ async function loadStateFromFirestore(){
     S.shifts.forEach(s=>ensureCoverage(s.code));ensureCovPlan();ensurePerms();
     reRenderAll();if(S.schedule)renderSchedule();
     renderEvents();
+    applyRoleRestrictions();
     setSt('idle','✓ Dane zsynchronizowane z chmury');
     updateLsInfo();
   }catch(e){ console.warn('Firestore load error:',e); }
+}
+
+// Zastosuj ograniczenia UI w zależności od roli
+function applyRoleRestrictions(){
+  const role = window._fbRole || 'admin';
+
+  if(role === 'pracownik'){
+    // Pracownik: ukryj wszystkie zakładki oprócz Grafiku
+    document.querySelectorAll('.tab').forEach(btn => {
+      const isGrafik = btn.getAttribute('onclick')?.includes('tSched');
+      btn.style.display = isGrafik ? '' : 'none';
+    });
+    // Zablokuj wszystkie przyciski akcji (generuj, edytuj itd.)
+    ['btnGen','btnClear','btnReset','addWorkerBtn','addShiftBtn'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.style.display = 'none';
+    });
+    // Ukryj sidebar z ustawieniami
+    const sb = document.getElementById('sidebar');
+    if(sb) sb.style.display = 'none';
+    // Podświetl wiersz zalogowanego pracownika
+    const idx = window._fbPracownikIndex;
+    if(idx !== null && S.schedule){
+      setTimeout(()=>{
+        const rows = document.querySelectorAll('#schedTable tr.worker-row');
+        if(rows[idx]) rows[idx].style.outline = '2px solid var(--blue,#3b82f6)';
+      }, 500);
+    }
+    setSt('idle', `👤 Widok pracownika: ${window._fbImie||''}`);
+  }
+
+  if(role === 'manager'){
+    // Manager: widzi wszystko, ale nie może edytować pracowników/zmian/ustawień
+    ['addWorkerBtn','addShiftBtn'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.style.display = 'none';
+    });
+    setSt('idle', `🔑 Zalogowany jako manager: ${window._fbImie||''}`);
+  }
 }
 
 function loadState(){
@@ -3826,6 +3928,7 @@ function applyWorkerRequest(p){
 </script>
 
 <script>
+// ═══ LOGOWANIE ═══
 function fbLogin(){
   const email = document.getElementById('fb-email').value.trim();
   const pass  = document.getElementById('fb-password').value;
@@ -3861,7 +3964,155 @@ function fbLogout(){
   if(!confirm('Wylogować się?')) return;
   window._fbSignOut(window._fbAuth);
 }
-// Enter w polach logowania
+
+// ═══ ZARZĄDZANIE UŻYTKOWNIKAMI (admin) ═══
+function fbShowMgmt(){
+  const modal = document.getElementById('fb-mgmt-modal');
+  modal.style.display = 'flex';
+  // Wypełnij listę pracowników w select
+  const sel = document.getElementById('fb-new-pracownik');
+  sel.innerHTML = '<option value="">— brak powiązania —</option>';
+  if(S.workers && S.workers.length){
+    S.workers.forEach((w,i)=>{
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = `[${i}] ${w.name}`;
+      sel.appendChild(opt);
+    });
+  }
+  // Obsłuż widoczność selecta pracownika
+  document.getElementById('fb-new-rola').onchange = function(){
+    document.getElementById('fb-pracownik-row').style.display =
+      this.value === 'pracownik' ? 'block' : 'none';
+  };
+  document.getElementById('fb-pracownik-row').style.display = 'none';
+  fbLoadUsers();
+}
+
+function fbCloseMgmt(){
+  document.getElementById('fb-mgmt-modal').style.display = 'none';
+}
+
+async function fbLoadUsers(){
+  const listEl = document.getElementById('fb-users-list');
+  listEl.innerHTML = '<span style="color:var(--muted)">Ładowanie...</span>';
+  try{
+    const col = window._fbCollection(window._fbDb, 'uzytkownicy');
+    const adminUid = window._fbAdminUid || window._fbUser.uid;
+    const snap = await window._fbGetDocs(col);
+    const users = [];
+    snap.forEach(d => {
+      const data = d.data();
+      if(data.adminUid === adminUid || d.id === adminUid) users.push({uid: d.id, ...data});
+    });
+
+    if(!users.length){ listEl.innerHTML='<span style="color:var(--muted)">Brak użytkowników.</span>'; return; }
+
+    const roleLabels = { admin:'👑 Admin', manager:'🔑 Manager', pracownik:'👤 Pracownik' };
+    const roleColors = { admin:'#f59e0b', manager:'#3b82f6', pracownik:'#22c55e' };
+
+    listEl.innerHTML = users.map(u => `
+      <div style="
+        display:flex;align-items:center;justify-content:space-between;
+        padding:.75rem 1rem;border-radius:8px;margin-bottom:.5rem;
+        background:var(--bg,#0f1117);border:1px solid var(--border,#2a3045);">
+        <div>
+          <div style="font-weight:600;color:var(--fg,#e8eaf0);font-size:.9rem;">
+            ${u.imie||u.email}
+          </div>
+          <div style="font-size:.78rem;color:var(--muted,#6b7280);margin-top:.15rem;">
+            ${u.email}
+            ${u.pracownikIndex !== null && u.pracownikIndex !== undefined
+              ? ` · powiązany z: ${S.workers[u.pracownikIndex]?.name||'?'}`
+              : ''}
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem;">
+          <span style="
+            font-size:.75rem;font-weight:600;padding:.2rem .6rem;
+            border-radius:20px;background:${roleColors[u.rola]||'#6b7280'}20;
+            color:${roleColors[u.rola]||'#6b7280'};border:1px solid ${roleColors[u.rola]||'#6b7280'}40;">
+            ${roleLabels[u.rola]||u.rola}
+          </span>
+          ${u.uid !== window._fbUser.uid ? `
+          <button onclick="fbRemoveUser('${u.uid}')" style="
+            background:#ef444420;border:1px solid #ef444460;
+            color:#ef4444;border-radius:6px;padding:.2rem .6rem;
+            cursor:pointer;font-size:.78rem;">
+            Usuń
+          </button>` : '<span style="font-size:.75rem;color:var(--muted);">(Ty)</span>'}
+        </div>
+      </div>
+    `).join('');
+  }catch(e){
+    listEl.innerHTML=`<span style="color:#ef4444">Błąd: ${e.message}</span>`;
+  }
+}
+
+async function fbAddUser(){
+  const email  = document.getElementById('fb-new-email').value.trim();
+  const pass   = document.getElementById('fb-new-pass').value;
+  const imie   = document.getElementById('fb-new-imie').value.trim();
+  const rola   = document.getElementById('fb-new-rola').value;
+  const pracIdx= document.getElementById('fb-new-pracownik').value;
+  const errEl  = document.getElementById('fb-add-error');
+  errEl.style.display='none';
+
+  if(!email||!pass||pass.length<6||!imie){
+    errEl.textContent='Wypełnij wszystkie pola (hasło min. 6 znaków).';
+    errEl.style.display='block'; return;
+  }
+
+  try{
+    // Utwórz konto w Firebase Auth
+    const cred = await window._fbSignUp(window._fbAuth, email, pass);
+    const newUid = cred.user.uid;
+    const adminUid = window._fbAdminUid || window._fbUser.uid;
+
+    // Zapisz profil w Firestore
+    const profileRef = window._fbDoc(window._fbDb, 'uzytkownicy', newUid);
+    await window._fbSetDoc(profileRef, {
+      email, imie, rola,
+      adminUid,
+      pracownikIndex: pracIdx !== '' ? parseInt(pracIdx) : null,
+      createdAt: new Date().toISOString(),
+      createdBy: window._fbUser.uid
+    });
+
+    // Wyczyść formularz
+    ['fb-new-email','fb-new-pass','fb-new-imie'].forEach(id=>document.getElementById(id).value='');
+
+    // Odśwież listę
+    fbLoadUsers();
+
+    // Wyloguj nowo utworzonego użytkownika — wróć do admina
+    // (Firebase Auth automatycznie przełącza na nowego — musimy wrócić)
+    errEl.style.background='#22c55e20';errEl.style.borderColor='#22c55e';
+    errEl.style.color='#22c55e';
+    errEl.textContent=`✓ Użytkownik ${imie} (${email}) dodany. Prośba: wyloguj się i zaloguj ponownie aby wrócić do konta admina.`;
+    errEl.style.display='block';
+
+  }catch(e){
+    errEl.style.background='#ef444420';errEl.style.borderColor='#ef4444';errEl.style.color='#ef4444';
+    errEl.textContent = e.code==='auth/email-already-in-use'
+      ? 'Ten email jest już zarejestrowany.'
+      : 'Błąd: ' + e.message;
+    errEl.style.display='block';
+  }
+}
+
+async function fbRemoveUser(uid){
+  if(!confirm('Usunąć dostęp tego użytkownika?')) return;
+  try{
+    const ref = window._fbDoc(window._fbDb, 'uzytkownicy', uid);
+    await window._fbDeleteDoc(ref);
+    fbLoadUsers();
+  }catch(e){
+    alert('Błąd usuwania: '+e.message);
+  }
+}
+
+// ═══ INIT ═══
 document.addEventListener('DOMContentLoaded', ()=>{
   ['fb-email','fb-password'].forEach(id=>{
     const el = document.getElementById(id);
