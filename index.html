@@ -3544,10 +3544,13 @@ function saveState(){
   // Zapisz do Firebase jeśli zalogowany i ma uprawnienia zapisu
   const canWrite = !window._fbRole || window._fbRole === 'admin' || window._fbRole === 'manager';
   if(window._fbUser && window._fbDb && canWrite){
+    // Firestore nie obsługuje zagnieżdżonych tablic — serializujemy monthData do JSON stringa
+    const monthDataSafe = JSON.stringify(S.monthData||{});
     const payload={
       month:S.month,year:S.year,
       workers:S.workers,shifts:S.shifts,coverage:S.coverage,covPlan:S.covPlan,
-      settings:S.settings,events:S.events||[],monthData:S.monthData||{},
+      settings:S.settings,events:S.events||[],
+      monthDataJson: monthDataSafe,
       darkMode:document.getElementById('togDark')?.checked!==false,
       updatedAt: new Date().toISOString()
     };
@@ -3576,7 +3579,12 @@ async function loadStateFromFirestore(){
     S.covPlan=p.covPlan||{};
     if(p.settings) S.settings=Object.assign(S.settings,p.settings);
     S.events=p.events||[];
-    S.monthData=p.monthData||{};
+    // Odtwórz monthData — zapisane jako JSON string (unikamy nested arrays w Firestore)
+    if(p.monthDataJson){
+      try{ S.monthData = JSON.parse(p.monthDataJson); }catch(e){ S.monthData={}; }
+    } else {
+      S.monthData = p.monthData||{};
+    }
     loadMonthData(S.month,S.year);
     const dark=p.darkMode!==false;
     document.getElementById('togDark').checked=dark;
@@ -3946,6 +3954,10 @@ function fbLogout(){
 
 // ═══ ZARZĄDZANIE UŻYTKOWNIKAMI (admin) ═══
 function fbShowMgmt(){
+  if(!window._fbDb || !window._fbCollection || !window._fbGetDocs){
+    alert('Firebase nie jest jeszcze gotowy. Poczekaj chwilę i spróbuj ponownie.');
+    return;
+  }
   const modal = document.getElementById('fb-mgmt-modal');
   modal.style.display = 'flex';
   // Wypełnij listę pracowników w select
@@ -3975,6 +3987,10 @@ function fbCloseMgmt(){
 async function fbLoadUsers(){
   const listEl = document.getElementById('fb-users-list');
   listEl.innerHTML = '<span style="color:var(--muted)">Ładowanie...</span>';
+  if(!window._fbDb || !window._fbCollection || !window._fbGetDocs){
+    listEl.innerHTML = '<span style="color:#ef4444">Firebase nie gotowy.</span>';
+    return;
+  }
   try{
     const col = window._fbCollection(window._fbDb, 'uzytkownicy');
     const adminUid = window._fbAdminUid || window._fbUser.uid;
