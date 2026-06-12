@@ -4665,6 +4665,10 @@ function renderEvents(){
 function refreshMonth(){
   const m=+document.getElementById('selM').value;
   const y=+document.getElementById('selY').value;
+  if(isNaN(m)||isNaN(y)||m<0||m>11||y<2000) return;
+  // Zawsze synchronizuj oba paski (subbar i mobile nav)
+  const ms=document.getElementById('mob-selM'),ys=document.getElementById('mob-selY');
+  if(ms) ms.value=m; if(ys) ys.value=y;
   if(m===S.month && y===S.year){
     // ten sam miesiąc — tylko odśwież widok
     reRenderAll();renderEvents();if(S.schedule)renderSchedule();
@@ -4687,11 +4691,11 @@ function refreshMonth(){
 /* ══════════ SIDEBAR TOGGLE ══════════ */
 function toggleSidebar(){ /* replaced by drawer */ }
 function initSidebarState(){
-  // Mobile nav sync: sync month/year selects
-  const ms = document.getElementById('mob-selM');
-  const ys = document.getElementById('mob-selY');
-  if(ms) ms.value = S.month;
-  if(ys) ys.value = S.year;
+  // Sync both subbar and mobile nav month/year selects
+  ['selM','selY','mob-selM','mob-selY'].forEach(id=>{
+    const el=document.getElementById(id); if(!el) return;
+    el.value = id.includes('M') ? S.month : S.year;
+  });
   // Restore last panel
   try{
     const saved = localStorage.getItem('planista_nav');
@@ -4776,9 +4780,21 @@ function navGo(panelId) {
   });
 
   // render panel content
+  if (panelId === 'tSched') {
+    // sync selectors to current state, then render
+    const smEl=document.getElementById('selM'),syEl=document.getElementById('selY');
+    if(smEl) smEl.value=S.month;
+    if(syEl) syEl.value=S.year;
+    renderSchedule();
+  }
   if (panelId === 'tDash')      renderDashboard();
   if (panelId === 'tDay')       renderDayView();
-  if (panelId === 'tAvail')     renderAvail();
+  if (panelId === 'tAvail') {
+    const smEl=document.getElementById('selM'),syEl=document.getElementById('selY');
+    if(smEl) smEl.value=S.month;
+    if(syEl) syEl.value=S.year;
+    renderAvail();
+  }
   if (panelId === 'tCov')       renderCov();
   if (panelId === 'tPrev')      renderPrevMonth();
   if (panelId === 'tStats')     renderStats();
@@ -4976,6 +4992,58 @@ function dvUpdateRow(dk,idx,field,val){
   dvSave();
 }
 function dvBlurRefresh(dk){dvRefreshSummary(dk);dvSave();}
+
+/* ── KEYBOARD NAVIGATION ──
+   Kolejność komórek: Imię → Od → Do → (Imię następnego wiersza) → ...
+   ArrowRight / Enter = następna komórka (do przodu)
+   ArrowLeft          = poprzednia komórka (do tyłu, jak Shift+Tab)
+   Na polach czasu (Od/Do): zawsze przechwytuj strzałki (pola są krótkie).
+   Na polu Imię: przechwytuj tylko gdy kursor jest na krawędzi tekstu.
+   Kliknięcie Do ostatniego wiersza + Enter/→ dodaje nowy wiersz.
+─────────────────────────────────────────── */
+function dvFocus(id){
+  setTimeout(()=>{const el=document.getElementById(id);if(el){el.focus();el.select();}},0);
+}
+function dvAdvanceFrom(dk,idx){ dvHandleKey(null,dk,idx,'end'); }
+function dvHandleKey(event,dk,idx,field){
+  const key=event?event.key:null;
+  const isForward  = !key || key==='Enter' || key==='ArrowRight';
+  const isBackward = key==='ArrowLeft';
+  if(!isForward&&!isBackward) return;
+
+  // Dla pola Imię: sprawdź pozycję kursora
+  if(field==='name' && event){
+    const el=event.target;
+    if(isForward  && el.selectionStart<el.value.length) return; // kursor nie na końcu
+    if(isBackward && el.selectionStart>0)               return; // kursor nie na początku
+  }
+
+  if(event) event.preventDefault();
+
+  const rows=dvGetRows(dk);
+
+  if(isForward){
+    if(field==='name'){
+      dvFocus('dv-s-'+idx);                            // Imię → Od
+    } else if(field==='start'){
+      dvFocus('dv-e-'+idx);                            // Od → Do
+    } else { // field==='end'
+      if(idx+1<rows.length){
+        dvFocus('dv-s-'+(idx+1));                      // Do → Od następnego
+      } else {
+        dvAddRow();                                    // Do ostatniego → nowy wiersz
+      }
+    }
+  } else { // backward
+    if(field==='end'){
+      dvFocus('dv-s-'+idx);                            // Do → Od tego samego
+    } else if(field==='start'){
+      dvFocus('dv-name-'+idx);                         // Od → Imię tego samego
+    } else { // field==='name'
+      if(idx>0) dvFocus('dv-e-'+(idx-1));              // Imię → Do poprzedniego
+    }
+  }
+}
 function dvAddRow(){
   const dk=dvKey();
   if(!S.dayData) S.dayData={};
@@ -5132,16 +5200,17 @@ function renderDayView(){
         placeholder="Pracownik ${i+1}"
         onchange="dvUpdateRow('${dk}',${i},'name',this.value)"
         oninput="dvUpdateRow('${dk}',${i},'name',this.value)"
-        onkeydown="if(event.key==='Enter'){const s=document.getElementById('dv-s-${i}');if(s){setTimeout(()=>{s.focus();s.select();},0);}}"></td>
+        onkeydown="dvHandleKey(event,'${dk}',${i},'name')"></td>
       <td><input class="dv-inp time-inp" type="text" id="dv-s-${i}" value="${r.start||''}" placeholder="0600" maxlength="4"
         onchange="dvUpdateRow('${dk}',${i},'start',this.value)"
         oninput="dvUpdateRow('${dk}',${i},'start',this.value)"
         onblur="dvBlurRefresh('${dk}')"
-        onkeydown="if(event.key==='Enter'){const e=document.getElementById('dv-e-${i}');if(e){setTimeout(()=>{e.focus();e.select();},0);}}"></td>
+        onkeydown="dvHandleKey(event,'${dk}',${i},'start')"></td>
       <td><input class="dv-inp time-inp" type="text" id="dv-e-${i}" value="${r.end||''}" placeholder="1400" maxlength="4"
         onchange="dvUpdateRow('${dk}',${i},'end',this.value)"
         oninput="dvUpdateRow('${dk}',${i},'end',this.value)"
-        onblur="dvBlurRefresh('${dk}')"></td>
+        onblur="dvBlurRefresh('${dk}')"
+        onkeydown="dvHandleKey(event,'${dk}',${i},'end')"></td>
       <td><select class="dv-pos-sel" onchange="dvUpdateRow('${dk}',${i},'stanowisko',this.value)">
         ${dvGetStan().map(s=>`<option value="${s}"${r.stanowisko===s?' selected':''}>${s}</option>`).join('')}
       </select></td>
