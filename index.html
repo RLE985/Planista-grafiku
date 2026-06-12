@@ -1313,10 +1313,6 @@ body { padding-top:54px; }
       // Zaktualizuj UI
       const roleLabels = { admin: '👑 Admin', manager: '🔑 Manager', pracownik: '👤 Pracownik' };
       const rl = roleLabels[window._fbRole] || window._fbRole;
-      // navbar user icon
-      const navRole = document.getElementById('nav-user-role'); if(navRole) navRole.textContent = rl;
-      const navUR = document.getElementById('nav-u-role'); if(navUR) navUR.textContent = rl;
-      const navUE = document.getElementById('nav-u-email'); if(navUE) navUE.textContent = window._fbUser.email;
       // mobile nav
       const mobUR = document.getElementById('mob-user-role'); if(mobUR) mobUR.textContent = rl;
       // ustawienia karta
@@ -1326,7 +1322,7 @@ body { padding-top:54px; }
       if(setHint) setHint.textContent = window._fbImie ? 'Zalogowano jako ' + window._fbImie + '.' : 'Operacje na kontach i wylogowanie.';
       // admin buttons
       const isAdmin = window._fbRole === 'admin';
-      ['nav-mgmt-btn','set-mgmt-btn','mob-mgmt-btn'].forEach(id=>{
+      ['set-mgmt-btn','mob-mgmt-btn'].forEach(id=>{
         const el=document.getElementById(id); if(el) el.style.display=isAdmin?'flex':'none';
       });
 
@@ -1548,20 +1544,6 @@ body { padding-top:54px; }
     <span id="fb-save-indicator" style="font-family:var(--mono);font-size:10px;color:var(--green);display:none;">✓</span>
   </div>
 
-  <!-- Konto dropdown -->
-  <div class="navl" id="nlKonto" onclick="toggleDrop(this)" style="padding:0 10px;">
-    <span id="nav-user-role" style="font-family:var(--mono);font-size:10px;">👤</span>
-    <span class="nav-arr">▾</span>
-    <div class="nav-sub sub-right" style="min-width:230px">
-      <div class="nsi-info">
-        <span class="nsi-role" id="nav-u-role">—</span>
-        <span class="nsi-email" id="nav-u-email">niezalogowany</span>
-      </div>
-      <div class="nsi" id="nav-mgmt-btn" style="display:none" onclick="fbShowMgmt()">👥 Zarządzaj użytkownikami</div>
-      <hr class="nav-sep">
-      <div class="nsi" onclick="fbLogout()">🚪 Wyloguj się</div>
-    </div>
-  </div>
 
   <button class="nav-ham" id="navHam" onclick="toggleMobileNav()">☰</button>
 </nav>
@@ -1570,13 +1552,13 @@ body { padding-top:54px; }
 <div class="subbar" id="subbar">
   <!-- cal: month/year selector (shows for tSched + tAvail) -->
   <div class="sb-grp" id="sb-cal" style="display:none">
-    <select class="msel" id="selM" onchange="refreshMonth()">
+    <select class="msel" id="selM" onchange="refreshMonth(+this.value,null)">
       <option value="0">Styczeń</option><option value="1">Luty</option><option value="2">Marzec</option>
       <option value="3">Kwiecień</option><option value="4">Maj</option><option value="5">Czerwiec</option>
       <option value="6">Lipiec</option><option value="7">Sierpień</option><option value="8">Wrzesień</option>
       <option value="9">Październik</option><option value="10">Listopad</option><option value="11">Grudzień</option>
     </select>
-    <input type="number" class="yinp" id="selY" value="2026" min="2024" max="2030" onchange="refreshMonth()">
+    <input type="number" class="yinp" id="selY" value="2026" min="2024" max="2030" onchange="refreshMonth(null,+this.value)">
     <div class="sb-sep"></div>
   </div>
   <span class="sb-ctx" id="sbCtx"></span>
@@ -1718,13 +1700,13 @@ body { padding-top:54px; }
   <div class="mnb-ctrl">
     <div class="mnb-ctrl-lbl">Miesiąc i rok</div>
     <div class="mnb-ctrl-row">
-      <select class="msel" onchange="document.getElementById('selM').value=this.value;refreshMonth()" id="mob-selM">
+      <select class="msel" onchange="refreshMonth(+this.value,null)" id="mob-selM">
         <option value="0">Styczeń</option><option value="1">Luty</option><option value="2">Marzec</option>
         <option value="3">Kwiecień</option><option value="4">Maj</option><option value="5">Czerwiec</option>
         <option value="6">Lipiec</option><option value="7">Sierpień</option><option value="8">Wrzesień</option>
         <option value="9">Październik</option><option value="10">Listopad</option><option value="11">Grudzień</option>
       </select>
-      <input type="number" class="yinp" onchange="document.getElementById('selY').value=this.value;refreshMonth()" id="mob-selY" value="2026" min="2024" max="2030">
+      <input type="number" class="yinp" onchange="refreshMonth(null,+this.value)" id="mob-selY" value="2026" min="2024" max="2030">
     </div>
   </div>
 
@@ -2222,7 +2204,7 @@ function cyclePrefW(wi,code,evt){
 
 /* ══════════ SHIFTS ══════════ */
 function ensureCoverage(code){if(!S.coverage[code])S.coverage[code]={wd:1,we:0};}
-function ensurePerms(){S.workers.forEach(w=>{S.shifts.forEach(s=>{if(w.perms[s.code]===undefined)w.perms[s.code]=true;});});}
+function ensurePerms(){S.workers.forEach(w=>{if(!w.perms)w.perms={};if(!w.prefs)w.prefs={};S.shifts.forEach(s=>{if(w.perms[s.code]===undefined)w.perms[s.code]=true;});});}
 
 function renderShiftEditor(){
   const el=document.getElementById('shiftEditor');
@@ -4662,26 +4644,27 @@ function renderEvents(){
 }
 
 /* ══════════ REFRESH MONTH ══════════ */
-function refreshMonth(){
-  const m=+document.getElementById('selM').value;
-  const y=+document.getElementById('selY').value;
+function refreshMonth(newM, newY){
+  // Przyjmuje wartości bezpośrednio LUB czyta z elementów jako fallback
+  const m = (newM!=null&&!isNaN(newM)) ? +newM : +( document.getElementById('selM')?.value??S.month);
+  const y = (newY!=null&&!isNaN(newY)) ? +newY : +(document.getElementById('selY')?.value??S.year);
   if(isNaN(m)||isNaN(y)||m<0||m>11||y<2000) return;
-  // Zawsze synchronizuj oba paski (subbar i mobile nav)
-  const ms=document.getElementById('mob-selM'),ys=document.getElementById('mob-selY');
-  if(ms) ms.value=m; if(ys) ys.value=y;
+  // Synchronizuj WSZYSTKIE selektory
+  ['selM','mob-selM'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=m;});
+  ['selY','mob-selY'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=y;});
   if(m===S.month && y===S.year){
-    // ten sam miesiąc — tylko odśwież widok
     reRenderAll();renderEvents();if(S.schedule)renderSchedule();
     setSt('idle','Odświeżono');return;
   }
-  // zapisz dane bieżącego miesiąca
   saveMonthData();
-  // przełącz miesiąc
   S.month=m;S.year=y;
   loadMonthData(m,y);
   if(!S.schedule) document.getElementById('scoreBar').style.display='none';
-  reRenderAll();
-  renderEvents();
+  // każdy render osobno — błąd jednego widoku nie blokuje przełączenia miesiąca
+  ensurePerms();
+  try{reRenderAll();}catch(e){console.warn('reRenderAll:',e);}
+  try{renderSchedule();}catch(e){console.warn('renderSchedule:',e);}
+  try{renderEvents();}catch(e){console.warn('renderEvents:',e);}
   saveState();
   const MNAMES=['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec',
     'Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
@@ -4691,11 +4674,9 @@ function refreshMonth(){
 /* ══════════ SIDEBAR TOGGLE ══════════ */
 function toggleSidebar(){ /* replaced by drawer */ }
 function initSidebarState(){
-  // Sync both subbar and mobile nav month/year selects
-  ['selM','selY','mob-selM','mob-selY'].forEach(id=>{
-    const el=document.getElementById(id); if(!el) return;
-    el.value = id.includes('M') ? S.month : S.year;
-  });
+  // Sync all month/year selectors
+  ['selM','mob-selM'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=S.month;});
+  ['selY','mob-selY'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=S.year;});
   // Restore last panel
   try{
     const saved = localStorage.getItem('planista_nav');
@@ -4779,22 +4760,16 @@ function navGo(panelId) {
     if (el.getAttribute('onclick')?.includes("'" + panelId + "'")) el.classList.add('nsi-cur');
   });
 
-  // render panel content
-  if (panelId === 'tSched') {
-    // sync selectors to current state, then render
-    const smEl=document.getElementById('selM'),syEl=document.getElementById('selY');
-    if(smEl) smEl.value=S.month;
-    if(syEl) syEl.value=S.year;
-    renderSchedule();
+  // sync selectors before rendering (prevents stale month display)
+  if(['tSched','tAvail','tCov','tPrev','tStats'].includes(panelId)){
+    ['selM','mob-selM'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=S.month;});
+    ['selY','mob-selY'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=S.year;});
   }
+  // render panel content
+  if (panelId === 'tSched')     renderSchedule();
   if (panelId === 'tDash')      renderDashboard();
   if (panelId === 'tDay')       renderDayView();
-  if (panelId === 'tAvail') {
-    const smEl=document.getElementById('selM'),syEl=document.getElementById('selY');
-    if(smEl) smEl.value=S.month;
-    if(syEl) syEl.value=S.year;
-    renderAvail();
-  }
+  if (panelId === 'tAvail')     renderAvail();
   if (panelId === 'tCov')       renderCov();
   if (panelId === 'tPrev')      renderPrevMonth();
   if (panelId === 'tStats')     renderStats();
@@ -5576,10 +5551,7 @@ function renderDashboard(){
 
 function dashGoToToday(){
   const today=new Date();
-  S.month=today.getMonth(); S.year=today.getFullYear();
-  document.getElementById('selM').value=S.month;
-  document.getElementById('selY').value=S.year;
-  refreshMonth();
+  refreshMonth(today.getMonth(), today.getFullYear());
   renderDashboard();
 }
 
