@@ -1178,6 +1178,61 @@ body { padding-top:54px; }
   .dv-wtbl tbody td:nth-child(6){display:none;}
 }
 
+
+/* ════ DV PRINT MODAL ════ */
+.dv-pm-ov{display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.65);
+  backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:20px;}
+.dv-pm-ov.open{display:flex;}
+.dv-pm-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  width:100%;max-width:500px;max-height:90dvh;display:flex;flex-direction:column;
+  box-shadow:0 24px 64px rgba(0,0,0,.55);animation:kmIn .18s ease;}
+.dv-pm-hd{display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;border-bottom:1px solid var(--border);flex:0 0 auto;}
+.dv-pm-title{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700;}
+.dv-pm-body{flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:14px;}
+.dv-pm-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+.dv-pm-field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:120px;}
+.dv-pm-lbl{font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);}
+.dv-pm-inp{font-family:var(--mono);font-size:12px;padding:7px 10px;
+  border:1px solid var(--border);background:var(--bg);color:var(--ink);border-radius:7px;outline:none;}
+.dv-pm-inp:focus{border-color:var(--blue);}
+.dv-pm-preview{font-family:var(--mono);font-size:10px;color:var(--ink2);
+  background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px;
+  line-height:1.7;max-height:160px;overflow-y:auto;}
+.dv-pm-ft{display:flex;gap:8px;padding:14px 20px;border-top:1px solid var(--border);flex:0 0 auto;flex-wrap:wrap;}
+@media(max-width:639px){
+  .dv-pm-ov{padding:0;align-items:flex-end;}
+  .dv-pm-box{border-radius:16px 16px 0 0;max-width:100%;max-height:88dvh;}
+}
+
+/* ════ DV PRINT AREA ════ */
+#dv-print-area{display:none}
+@media print {
+  body>*:not(#dv-print-area):not(#tSched) { display:none!important; }
+  #dv-print-area{display:block!important;padding:6mm;font-family:Arial,sans-serif;font-size:8pt;color:#111;}
+  #dv-print-area * {box-sizing:border-box;}
+  .dv-p-title{font-size:13pt;font-weight:700;margin-bottom:2mm;}
+  .dv-p-sub{font-size:7pt;color:#666;margin-bottom:5mm;}
+  .dv-p-scale-wrap{width:100%;overflow:hidden;}
+  .dv-multi-tbl{border-collapse:collapse;width:100%;}
+  .dv-multi-tbl th,.dv-multi-tbl td{border:1px solid #ccc;padding:2px 4px;font-size:7pt;text-align:center;}
+  .dv-multi-tbl .dv-hour-td{text-align:left;color:#555;background:#f7f7f7;font-size:7pt;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .dv-multi-tbl th.dv-hour-th{text-align:left;font-size:7pt;background:#e8ecf4;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .dv-multi-tbl tr.dv-sum-tr td{background:#dce8f8;font-weight:700;font-size:8pt;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .dv-multi-tbl tr.dv-max-tr td{background:#fff8e1;color:#b45309;font-size:7pt;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .dv-multi-tbl tr.dv-sales-tr td{background:#e0f2fe;font-weight:700;font-size:8pt;color:#0369a1;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .dv-multi-tbl tr.dv-spmh-tr td{background:#dcfce7;font-weight:700;font-size:8pt;color:#166534;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .dv-p-pos-section{margin-top:5mm;}
+  .dv-p-pos-title{font-size:8pt;font-weight:700;margin-bottom:2mm;color:#333;}
+  .dv-p-pos-tbl{border-collapse:collapse;width:auto;}
+  .dv-p-pos-tbl th,.dv-p-pos-tbl td{border:1px solid #ccc;padding:2px 5px;font-size:7pt;}
+  .dv-p-pos-tbl th{background:#e8ecf4;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .dv-p-workers-tbl{border-collapse:collapse;width:100%;margin-bottom:5mm;}
+  .dv-p-workers-tbl th,.dv-p-workers-tbl td{border:1px solid #ddd;padding:3px 6px;font-size:8pt;text-align:left;}
+  .dv-p-workers-tbl th{background:#f0f4ff;font-weight:700;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .dv-p-workers-tbl tr.dv-p-from-sched td{background:#f8faff;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+}
+
 </style>
 
 <!-- Firebase SDK -->
@@ -1538,7 +1593,9 @@ body { padding-top:54px; }
   </div>
   <div class="sb-grp" id="sb-day" style="display:none">
     <button class="btn-sm ok" onclick="dvAddRow()">+ Dodaj pracownika</button>
-    <button class="btn-sm" onclick="dvClearExtra()">↩ Tylko grafik</button>
+    <div class="sb-sep"></div>
+    <button class="btn-sm exp" onclick="dvOpenPrintModal()">🖨 Drukuj / PDF</button>
+    <button class="btn-sm danger" onclick="dvClearExtra()">↩ Tylko grafik</button>
   </div>
 </div>
 
@@ -4794,202 +4851,212 @@ function toggleMobGroup(headEl) {
   if (!isOpen) { sub.classList.add('open'); headEl.classList.add('exp'); }
 }
 
-/* ══════════ DAY VIEW — OBSADA GODZINOWA ══════════ */
-let _dayDate = new Date();
+/* ══════════════════════════════════════════════════════
+   DAY VIEW — OBSADA GODZINOWA (z logiką grafik2)
+═══════════════════════════════════════════════════════ */
 
-/* ---------- helpers (from grafik2) ---------- */
-function dvParseHour(raw) {
-  const s = String(raw).replace(/[^0-9]/g,'');
-  if (!s) return null;
-  const n = parseInt(s,10);
-  if (s.length <= 2 && n <= 24) return n * 100;
-  const h = Math.floor(n/100), mi = n%100;
-  if (h>24||mi>59) return null;
-  if (h===24&&mi!==0) return null;
+/* ── stanowiska ── */
+const DV_STANOWISKA_DEF = ['Pracownik','Instruktor','Lider gościnności','Menadżer','Noc'];
+const DV_POS_COLORS_DEF = {
+  'Pracownik':'#74aeff','Instruktor':'#3ecf8e',
+  'Lider gościnności':'#fbbf24','Menadżer':'#c084fc','Noc':'#ff6b6b'
+};
+let _dvStan, _dvPosCol;
+function dvLoadStan(){
+  try{
+    const s=localStorage.getItem('planista_stan');
+    const c=localStorage.getItem('planista_poscol');
+    _dvStan=s?JSON.parse(s):[...DV_STANOWISKA_DEF];
+    _dvPosCol=c?JSON.parse(c):{...DV_POS_COLORS_DEF};
+  }catch(e){_dvStan=[...DV_STANOWISKA_DEF];_dvPosCol={...DV_POS_COLORS_DEF};}
+}
+function dvSaveStan(){
+  try{
+    localStorage.setItem('planista_stan',JSON.stringify(_dvStan));
+    localStorage.setItem('planista_poscol',JSON.stringify(_dvPosCol));
+  }catch(e){}
+}
+function dvGetStan(){ if(!_dvStan) dvLoadStan(); return _dvStan; }
+function dvGetPosCol(){ if(!_dvPosCol) dvLoadStan(); return _dvPosCol; }
+function dvPosColor(s){ return (dvGetPosCol()[s])||'#8892aa'; }
+
+/* ── hour helpers ── */
+let _dayDate = new Date();
+function dvParseHour(raw){
+  const s=String(raw).replace(/[^0-9]/g,''); if(!s) return null;
+  const n=parseInt(s,10);
+  if(s.length<=2&&n<=24) return n*100;
+  const h=Math.floor(n/100),m=n%100;
+  if(h>24||m>59||( h===24&&m!==0)) return null;
   return n;
 }
-function dvToFrac(n) { return n===2400 ? 1 : (Math.floor(n/100)*60 + n%100) / 1440; }
-function dvFmtH(n) {
-  if (n===2400) return '24:00';
-  return String(Math.floor(n/100)).padStart(2,'0') + ':' + String(n%100).padStart(2,'0');
-}
-function dvComputeForDay(rows, prevRows, h) {
-  const slotS=h/24, slotE=h===23?1:(h+1)/24;
-  let total=0;
+function dvToFrac(n){ return n===2400?1:(Math.floor(n/100)*60+n%100)/1440; }
+function dvFmtH(n){ return n===2400?'24:00':String(Math.floor(n/100)).padStart(2,'0')+':'+String(n%100).padStart(2,'0'); }
+function dvComputeForDay(rows,prevRows,h){
+  const slotS=h/24,slotE=h===23?1:(h+1)/24;let total=0;
   (rows||[]).forEach(r=>{
-    const s=dvParseHour(r.start), e=dvParseHour(r.end);
-    if(s===null||e===null) return;
-    const S=dvToFrac(s), E=e===2400?1:dvToFrac(e);
-    const isNight=S>E&&e!==2400;
-    if(!isNight){ total+=Math.max(0,Math.min(E,slotE)-Math.max(S,slotS))*24; }
-    else{ total+=Math.max(0,Math.min(1,slotE)-Math.max(S,slotS))*24; }
+    const s=dvParseHour(r.start),e=dvParseHour(r.end); if(s===null||e===null) return;
+    const S=dvToFrac(s),E=e===2400?1:dvToFrac(e),isNight=S>E&&e!==2400;
+    if(!isNight){total+=Math.max(0,Math.min(E,slotE)-Math.max(S,slotS))*24;}
+    else{total+=Math.max(0,Math.min(1,slotE)-Math.max(S,slotS))*24;}
   });
   (prevRows||[]).forEach(r=>{
-    const s=dvParseHour(r.start), e=dvParseHour(r.end);
-    if(s===null||e===null) return;
-    const S=dvToFrac(s), E=e===2400?1:dvToFrac(e);
-    if(S>E&&e!==2400){ total+=Math.max(0,Math.min(E,slotE)-Math.max(0,slotS))*24; }
+    const s=dvParseHour(r.start),e=dvParseHour(r.end); if(s===null||e===null) return;
+    const S=dvToFrac(s),E=e===2400?1:dvToFrac(e);
+    if(S>E&&e!==2400){total+=Math.max(0,Math.min(E,slotE)-Math.max(0,slotS))*24;}
   });
   return total;
 }
-function dvTotalHours(rows, prevRows) {
+function dvTotalHours(rows,prevRows){
   let t=0;
   (rows||[]).forEach(r=>{
-    const s=dvParseHour(r.start), e=dvParseHour(r.end);
-    if(s===null||e===null) return;
-    const S=dvToFrac(s), E=e===2400?1:dvToFrac(e);
-    if(S<=E){ t+=(E-S)*24; } else{ t+=(1-S)*24; }
+    const s=dvParseHour(r.start),e=dvParseHour(r.end); if(s===null||e===null) return;
+    const S=dvToFrac(s),E=e===2400?1:dvToFrac(e);
+    if(S<=E){t+=(E-S)*24;}else{t+=(1-S)*24;}
   });
   (prevRows||[]).forEach(r=>{
-    const s=dvParseHour(r.start), e=dvParseHour(r.end);
-    if(s===null||e===null) return;
-    const S=dvToFrac(s), E=e===2400?1:dvToFrac(e);
+    const s=dvParseHour(r.start),e=dvParseHour(r.end); if(s===null||e===null) return;
+    const S=dvToFrac(s),E=e===2400?1:dvToFrac(e);
     if(S>E&&e!==2400) t+=E*24;
   });
   return t;
 }
+function dvHoursByPos(rows,prevRows){
+  const byPos={};
+  (rows||[]).forEach(r=>{
+    const s=dvParseHour(r.start),e=dvParseHour(r.end); if(s===null||e===null) return;
+    const S=dvToFrac(s),E=e===2400?1:dvToFrac(e),h=S<=E?(E-S)*24:(1-S)*24;
+    const key=r.stanowisko||'Pracownik';
+    byPos[key]=(byPos[key]||0)+h;
+  });
+  return byPos;
+}
 
-/* ---------- day key ---------- */
-function dvKey(date) {
+/* ── key helpers ── */
+function dvKey(date){
   const d=date||_dayDate;
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
-function dvPrevKey(dateKey) {
+function dvPrevKey(dateKey){
   const [y,m,d]=dateKey.split('-').map(Number);
-  const p=new Date(y,m-1,d-1);
-  return dvKey(p);
+  return dvKey(new Date(y,m-1,d-1));
 }
 
-/* ---------- state helpers ---------- */
-function dvGetRows(dateKey) {
-  if (!S.dayData) S.dayData={};
-  if (S.dayData[dateKey]) return S.dayData[dateKey].rows;
-  // auto-populate from schedule
-  const y=parseInt(dateKey.slice(0,4)), m=parseInt(dateKey.slice(5,7))-1, d=parseInt(dateKey.slice(8,10))-1;
+/* ── state ── */
+function dvGetRows(dateKey){
+  if(!S.dayData) S.dayData={};
+  if(S.dayData[dateKey]) return S.dayData[dateKey].rows;
+  const y=parseInt(dateKey.slice(0,4)),m=parseInt(dateKey.slice(5,7))-1,di=parseInt(dateKey.slice(8,10))-1;
   const rows=[];
-  if(S.schedule && m===S.month && y===S.year){
+  if(S.schedule&&m===S.month&&y===S.year){
     for(let wi=0;wi<S.workers.length;wi++){
-      const code=S.schedule[wi]?.[d]; if(!code) continue;
-      const shift=S.shifts.find(s=>s.code===code);
-      if(!shift) continue;
-      const startRaw=(shift.od||'').replace(':','');
-      const endRaw=(shift.do||'').replace(':','');
-      rows.push({name:S.workers[wi].name, start:startRaw, end:endRaw, pos:code, fromSchedule:true});
+      const code=S.schedule[wi]?.[di]; if(!code) continue;
+      const shift=S.shifts.find(s=>s.code===code); if(!shift) continue;
+      rows.push({
+        name:S.workers[wi].name,
+        start:(shift.od||'').replace(':',''),
+        end:(shift.do||'').replace(':',''),
+        stanowisko:S.workers[wi].pos||dvGetStan()[0]||'Pracownik',
+        fromSchedule:true
+      });
     }
   }
-  S.dayData[dateKey]={rows, sales:0};
+  S.dayData[dateKey]={rows,sales:0};
   return rows;
 }
-function dvSave() { saveState(); }
-
-/* ---------- update / add / delete ---------- */
-function dvUpdateRow(dateKey, idx, field, val) {
-  if(!S.dayData?.[dateKey]?.rows) return;
-  S.dayData[dateKey].rows[idx][field] = String(val).trim();
-  // Don't refresh summary during live typing in time fields — only on blur
-  if(field==='name') dvRefreshSummary(dateKey);
+function dvSave(){saveState();}
+function dvUpdateRow(dk,idx,field,val){
+  if(!S.dayData?.[dk]?.rows) return;
+  S.dayData[dk].rows[idx][field]=String(val).trim();
+  if(field==='stanowisko') dvRefreshSummary(dk);
   dvSave();
 }
-function dvBlurRefresh(dateKey) { dvRefreshSummary(dateKey); dvSave(); }
-function dvAddRow() {
+function dvBlurRefresh(dk){dvRefreshSummary(dk);dvSave();}
+function dvAddRow(){
   const dk=dvKey();
   if(!S.dayData) S.dayData={};
   if(!S.dayData[dk]) dvGetRows(dk);
-  const n=S.dayData[dk].rows.length+1;
-  S.dayData[dk].rows.push({name:'Pracownik '+n,start:'',end:'',pos:(S.shifts[0]?.code||''),fromSchedule:false});
+  const n=S.dayData[dk].rows.filter(r=>!r.fromSchedule).length+1;
+  S.dayData[dk].rows.push({name:'Pracownik '+n,start:'',end:'',stanowisko:dvGetStan()[0]||'Pracownik',fromSchedule:false});
   renderDayView();
   setTimeout(()=>{
     const idx=S.dayData[dk].rows.length-1;
-    const el=document.getElementById('dv-name-'+idx);
+    const el=document.getElementById('dv-s-'+idx);
     if(el){el.focus();el.select();}
   },50);
 }
-function dvDeleteRow(dateKey, idx) {
-  if(!S.dayData?.[dateKey]?.rows) return;
-  S.dayData[dateKey].rows.splice(idx,1);
-  renderDayView(); dvSave();
+function dvDeleteRow(dk,idx){
+  if(!S.dayData?.[dk]?.rows) return;
+  S.dayData[dk].rows.splice(idx,1);
+  renderDayView();dvSave();
 }
-function dvClearExtra() {
+function dvClearExtra(){
   const dk=dvKey();
   if(S.dayData?.[dk]) delete S.dayData[dk];
   renderDayView();
 }
-function dvUpdateSales(dateKey, val) {
+function dvUpdateSales(dk,val){
   if(!S.dayData) S.dayData={};
-  if(!S.dayData[dateKey]) dvGetRows(dateKey);
-  S.dayData[dateKey].sales = parseFloat(val)||0;
-  dvRefreshSummary(dateKey);
-  dvSave();
+  if(!S.dayData[dk]) dvGetRows(dk);
+  S.dayData[dk].sales=parseFloat(val)||0;
+  dvRefreshSummary(dk);dvSave();
 }
 
-/* ---------- RENDER SUMMARY (hourly breakdown) ---------- */
-function dvRefreshSummary(dateKey) {
+/* ── summary (hourly + stanowisko) ── */
+function dvRefreshSummary(dk){
   const el=document.getElementById('dvSummary'); if(!el) return;
-  const rows=dvGetRows(dateKey);
-  const prevRows=dvGetRows(dvPrevKey(dateKey));
+  const rows=dvGetRows(dk);
+  const prevRows=dvGetRows(dvPrevKey(dk));
   const hasAny=rows.some(r=>dvParseHour(r.start)!==null&&dvParseHour(r.end)!==null);
   if(!hasAny){el.innerHTML='';return;}
 
-  const hourly=[];
-  let maxV=0;
-  for(let h=0;h<24;h++){
-    const v=dvComputeForDay(rows,prevRows,h);
-    hourly.push(v); if(v>maxV) maxV=v;
-  }
+  const hourly=[];let maxV=0;
+  for(let h=0;h<24;h++){const v=dvComputeForDay(rows,prevRows,h);hourly.push(v);if(v>maxV)maxV=v;}
   const totalH=dvTotalHours(rows,prevRows);
   const maxH=Math.max(...hourly);
-  const sales=S.dayData[dateKey]?.sales||0;
+  const sales=S.dayData[dk]?.sales||0;
 
-  // SPMH
+  // update SPMH row
   let spmhHtml='';
   if(sales>0&&totalH>0){
     const spmh=(sales/totalH).toFixed(2);
-    spmhHtml=`<div class="dv-spmh-result" style="margin-top:0"><div class="dv-spmh-val">${spmh}</div>
+    spmhHtml=`<div class="dv-spmh-result"><div class="dv-spmh-val">${spmh}</div>
       <div class="dv-spmh-unit">PLN / h (SPMH)</div>
       <div class="dv-spmh-break">${sales.toLocaleString('pl-PL')} ÷ ${totalH.toFixed(2)} h</div></div>`;
   }
-  document.getElementById('dvSpmhResult').innerHTML=spmhHtml;
-  document.getElementById('dvSpmhHours').textContent=totalH>0?totalH.toFixed(2)+' h':'–';
+  const spmhR=document.getElementById('dvSpmhResult');
+  if(spmhR) spmhR.innerHTML=spmhHtml;
+  const spmhHours=document.getElementById('dvSpmhHours');
+  if(spmhHours) spmhHours.textContent=totalH>0?totalH.toFixed(2)+' h':'–';
 
-  // hourly table — skip zero hours at start and end
-  let firstNZ=0, lastNZ=23;
+  // hourly table (trim silent hours)
+  let firstNZ=0,lastNZ=23;
   for(let h=0;h<24;h++){if(hourly[h]>0){firstNZ=h;break;}}
   for(let h=23;h>=0;h--){if(hourly[h]>0){lastNZ=h;break;}}
-  const from=Math.max(0,firstNZ-1), to=Math.min(23,lastNZ+1);
-
+  const from=Math.max(0,firstNZ-1),to=Math.min(23,lastNZ+1);
   let tRows='';
   for(let h=from;h<=to;h++){
     const v=hourly[h];
     const disp=v===0?'–':(Number.isInteger(v)?v:v.toFixed(2));
     const barW=maxV>0?Math.round(v/maxV*80):0;
-    const bar=v>0?`<span class="dv-htbl dh-bar" style="width:${barW}px"></span>`:'';
+    const bar=v>0?`<span style="display:inline-block;width:${barW}px;height:3px;border-radius:2px;background:var(--blue);opacity:.55;vertical-align:middle;margin-left:8px"></span>`:'';
     const vClass=v===0?'dh-v0':v===maxH?'dh-v5':'';
-    tRows+=`<tr class="${vClass}"><td class="dh-hr">${String(h).padStart(2,'0')}:00 – ${String((h+1)%24).padStart(2,'0')}:00</td>
-      <td class="dh-val">${disp}${bar}</td></tr>`;
+    tRows+=`<tr class="${vClass}"><td class="dh-hr">${String(h).padStart(2,'0')}:00–${String((h+1)%24).padStart(2,'0')}:00</td><td class="dh-val">${disp}${bar}</td></tr>`;
   }
   tRows+=`<tr class="sum-row"><td>Σ roboczogodziny</td><td class="dh-val">${totalH.toFixed(2)}</td></tr>
     <tr class="sum-row"><td>MAX jednocześnie</td><td class="dh-val">${Number.isInteger(maxH)?maxH:maxH.toFixed(2)}</td></tr>`;
 
-  // position breakdown per shift code
-  const shiftHours={};
-  (S.shifts||[]).forEach(s=>{shiftHours[s.code]=0;});
-  rows.forEach(r=>{
-    const s=dvParseHour(r.start), e=dvParseHour(r.end); if(s===null||e===null) return;
-    const S2=dvToFrac(s), E2=e===2400?1:dvToFrac(e);
-    const h=S2<=E2?(E2-S2)*24:(1-S2)*24;
-    const key=r.pos||'?';
-    shiftHours[key]=(shiftHours[key]||0)+h;
-  });
+  // stanowisko breakdown
+  const byPos=dvHoursByPos(rows,prevRows);
   let pbHtml='';
-  Object.entries(shiftHours).forEach(([code,hrs])=>{
-    if(hrs<0.01) return;
-    const shift=S.shifts.find(s=>s.code===code);
-    const col=shift?.color||'#6b7280';
+  dvGetStan().forEach(st=>{
+    const hrs=byPos[st]||0; if(hrs<0.01) return;
+    const col=dvPosColor(st);
     const pct=totalH>0?(hrs/totalH*100).toFixed(0):0;
     pbHtml+=`<div class="dv-pb-item" style="--c:${col}">
-      <div class="dv-pb-name">${code}${shift?' · '+shift.name:''}</div>
+      <div class="dv-pb-name">${st}</div>
       <div class="dv-pb-hrs">${hrs%1<0.01?Math.round(hrs):hrs.toFixed(2)}<span style="font-size:11px;color:var(--ink3)"> h</span></div>
-      <div class="dv-pb-sub">${pct}% obsady</div>
+      <div class="dv-pb-sub">${pct}%</div>
     </div>`;
   });
 
@@ -5001,37 +5068,30 @@ function dvRefreshSummary(dateKey) {
     <div style="overflow-x:auto"><table class="dv-htbl"><thead><tr><th>Godzina</th><th>Obsada</th></tr></thead><tbody>${tRows}</tbody></table></div>
     ${pbHtml?`<div class="dv-pos-breakdown">${pbHtml}</div>`:''}
   </div>`;
-  // re-inject SPMH result
-  document.getElementById('dvSpmhResult').innerHTML=spmhHtml;
+  if(spmhHtml){const r=document.getElementById('dvSpmhResult');if(r)r.innerHTML=spmhHtml;}
 }
 
-/* ---------- MAIN RENDER ---------- */
-function renderDayView() {
+/* ── main render ── */
+function renderDayView(){
+  dvLoadStan();
   const wrap=document.getElementById('dayWrap'); if(!wrap) return;
   const dk=dvKey();
-  const y=_dayDate.getFullYear(), m=_dayDate.getMonth(), d=_dayDate.getDate();
-  const hols=polishHolidays(y);
-  const isHol=hols.has(dk), dw=new Date(y,m,d).getDay();
+  const y=_dayDate.getFullYear(),m=_dayDate.getMonth(),d=_dayDate.getDate();
+  const hols=polishHolidays(y),isHol=hols.has(dk),dw=new Date(y,m,d).getDay();
   const todayKey=dvKey(new Date());
 
-  // nav header
   let html=`<div class="dv-nav">
     <button class="btn-sm" onclick="_dayDate=new Date(_dayDate);_dayDate.setDate(_dayDate.getDate()-1);renderDayView()">← Poprzedni</button>
-    <div class="dv-date">
-      <span class="dv-dow">${_DOWfull[dw]}</span>, ${d} ${_MPLgen[m]} ${y}
-      ${isHol?'<span class="dv-hol">🔴 Święto</span>':''}
-    </div>
+    <div class="dv-date"><span class="dv-dow">${_DOWfull[dw]}</span>, ${d} ${_MPLgen[m]} ${y}${isHol?' <span class="dv-hol">🔴</span>':''}</div>
     <button class="btn-sm" onclick="_dayDate=new Date(_dayDate);_dayDate.setDate(_dayDate.getDate()+1);renderDayView()">Następny →</button>
     ${dk!==todayKey?`<button class="btn-sm ok" onclick="_dayDate=new Date();renderDayView()">Dziś</button>`:''}
   </div>`;
 
-  // SPMH card
   const sales=S.dayData?.[dk]?.sales||0;
   html+=`<div class="dv-spmh">
     <div class="dv-spmh-field">
       <span class="dv-spmh-lbl">Planowana sprzedaż brutto (PLN)</span>
-      <input class="dv-spmh-inp" type="number" min="0" step="100" value="${sales||''}" placeholder="0"
-        oninput="dvUpdateSales('${dk}',this.value)">
+      <input class="dv-spmh-inp" type="number" min="0" step="100" value="${sales||''}" placeholder="0" oninput="dvUpdateSales('${dk}',this.value)">
     </div>
     <div class="dv-spmh-field">
       <span class="dv-spmh-lbl">Zaplanowane godziny</span>
@@ -5040,22 +5100,25 @@ function renderDayView() {
     <div id="dvSpmhResult"></div>
   </div>`;
 
-  // worker table
   const rows=dvGetRows(dk);
-  const posOptions=(S.shifts||[]).map(s=>`<option value="${s.code}">${s.code} – ${s.name}</option>`).join('');
+  const stanOpts=dvGetStan().map(s=>`<option value="${s}">${s}</option>`).join('');
+  const fromSchedCount=rows.filter(r=>r.fromSchedule).length;
+  const extraCount=rows.filter(r=>!r.fromSchedule).length;
 
   html+=`<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+    ${fromSchedCount>0?`<div style="font-family:var(--mono);font-size:9px;letter-spacing:.8px;text-transform:uppercase;color:var(--ink3);padding:8px 14px 0;display:flex;gap:12px">
+      <span>📋 Z grafiku: ${fromSchedCount}</span>${extraCount>0?`<span>➕ Dodatkowi: ${extraCount}</span>`:''}
+    </div>`:''}
     <table class="dv-wtbl"><thead><tr>
       <th style="width:26px">#</th>
       <th>Imię / Opis</th>
       <th>Od</th><th>Do</th>
-      <th>Zmiana</th>
+      <th>Stanowisko</th>
       <th style="width:36px"></th>
     </tr></thead><tbody>`;
 
   rows.forEach((r,i)=>{
     const rowCls=r.fromSchedule?'dv-from-sched':'';
-    const shift=S.shifts.find(s=>s.code===r.pos);
     html+=`<tr class="${rowCls}">
       <td class="dv-wrow-num">${i+1}</td>
       <td><input class="dv-inp" type="text" id="dv-name-${i}" value="${(r.name||'').replace(/"/g,'&quot;')}"
@@ -5063,19 +5126,17 @@ function renderDayView() {
         onchange="dvUpdateRow('${dk}',${i},'name',this.value)"
         oninput="dvUpdateRow('${dk}',${i},'name',this.value)"
         onkeydown="if(event.key==='Enter'){const s=document.getElementById('dv-s-${i}');if(s){setTimeout(()=>{s.focus();s.select();},0);}}"></td>
-      <td><input class="dv-inp time-inp" type="text" id="dv-s-${i}" value="${r.start||''}"
-        placeholder="0600" maxlength="4"
+      <td><input class="dv-inp time-inp" type="text" id="dv-s-${i}" value="${r.start||''}" placeholder="0600" maxlength="4"
         onchange="dvUpdateRow('${dk}',${i},'start',this.value)"
         oninput="dvUpdateRow('${dk}',${i},'start',this.value)"
         onblur="dvBlurRefresh('${dk}')"
         onkeydown="if(event.key==='Enter'){const e=document.getElementById('dv-e-${i}');if(e){setTimeout(()=>{e.focus();e.select();},0);}}"></td>
-      <td><input class="dv-inp time-inp" type="text" id="dv-e-${i}" value="${r.end||''}"
-        placeholder="1400" maxlength="4"
+      <td><input class="dv-inp time-inp" type="text" id="dv-e-${i}" value="${r.end||''}" placeholder="1400" maxlength="4"
         onchange="dvUpdateRow('${dk}',${i},'end',this.value)"
         oninput="dvUpdateRow('${dk}',${i},'end',this.value)"
         onblur="dvBlurRefresh('${dk}')"></td>
-      <td><select class="dv-pos-sel" onchange="dvUpdateRow('${dk}',${i},'pos',this.value)">
-        ${(S.shifts||[]).map(s=>`<option value="${s.code}"${r.pos===s.code?' selected':''}>${s.code} – ${s.name}</option>`).join('')}
+      <td><select class="dv-pos-sel" onchange="dvUpdateRow('${dk}',${i},'stanowisko',this.value)">
+        ${dvGetStan().map(s=>`<option value="${s}"${r.stanowisko===s?' selected':''}>${s}</option>`).join('')}
       </select></td>
       <td><button class="dv-del" onclick="dvDeleteRow('${dk}',${i})" title="Usuń">✕</button></td>
     </tr>`;
@@ -5086,14 +5147,192 @@ function renderDayView() {
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Dodaj pracownika
     </button>
-  </div>`;
-
-  html+=`<div id="dvSummary"></div>`;
+  </div>
+  <div id="dvSummary"></div>`;
 
   wrap.innerHTML=html;
   dvRefreshSummary(dk);
 }
 
+/* ══════════════════════════════════════════════════════════
+   PRINT / PDF — day view
+═══════════════════════════════════════════════════════════ */
+function dvOpenPrintModal(){
+  const dk=dvKey();
+  const d=document.getElementById('dvPmFrom');
+  const t=document.getElementById('dvPmTo');
+  if(d) d.value=dk;
+  if(t) t.value=dk;
+  const savedHF=localStorage.getItem('dv_print_hf');
+  const savedHT=localStorage.getItem('dv_print_ht');
+  const hf=document.getElementById('dvPmHFrom');
+  const ht=document.getElementById('dvPmHTo');
+  if(hf) hf.value=savedHF!==null?savedHF:6;
+  if(ht) ht.value=savedHT!==null?savedHT:23;
+  document.getElementById('dvPmOv').classList.add('open');
+  dvUpdatePrintPreview();
+}
+function dvClosePrintModal(){document.getElementById('dvPmOv').classList.remove('open');}
+
+function dvGetDatesInRange(from,to){
+  if(!from||!to||from>to) return [];
+  const res=[],cur=new Date(from),end=new Date(to);
+  while(cur<=end){res.push(dvKey(cur));cur.setDate(cur.getDate()+1);}
+  return res;
+}
+
+function dvUpdatePrintPreview(){
+  const from=document.getElementById('dvPmFrom')?.value;
+  const to=document.getElementById('dvPmTo')?.value;
+  const pr=document.getElementById('dvPmPreview');
+  if(!pr) return;
+  const dates=dvGetDatesInRange(from,to);
+  if(!dates.length){pr.textContent='Brak zakresu';return;}
+  const DOWSpl=['Nd','Pn','Wt','Śr','Cz','Pt','Sb'];
+  const MONTHSpl=['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru'];
+  const fmt=d=>{const dt=new Date(d);return `${dt.getDate()} ${MONTHSpl[dt.getMonth()]} (${DOWSpl[dt.getDay()]})`;};
+  pr.innerHTML=dates.map(d=>{
+    const rows=S.dayData?.[d]?.rows||[];
+    const cnt=rows.filter(r=>dvParseHour(r.start)!==null&&dvParseHour(r.end)!==null).length;
+    return `${fmt(d)} – ${cnt} pracowników`;
+  }).join('<br>');
+}
+
+function dvDoPrint(){
+  const from=document.getElementById('dvPmFrom')?.value;
+  const to=document.getElementById('dvPmTo')?.value;
+  if(!from||!to||from>to){alert('Nieprawidłowy zakres dat');return;}
+  const hourFrom=parseInt(document.getElementById('dvPmHFrom')?.value||'6',10);
+  const hourTo=parseInt(document.getElementById('dvPmHTo')?.value||'23',10);
+  if(hourFrom>hourTo){alert('Godzina OD musi być ≤ DO');return;}
+  const orient=document.getElementById('dvPmOrient')?.value||'landscape';
+
+  try{localStorage.setItem('dv_print_hf',hourFrom);localStorage.setItem('dv_print_ht',hourTo);}catch(e){}
+
+  const dates=dvGetDatesInRange(from,to);
+  const DOWSpl=['Nd','Pn','Wt','Śr','Cz','Pt','Sb'];
+  const MONTHSpl=['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru'];
+  const fmtShort=d=>{const dt=new Date(d);return `${dt.getDate()}.${dt.getMonth()+1}.${dt.getFullYear().toString().slice(2)}`;};
+  const fmtDow=d=>DOWSpl[new Date(d).getDay()];
+
+  // build hourly grids
+  const hourly={};
+  for(let h=0;h<24;h++){
+    hourly[h]={};
+    dates.forEach(d=>{
+      const rows=dvGetRows(d);
+      const prev=dvGetRows(dvPrevKey(d));
+      hourly[h][d]=dvComputeForDay(rows,prev,h);
+    });
+  }
+  const totals={},maxes={};
+  dates.forEach(d=>{
+    totals[d]=0;maxes[d]=0;
+    for(let h=0;h<24;h++){totals[d]+=hourly[h][d];if(hourly[h][d]>maxes[d])maxes[d]=hourly[h][d];}
+  });
+
+  // stanowisko totals per date
+  const posTotals={};
+  dates.forEach(d=>{
+    posTotals[d]={};
+    const rows=dvGetRows(d);
+    const prev=dvGetRows(dvPrevKey(d));
+    const nightCarry=prev.filter(r=>{
+      const s=dvParseHour(r.start),e=dvParseHour(r.end);
+      if(s===null||e===null) return false;
+      return dvToFrac(s)>dvToFrac(e===2400?1:e)&&e!==2400;
+    });
+    const bp=dvHoursByPos(rows.concat(nightCarry),[]);
+    dvGetStan().forEach(st=>{posTotals[d][st]=bp[st]||0;});
+  });
+
+  const fmtV=v=>v===0?'–':(Number.isInteger(v)?v:v.toFixed(2));
+  const sales=S.dayData||{};
+
+  let html=`<div class="dv-p-title">Grafik obsady – ${fmtShort(from)}${from!==to?' – '+fmtShort(to):''}</div>
+  <div class="dv-p-sub">Wydrukowano: ${new Date().toLocaleString('pl-PL')}</div>`;
+
+  // workers table (only for single day or show per day if multiple)
+  if(dates.length===1){
+    const rows=dvGetRows(dates[0]);
+    const hasRows=rows.some(r=>r.name);
+    if(hasRows){
+      html+=`<table class="dv-p-workers-tbl"><thead><tr>
+        <th>#</th><th>Imię / Opis</th><th>Od</th><th>Do</th><th>Stanowisko</th>
+      </tr></thead><tbody>`;
+      rows.forEach((r,i)=>{
+        const cls=r.fromSchedule?'dv-p-from-sched':'';
+        const sH=dvParseHour(r.start),eH=dvParseHour(r.end);
+        const sDisp=sH!==null?dvFmtH(sH):(r.start||'–');
+        const eDisp=eH!==null?dvFmtH(eH):(r.end||'–');
+        html+=`<tr class="${cls}"><td>${i+1}</td><td>${r.name||'–'}</td><td>${sDisp}</td><td>${eDisp}</td><td>${r.stanowisko||'–'}</td></tr>`;
+      });
+      html+=`</tbody></table>`;
+    }
+  }
+
+  // hourly multi-table
+  html+=`<table class="dv-multi-tbl"><thead>`;
+
+  // sales row
+  html+=`<tr class="dv-sales-tr"><th class="dv-hour-th">Sprzedaż brutto</th>
+    ${dates.map(d=>{const s=sales[d]?.sales;return `<th>${s?s.toLocaleString('pl-PL')+' zł':'–'}</th>`;}).join('')}</tr>`;
+  // spmh row
+  html+=`<tr class="dv-spmh-tr"><th class="dv-hour-th">SPMH brutto</th>
+    ${dates.map(d=>{const s=sales[d]?.sales,h=totals[d];return `<th>${s&&h?(s/h).toFixed(2):'–'}</th>`;}).join('')}</tr>`;
+
+  html+=`<tr style="background:#1f2535"><th class="dv-hour-th" style="font-size:9pt">Godzina</th>
+    ${dates.map(d=>`<th>${fmtDow(d)}<br>${fmtShort(d)}</th>`).join('')}
+  </tr></thead><tbody>`;
+
+  for(let h=hourFrom;h<=hourTo;h++){
+    html+=`<tr><td class="dv-hour-td">${String(h).padStart(2,'0')}:00–${String((h+1)%24).padStart(2,'0')}:00</td>
+      ${dates.map(d=>{const v=hourly[h][d];const vd=v===0?'–':(Number.isInteger(v)?v:v.toFixed(2));
+        return `<td style="${v>0?'font-weight:600;color:#1a56db':'color:#bbb'}">${vd}</td>`;}).join('')}
+    </tr>`;
+  }
+  html+=`<tr class="dv-sum-tr"><td>Σ godz.</td>${dates.map(d=>`<td>${totals[d].toFixed(1)}</td>`).join('')}</tr>
+    <tr class="dv-max-tr"><td>MAX jednocz.</td>${dates.map(d=>`<td>${fmtV(maxes[d])}</td>`).join('')}</tr>
+  </tbody></table>`;
+
+  // stanowisko breakdown
+  const posWithData=dvGetStan().filter(st=>dates.some(d=>(posTotals[d][st]||0)>0));
+  if(posWithData.length){
+    html+=`<div class="dv-p-pos-section">
+      <div class="dv-p-pos-title">Godziny wg stanowiska</div>
+      <table class="dv-p-pos-tbl"><thead><tr><th>Stanowisko</th>
+        ${dates.map(d=>`<th>${fmtDow(d)} ${fmtShort(d)}</th>`).join('')}
+      </tr></thead><tbody>
+      ${posWithData.map(st=>`<tr><td>${st}</td>
+        ${dates.map(d=>`<td>${fmtV(posTotals[d][st]||0)}</td>`).join('')}
+      </tr>`).join('')}
+      </tbody></table>
+    </div>`;
+  }
+
+  const printArea=document.getElementById('dv-print-area');
+  printArea.innerHTML=`<div class="dv-p-scale-wrap" id="dvPrintScaleWrap">${html}</div>`;
+  dvClosePrintModal();
+
+  // Set A4 orientation dynamically
+  let printStyle=document.getElementById('dv-print-page-style');
+  if(!printStyle){printStyle=document.createElement('style');printStyle.id='dv-print-page-style';document.head.appendChild(printStyle);}
+  printStyle.textContent=`@media print{@page{size:A4 ${orient};margin:${orient==='landscape'?'5mm 6mm':'7mm 8mm'};}#tSched{display:none!important}}`;
+
+  const origTitle=document.title;
+  document.title='Grafik_obsady_'+fmtShort(from).replace(/\./g,'-')+(from!==to?'_-_'+fmtShort(to).replace(/\./g,'-'):'');
+
+  setTimeout(()=>{
+    const wrap=document.getElementById('dvPrintScaleWrap');
+    if(wrap){
+      const A4_W=orient==='landscape'?1122:794;
+      const actual=wrap.scrollWidth;
+      if(actual>A4_W){const sc=A4_W/actual;wrap.style.transform=`scale(${sc})`;wrap.style.transformOrigin='top left';wrap.style.width=(100/sc)+'%';}
+    }
+    window.print();
+    setTimeout(()=>{document.title=origTitle;},1200);
+  },120);
+}
 
 function reRenderAll(){
   renderWorkers();renderShiftEditor();renderCov();renderAvail();renderSchedule();
@@ -6023,6 +6262,57 @@ async function loadProsbyFromFirestore(){
   }
 }
 </script>
+
+
+<!-- ═══ DV PRINT MODAL ═══ -->
+<div class="dv-pm-ov" id="dvPmOv" onclick="if(event.target===this)dvClosePrintModal()">
+  <div class="dv-pm-box">
+    <div class="dv-pm-hd">
+      <div class="dv-pm-title">🖨 Drukuj / PDF — Grafik dnia</div>
+      <button class="km-close" onclick="dvClosePrintModal()">×</button>
+    </div>
+    <div class="dv-pm-body">
+      <div class="dv-pm-row">
+        <div class="dv-pm-field">
+          <span class="dv-pm-lbl">Od daty</span>
+          <input class="dv-pm-inp" type="date" id="dvPmFrom" oninput="dvUpdatePrintPreview()">
+        </div>
+        <div class="dv-pm-field">
+          <span class="dv-pm-lbl">Do daty</span>
+          <input class="dv-pm-inp" type="date" id="dvPmTo" oninput="dvUpdatePrintPreview()">
+        </div>
+      </div>
+      <div class="dv-pm-row">
+        <div class="dv-pm-field">
+          <span class="dv-pm-lbl">Godz. od</span>
+          <input class="dv-pm-inp" type="number" id="dvPmHFrom" min="0" max="23" value="6" style="width:80px" oninput="dvUpdatePrintPreview()">
+        </div>
+        <div class="dv-pm-field">
+          <span class="dv-pm-lbl">Godz. do</span>
+          <input class="dv-pm-inp" type="number" id="dvPmHTo" min="0" max="23" value="23" style="width:80px" oninput="dvUpdatePrintPreview()">
+        </div>
+        <div class="dv-pm-field">
+          <span class="dv-pm-lbl">Orientacja</span>
+          <select class="dv-pm-inp" id="dvPmOrient" style="cursor:pointer">
+            <option value="landscape">Pozioma (A4)</option>
+            <option value="portrait">Pionowa (A4)</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <div class="dv-pm-lbl" style="margin-bottom:6px">Podgląd zakresu</div>
+        <div class="dv-pm-preview" id="dvPmPreview">–</div>
+      </div>
+    </div>
+    <div class="dv-pm-ft">
+      <button class="btn-go" onclick="dvDoPrint()" style="flex:1">🖨 Drukuj / Zapisz PDF</button>
+      <button class="btn-sm" onclick="dvClosePrintModal()">Anuluj</button>
+    </div>
+  </div>
+</div>
+
+<!-- hidden print area -->
+<div id="dv-print-area"></div>
 
 </body>
 </html>
