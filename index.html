@@ -991,6 +991,192 @@ body { padding-top:54px; }
   .panel{padding:8px;}
 }
 
+
+/* ════ SUBBAR ════ */
+.subbar {
+  position:sticky;top:54px;z-index:490;
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:7px 14px;gap:8px;flex-wrap:wrap;align-items:center;
+  box-shadow:0 2px 6px rgba(0,0,0,.18);
+}
+.subbar.vis{display:flex;}
+.sb-ctx{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--ink3);margin-right:4px;}
+.sb-sep{width:1px;height:18px;background:var(--border);flex-shrink:0;}
+.sb-grp{display:flex;align-items:center;gap:7px;}
+@media(max-width:639px){.subbar{top:48px;padding:6px 10px;}}
+
+/* ════ HAMBURGER FIX ════ */
+.nav-ham {
+  display:none;margin-left:auto;
+  background:var(--blue)!important;
+  border:none!important;
+  color:#fff!important;
+  border-radius:8px;padding:7px 13px;cursor:pointer;font-size:17px;line-height:1;
+  flex-shrink:0;
+}
+@media(max-width:768px){.nav-ham{display:flex;align-items:center;}}
+@media(max-width:639px){.nav-ham{font-size:16px;padding:6px 12px;}}
+
+/* ════ KONFIG MODAL (replaces drawer) ════ */
+.km-ov{
+  display:none;position:fixed;inset:0;z-index:700;
+  background:rgba(0,0,0,.6);backdrop-filter:blur(3px);
+  align-items:center;justify-content:center;padding:20px;
+}
+.km-ov.open{display:flex;}
+.km-box{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  width:100%;max-width:580px;max-height:90dvh;
+  display:flex;flex-direction:column;
+  box-shadow:0 24px 64px rgba(0,0,0,.55);
+  animation:kmIn .18s ease;
+}
+@keyframes kmIn{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+.km-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;border-bottom:1px solid var(--border);flex:0 0 auto;
+}
+.km-title{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700;}
+.km-close{background:none;border:none;color:var(--ink2);font-size:22px;cursor:pointer;padding:2px 6px;line-height:1;border-radius:6px;}
+.km-close:hover{background:var(--card);color:var(--ink);}
+.km-body{flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:14px;}
+.km-sec{display:none;flex-direction:column;gap:10px;}
+.km-sec.open{display:flex;}
+@media(max-width:639px){
+  .km-ov{padding:0;align-items:flex-end;}
+  .km-box{border-radius:16px 16px 0 0;max-width:100%;max-height:85dvh;}
+}
+
+/* ════ AVAIL TABLE (sticky column, grafik-like) ════ */
+.avail-outer{overflow-x:auto;position:relative;border-radius:8px;border:1px solid var(--border);}
+.avail-tbl{border-collapse:collapse;font-size:11px;width:max-content;min-width:100%;}
+.avail-tbl thead th{
+  position:sticky;top:0;z-index:3;
+  background:var(--card);padding:6px 3px;text-align:center;
+  font-family:var(--mono);font-size:8px;color:var(--ink3);
+  border-bottom:1px solid var(--border);white-space:nowrap;
+}
+.avail-tbl thead th.av-name-th{
+  position:sticky;top:0;left:0;z-index:5;text-align:left;
+  padding:6px 12px;min-width:150px;max-width:190px;border-right:1px solid var(--border);
+}
+.avail-tbl tbody td.av-name-td{
+  position:sticky;left:0;z-index:2;
+  background:var(--surface);border-right:1px solid var(--border);
+  padding:4px 10px;min-width:150px;max-width:190px;
+  font-size:12px;font-weight:600;white-space:nowrap;
+}
+.avail-tbl tbody tr:nth-child(even) td.av-name-td{background:var(--card);}
+.avail-tbl tbody tr:hover td.av-name-td{background:rgba(59,130,246,.06);}
+.avail-tbl tbody td{padding:3px 3px;text-align:center;vertical-align:middle;}
+.avail-tbl tbody tr:hover{background:rgba(59,130,246,.04);}
+.avail-th-day{min-width:40px;}
+.avail-th-day.av-we{color:var(--red)!important;}
+.avail-cell{
+  width:38px;height:30px;border-radius:4px;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  cursor:pointer;font-size:9px;font-weight:700;font-family:var(--mono);
+  margin:1px auto;transition:opacity .1s,border-color .1s;
+}
+.avail-cell:hover{opacity:.8;}
+.avail-cell.av-n{background:rgba(239,68,68,.18);border-color:var(--red);color:var(--red);}
+.avail-cell.av-c{background:rgba(245,158,11,.15);border-color:var(--orange);color:var(--orange);}
+.avail-cell.av-plan{border-color:transparent;background:rgba(59,130,246,.12);}
+.av-dot{width:6px;height:6px;border-radius:50%;margin-bottom:1px;}
+
+/* ════ DAY VIEW (grafik2 style) ════ */
+.dv-nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-bottom:10px;
+  border-bottom:1px solid var(--border);margin-bottom:14px;}
+.dv-date{font-family:var(--mono);font-size:15px;font-weight:700;flex:1;min-width:160px;}
+.dv-date .dv-dow{color:var(--blue);}
+.dv-date .dv-hol{color:var(--red);font-size:11px;margin-left:6px;}
+.dv-spmh{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:12px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+}
+.dv-spmh-field{display:flex;flex-direction:column;gap:4px;}
+.dv-spmh-lbl{font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);}
+.dv-spmh-inp{
+  font-family:var(--mono);font-size:13px;padding:6px 10px;width:130px;
+  border:1px solid var(--border);background:var(--bg);color:var(--ink);border-radius:6px;outline:none;
+}
+.dv-spmh-inp:focus{border-color:var(--blue);}
+.dv-spmh-result{margin-left:auto;text-align:right;}
+.dv-spmh-val{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--blue);line-height:1;}
+.dv-spmh-unit{font-size:10px;color:var(--ink3);margin-top:3px;}
+.dv-spmh-break{font-family:var(--mono);font-size:9px;color:var(--ink3);margin-top:2px;}
+
+/* worker table */
+.dv-wtbl{width:100%;border-collapse:collapse;font-size:12px;}
+.dv-wtbl thead th{
+  font-family:var(--mono);font-size:9px;letter-spacing:.8px;text-transform:uppercase;
+  color:var(--ink3);padding:7px 8px;border-bottom:1px solid var(--border);
+  background:var(--card);text-align:left;
+}
+.dv-wtbl tbody tr{border-bottom:1px solid rgba(255,255,255,.04);transition:background .1s;}
+.dv-wtbl tbody tr:hover{background:rgba(59,130,246,.04);}
+.dv-wtbl tbody td{padding:5px 6px;vertical-align:middle;}
+.dv-wrow-num{font-family:var(--mono);font-size:9px;color:var(--ink3);text-align:center;width:26px;}
+.dv-inp{
+  width:100%;background:var(--bg);border:1px solid var(--border);color:var(--ink);
+  border-radius:5px;padding:5px 7px;font-size:12px;outline:none;
+  transition:border-color .15s;
+}
+.dv-inp:focus{border-color:var(--blue);}
+.dv-inp.time-inp{font-family:var(--mono);width:68px;text-align:center;}
+.dv-pos-sel{
+  background:var(--bg);border:1px solid var(--border);color:var(--ink);
+  border-radius:5px;padding:5px 7px;font-size:11px;font-family:var(--mono);outline:none;width:100%;
+}
+.dv-del{background:none;border:none;color:var(--ink3);cursor:pointer;font-size:16px;padding:2px 6px;border-radius:5px;}
+.dv-del:hover{color:var(--red);background:rgba(239,68,68,.1);}
+.dv-add-btn{
+  display:flex;align-items:center;gap:8px;margin-top:10px;
+  background:none;border:1px dashed var(--border);color:var(--ink2);
+  border-radius:8px;padding:9px 14px;cursor:pointer;font-size:12px;width:100%;
+  transition:border-color .15s,color .15s;
+}
+.dv-add-btn:hover{border-color:var(--blue);color:var(--blue);}
+.dv-from-sched{background:rgba(59,130,246,.07);}
+
+/* hourly summary */
+.dv-summary{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:0;overflow:hidden;}
+.dv-sum-hd{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.dv-sum-title{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;color:var(--ink);flex:1;}
+.dv-sum-total{font-family:var(--mono);font-size:11px;color:var(--ink2);}
+.dv-htbl{width:100%;border-collapse:collapse;font-size:11px;}
+.dv-htbl th{font-family:var(--mono);font-size:8px;letter-spacing:.5px;text-transform:uppercase;
+  color:var(--ink3);padding:6px 10px;border-bottom:1px solid var(--border);text-align:left;}
+.dv-htbl td{padding:5px 10px;border-bottom:1px solid rgba(255,255,255,.03);}
+.dv-htbl .dh-hr{font-family:var(--mono);font-size:10px;color:var(--ink2);}
+.dv-htbl .dh-val{font-family:var(--mono);font-weight:700;font-size:11px;}
+.dv-htbl .dh-bar{display:inline-block;height:3px;border-radius:2px;background:var(--blue);
+  opacity:.55;vertical-align:middle;margin-left:8px;}
+.dv-htbl tr.dh-v0 .dh-val{color:var(--ink3);}
+.dv-htbl tr.dh-v5 .dh-val{color:var(--green);}
+.dv-htbl .dh-tgt{font-family:var(--mono);font-size:9px;color:var(--ink3);}
+.dv-htbl tr.dh-under td{background:rgba(239,68,68,.06);}
+.dv-htbl tr.dh-over td{background:rgba(34,197,94,.05);}
+.dv-htbl tr.sum-row td{border-top:1px solid var(--border);font-weight:700;color:var(--blue);}
+/* position breakdown */
+.dv-pos-breakdown{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;border-top:1px solid var(--border);}
+.dv-pb-item{
+  display:flex;flex-direction:column;gap:2px;padding:8px 12px;
+  background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  border-left:3px solid var(--c,var(--blue));min-width:100px;
+}
+.dv-pb-name{font-size:11px;font-weight:600;color:var(--ink);}
+.dv-pb-hrs{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--ink);}
+.dv-pb-sub{font-size:9px;color:var(--ink3);}
+@media(max-width:639px){
+  .dv-spmh{flex-direction:column;align-items:stretch;}
+  .dv-spmh-result{text-align:left;margin-left:0;}
+  .dv-spmh-inp{width:100%;}
+  .dv-wtbl thead th:nth-child(6){display:none;}
+  .dv-wtbl tbody td:nth-child(6){display:none;}
+}
+
 </style>
 
 <!-- Firebase SDK -->
@@ -1285,7 +1471,6 @@ body { padding-top:54px; }
         <div class="nsi" onclick="navSub('tPrev')">🔙 Poprzedni miesiąc</div>
         <hr class="nav-sep">
         <div class="nsi" onclick="navSub('tStats')">📊 Statystyki</div>
-        <div class="nsi" onclick="navSub('tLog')">📓 Dziennik</div>
       </div>
     </div>
 
@@ -1293,9 +1478,9 @@ body { padding-top:54px; }
     <div class="navl" id="nlKonfig" onclick="toggleDrop(this)" data-group="konfig">
       Konfiguracja <span class="nav-arr">▾</span>
       <div class="nav-sub">
-        <div class="nsi" onclick="openDrawer('workers')">👥 Pracownicy</div>
-        <div class="nsi" onclick="openDrawer('shifts')">🔄 Zmiany</div>
-        <div class="nsi" onclick="openDrawer('events')">📅 Kalendarz wydarzeń</div>
+        <div class="nsi" onclick="openKonfig('workers')">👥 Pracownicy</div>
+        <div class="nsi" onclick="openKonfig('shifts')">🔄 Zmiany</div>
+        <div class="nsi" onclick="openKonfig('events')">📅 Kalendarz wydarzeń</div>
         <hr class="nav-sep">
         <div class="nsi" onclick="navSub('tSettings')">⚙ Ustawienia</div>
       </div>
@@ -1313,7 +1498,6 @@ body { padding-top:54px; }
     </select>
     <label>Rok</label>
     <input type="number" class="yinp" id="selY" value="2026" min="2024" max="2030" onchange="refreshMonth()">
-    <button class="btn-go" id="btnGen" onclick="runScheduler()">⚡ Ułóż grafik</button>
   </div>
 
   <!-- right: status + konto + hamburger -->
@@ -1340,17 +1524,35 @@ body { padding-top:54px; }
   <button class="nav-ham" id="navHam" onclick="toggleMobileNav()">☰</button>
 </nav>
 
-<!-- ═══ DRAWER OVERLAY + DRAWER ═══ -->
-<div class="drawer-ov" id="drawerOv" onclick="closeDrawer()"></div>
-<div class="drawer" id="drawer">
-  <div class="drawer-hd">
-    <div class="dw-title" id="dwTitle">Panel</div>
-    <button class="dw-close" onclick="closeDrawer()">×</button>
+<!-- ═══ SUBBAR ═══ -->
+<div class="subbar" id="subbar">
+  <span class="sb-ctx" id="sbCtx"></span>
+  <div style="flex:1;min-width:0"></div>
+  <div class="sb-grp" id="sb-sched" style="display:none">
+    <button class="btn-go" onclick="runScheduler()">⚡ Ułóż grafik</button>
+    <div class="sb-sep"></div>
+    <button class="btn-sm danger" onclick="clearResults()">✕ Wyczyść</button>
+    <button class="btn-sm" onclick="unlockAll()">🔓 Odblokuj</button>
+    <button class="btn-sm exp" onclick="printSchedule()">🖨 Drukuj</button>
   </div>
-  <div class="drawer-body">
+  <div class="sb-grp" id="sb-day" style="display:none">
+    <button class="btn-sm ok" onclick="dvAddRow()">+ Dodaj pracownika</button>
+    <button class="btn-sm" onclick="dvClearExtra()">↩ Tylko grafik</button>
+  </div>
+</div>
 
-    <!-- dw-workers -->
-    <div class="dw-sec" id="dw-workers">
+<!-- ═══ KONFIG MODAL ═══ -->
+<div class="km-ov" id="kmOv" onclick="if(event.target===this)closeKonfig()"></div>
+<div class="km-box" id="kmBox">
+  <div class="km-hd">
+    <div class="km-title" id="kmTitle">Konfiguracja</div>
+    <button class="km-close" onclick="closeKonfig()">×</button>
+  </div>
+  <div class="km-body">
+
+    <!-- km-workers -->
+    <div class="km-sec" id="km-workers">
+    <div >
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
         <div class="sec-head" style="margin-bottom:0">Pracownicy</div>
         <div style="display:flex;gap:3px;">
@@ -1375,8 +1577,11 @@ body { padding-top:54px; }
       </div>
     </div>
 
-    <!-- dw-shifts -->
-    <div class="dw-sec" id="dw-shifts">
+    </div>
+
+    <!-- km-shifts -->
+    <div class="km-sec" id="km-shifts">
+    <div >
       <div class="sec-head">Zmiany <span style="font-weight:400;color:var(--ink3)">(edytowalne)</span></div>
       <div id="shiftEditor"></div>
       <div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;">
@@ -1392,8 +1597,11 @@ body { padding-top:54px; }
       </div>
     </div>
 
-    <!-- dw-events -->
-    <div class="dw-sec" id="dw-events">
+    </div>
+
+    <!-- km-events -->
+    <div class="km-sec" id="km-events">
+    <div >
       <div class="sec-head">Kalendarz wydarzeń</div>
       <div id="evList" class="ev-list"></div>
       <div class="ev-form" id="evForm">
@@ -1412,6 +1620,8 @@ body { padding-top:54px; }
         <div class="ev-color-row" id="evColorRow"></div>
         <button class="btn-sm ok" style="margin-top:4px;align-self:flex-start" onclick="addEvent()">+ Dodaj</button>
       </div>
+    </div>
+
     </div>
 
   </div>
@@ -1435,7 +1645,6 @@ body { padding-top:54px; }
       <div class="mnb-sub-item" onclick="navGo('tAvail')">✉ Prośby</div>
       <div class="mnb-sub-item" onclick="navGo('tPrev')">🔙 Poprzedni miesiąc</div>
       <div class="mnb-sub-item" onclick="navGo('tStats')">📊 Statystyki</div>
-      <div class="mnb-sub-item" onclick="navGo('tLog')">📓 Dziennik</div>
     </div>
   </div>
 
@@ -1443,9 +1652,9 @@ body { padding-top:54px; }
   <div class="mnb-group">
     <div class="mnb-head" onclick="toggleMobGroup(this)">Konfiguracja <span class="mna">▾</span></div>
     <div class="mnb-sub">
-      <div class="mnb-sub-item" onclick="openDrawer('workers');closeMobileNav()">👥 Pracownicy</div>
-      <div class="mnb-sub-item" onclick="openDrawer('shifts');closeMobileNav()">🔄 Zmiany</div>
-      <div class="mnb-sub-item" onclick="openDrawer('events');closeMobileNav()">📅 Kalendarz wydarzeń</div>
+      <div class="mnb-sub-item" onclick="openKonfig('workers');closeMobileNav()">👥 Pracownicy</div>
+      <div class="mnb-sub-item" onclick="openKonfig('shifts');closeMobileNav()">🔄 Zmiany</div>
+      <div class="mnb-sub-item" onclick="openKonfig('events');closeMobileNav()">📅 Kalendarz wydarzeń</div>
       <div class="mnb-sub-item" onclick="navGo('tSettings')">⚙ Ustawienia</div>
     </div>
   </div>
@@ -1462,7 +1671,6 @@ body { padding-top:54px; }
       </select>
       <input type="number" class="yinp" onchange="document.getElementById('selY').value=this.value;refreshMonth()" id="mob-selY" value="2026" min="2024" max="2030">
     </div>
-    <button class="btn-go" style="width:100%;margin-top:4px" onclick="runScheduler();closeMobileNav()">⚡ Ułóż grafik</button>
   </div>
 
   <!-- Konto w mobile -->
@@ -1687,7 +1895,7 @@ let S={
   covPlan:{},
   // avail[wi][d] = ''|'N'|{from:'HH:MM',to:'HH:MM'}
   avail:[],
-  schedule:null, comments:null, violations:[],
+  schedule:null,dayData:{}, comments:null, violations:[],
   prevMonth:[],
   events:[],  // [{date:'YYYY-MM-DD', title, icon, desc, color}]
   monthData:{}, // {'{year}-{month}': {schedule,avail,comments,customTimes,violations,prevMonth}}
@@ -2155,26 +2363,38 @@ function renderAvail(){
   const m=S.month,y=S.year,days=dim(m,y);
   while(S.avail.length<S.workers.length)S.avail.push(Array(days).fill(''));
   S.avail.forEach(r=>{while(r.length<days)r.push('');});
-  let html=`<div style="overflow-x:auto"><table style="border-collapse:collapse;font-size:9px;">
-    <thead><tr><th style="min-width:120px;text-align:left;padding:2px 7px;font-family:var(--mono);font-size:7px;color:var(--ink3)">Pracownik</th>`;
+  const hols=polishHolidays(y);
+
+  let html=`<div class="avail-outer"><table class="avail-tbl"><thead><tr>
+    <th class="av-name-th">Pracownik</th>`;
   for(let d=1;d<=days;d++){
     const w=dow(d,m,y);
-    html+=`<th style="min-width:40px;text-align:center;font-family:var(--mono);font-size:7px;color:${(w===0||w===6)?'var(--red)':'var(--ink3)'};padding:1px">${d}<br><span style="font-weight:400">${DPL[w]}</span></th>`;
+    const isWe=w===0||w===6;
+    const dateKey=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const isHol=hols.has(dateKey);
+    html+=`<th class="avail-th-day${(isWe||isHol)?' av-we':''}">${d}<br><span style="font-size:7px;font-weight:400">${DPL[w]}</span></th>`;
   }
   html+='</tr></thead><tbody>';
+
   S.workers.forEach((w,wi)=>{
-    html+=`<tr><td style="padding:3px 7px;font-size:10px;font-weight:600;border-right:1px solid var(--border);white-space:nowrap">
-      <div style="display:flex;align-items:center;gap:5px"><div style="width:7px;height:7px;border-radius:50%;background:${w.color}"></div>${w.name}</div></td>`;
+    const planRow=S.schedule?.[wi];
+    html+=`<tr><td class="av-name-td">
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:8px;height:8px;border-radius:50%;flex-shrink:0;background:${w.color||'#6b7280'}"></div>
+        <div><div style="font-size:12px;font-weight:600">${w.name}</div>${w.pos?'<div style="font-size:9px;color:var(--ink3)">'+w.pos+'</div>':''}</div>
+      </div></td>`;
     for(let d=0;d<days;d++){
       const v=S.avail[wi]?.[d]||'';
+      const planCode=planRow?.[d]||'';
       let cls='',lbl='',sub='';
       if(v==='N'){cls='av-n';lbl='N';}
       else if(v&&typeof v==='object'){cls='av-c';lbl='C';sub=`${v.from||''}–${v.to||''}`;}
-      html+=`<td style="padding:2px;text-align:center">
-        <div class="avail-cell ${cls}" onclick="toggleAvail(${wi},${d})">
-          <span>${lbl||'·'}</span>
-          ${sub?`<span style="font-size:5px">${sub}</span>`:''}
-        </div></td>`;
+      else if(planCode){cls='av-plan';}
+      html+=`<td><div class="avail-cell ${cls}" onclick="toggleAvail(${wi},${d})" title="${planCode?'Plan: '+planCode:''}">
+        ${planCode&&!v?'<div class="av-dot" style="background:var(--blue)"></div>':''}
+        ${lbl?'<span>'+lbl+'</span>':''}
+        ${sub?'<span style="font-size:5px">'+sub+'</span>':''}
+      </div></td>`;
     }
     html+='</tr>';
   });
@@ -4122,6 +4342,7 @@ function saveState(){
       month:S.month,year:S.year,
       workers:S.workers,shifts:S.shifts,coverage:S.coverage,covPlan:S.covPlan,
       settings:S.settings,events:S.events||[],monthData:S.monthData||{},
+      dayData:S.dayData||{},
       darkMode:document.getElementById('togDark')?.checked!==false
     };
     localStorage.setItem(STORE_KEY,JSON.stringify(payload));
@@ -4131,11 +4352,13 @@ function saveState(){
   if(window._fbUser && window._fbDb && canWrite){
     // Firestore nie obsługuje zagnieżdżonych tablic — serializujemy monthData do JSON stringa
     const monthDataSafe = JSON.stringify(S.monthData||{});
+    const dayDataSafe = JSON.stringify(S.dayData||{});
     const payload={
       month:S.month,year:S.year,
       workers:S.workers,shifts:S.shifts,coverage:S.coverage,covPlan:S.covPlan,
       settings:S.settings,events:S.events||[],
       monthDataJson: monthDataSafe,
+      dayDataJson: dayDataSafe,
       darkMode:document.getElementById('togDark')?.checked!==false,
       updatedAt: new Date().toISOString()
     };
@@ -4169,6 +4392,11 @@ async function loadStateFromFirestore(){
       try{ S.monthData = JSON.parse(p.monthDataJson); }catch(e){ S.monthData={}; }
     } else {
       S.monthData = p.monthData||{};
+    }
+    if(p.dayDataJson){
+      try{ S.dayData = JSON.parse(p.dayDataJson); }catch(e){ S.dayData={}; }
+    } else {
+      S.dayData = p.dayData||{};
     }
     loadMonthData(S.month,S.year);
     const dark=p.darkMode!==false;
@@ -4218,6 +4446,7 @@ function loadState(){
     if(p.settings) S.settings=Object.assign(S.settings,p.settings);
     S.events=p.events||[];
     S.monthData=p.monthData||{};
+    S.dayData=p.dayData||{};
     // obsługa starych danych (bez monthData)
     if(p.schedule||p.avail){
       const key=monthKey(S.month,S.year);
@@ -4439,7 +4668,29 @@ function navGo(panelId) {
   // close overlays
   closeAllDrops();
   closeMobileNav();
-  closeDrawer();
+  closeKonfig();
+
+  // subbar
+  const _sbConf = {
+    tSched:{ctx:'Grafik miesiąca',grp:'sb-sched'},
+    tDay:  {ctx:'Widok dnia',grp:'sb-day'},
+    tCov:  {ctx:'Godziny stałe',grp:null},
+    tAvail:{ctx:'Prośby pracowników',grp:null},
+    tPrev: {ctx:'Poprzedni miesiąc',grp:null},
+    tStats:{ctx:'Statystyki',grp:null},
+  };
+  const sbCfg = _sbConf[panelId];
+  const sbEl = document.getElementById('subbar');
+  if (sbEl) {
+    if (sbCfg) {
+      sbEl.classList.add('vis');
+      const ctxEl = document.getElementById('sbCtx'); if(ctxEl) ctxEl.textContent = sbCfg.ctx||'';
+      document.querySelectorAll('.sb-grp').forEach(g=>g.style.display='none');
+      if (sbCfg.grp) { const g=document.getElementById(sbCfg.grp); if(g) g.style.display='flex'; }
+    } else {
+      sbEl.classList.remove('vis');
+    }
+  }
 
   // update desktop nav active state
   document.querySelectorAll('.navl.nl-on').forEach(el => el.classList.remove('nl-on'));
@@ -4497,27 +4748,30 @@ document.addEventListener('click', function(e) {
   if (!e.target.closest('.navl')) closeAllDrops();
 });
 
-/* ══════════ DRAWER ══════════ */
-const _DW_TITLES = { workers:'Pracownicy', shifts:'Zmiany', events:'Kalendarz wydarzeń' };
+/* ══════════ KONFIG MODAL ══════════ */
+const _KM_TITLES = { workers:'Pracownicy', shifts:'Zmiany', events:'Kalendarz wydarzeń' };
 
-function openDrawer(section) {
+function openKonfig(section) {
   closeAllDrops();
-  document.querySelectorAll('.dw-sec').forEach(s => s.classList.remove('open'));
-  const sec = document.getElementById('dw-' + section);
+  document.querySelectorAll('.km-sec').forEach(s => s.classList.remove('open'));
+  const sec = document.getElementById('km-' + section);
   if (sec) sec.classList.add('open');
-  const t = document.getElementById('dwTitle');
-  if (t) t.textContent = _DW_TITLES[section] || section;
-  document.getElementById('drawerOv').classList.add('open');
-  document.getElementById('drawer').classList.add('open');
+  const t = document.getElementById('kmTitle');
+  if (t) t.textContent = _KM_TITLES[section] || section;
+  document.getElementById('kmOv').classList.add('open');
+  document.getElementById('kmBox').style.display = 'flex';
   if (section === 'workers') renderWorkers();
   if (section === 'shifts')  renderShiftEditor();
   if (section === 'events')  renderEvents();
 }
 
-function closeDrawer() {
-  document.getElementById('drawerOv')?.classList.remove('open');
-  document.getElementById('drawer')?.classList.remove('open');
+function closeKonfig() {
+  document.getElementById('kmOv')?.classList.remove('open');
 }
+
+/* backward compat */
+function openDrawer(s){ openKonfig(s); }
+function closeDrawer(){ closeKonfig(); }
 
 /* ══════════ MOBILE NAV ══════════ */
 function toggleMobileNav() {
@@ -4538,94 +4792,306 @@ function toggleMobGroup(headEl) {
   if (!isOpen) { sub.classList.add('open'); headEl.classList.add('exp'); }
 }
 
-/* ══════════ DAY VIEW ══════════ */
+/* ══════════ DAY VIEW — OBSADA GODZINOWA ══════════ */
 let _dayDate = new Date();
 
-function renderDayView() {
-  const wrap = document.getElementById('dayWrap'); if(!wrap) return;
-  const y=_dayDate.getFullYear(), m=_dayDate.getMonth(), d=_dayDate.getDate(), di=d-1;
-  const todKey = y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-  const hols = polishHolidays(y);
-  const isHol = hols.has(todKey), dw = new Date(y,m,d).getDay();
-  const todayKey = (()=>{const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');})();
-  const sameMonth = (m===S.month && y===S.year);
-  const sched = sameMonth ? S.schedule : (S.monthData?.[monthKey(m,y)]?.schedule||null);
+/* ---------- helpers (from grafik2) ---------- */
+function dvParseHour(raw) {
+  const s = String(raw).replace(/[^0-9]/g,'');
+  if (!s) return null;
+  const n = parseInt(s,10);
+  if (s.length <= 2 && n <= 24) return n * 100;
+  const h = Math.floor(n/100), mi = n%100;
+  if (h>24||mi>59) return null;
+  if (h===24&&mi!==0) return null;
+  return n;
+}
+function dvToFrac(n) { return n===2400 ? 1 : (Math.floor(n/100)*60 + n%100) / 1440; }
+function dvFmtH(n) {
+  if (n===2400) return '24:00';
+  return String(Math.floor(n/100)).padStart(2,'0') + ':' + String(n%100).padStart(2,'0');
+}
+function dvComputeForDay(rows, prevRows, h) {
+  const slotS=h/24, slotE=h===23?1:(h+1)/24;
+  let total=0;
+  (rows||[]).forEach(r=>{
+    const s=dvParseHour(r.start), e=dvParseHour(r.end);
+    if(s===null||e===null) return;
+    const S=dvToFrac(s), E=e===2400?1:dvToFrac(e);
+    const isNight=S>E&&e!==2400;
+    if(!isNight){ total+=Math.max(0,Math.min(E,slotE)-Math.max(S,slotS))*24; }
+    else{ total+=Math.max(0,Math.min(1,slotE)-Math.max(S,slotS))*24; }
+  });
+  (prevRows||[]).forEach(r=>{
+    const s=dvParseHour(r.start), e=dvParseHour(r.end);
+    if(s===null||e===null) return;
+    const S=dvToFrac(s), E=e===2400?1:dvToFrac(e);
+    if(S>E&&e!==2400){ total+=Math.max(0,Math.min(E,slotE)-Math.max(0,slotS))*24; }
+  });
+  return total;
+}
+function dvTotalHours(rows, prevRows) {
+  let t=0;
+  (rows||[]).forEach(r=>{
+    const s=dvParseHour(r.start), e=dvParseHour(r.end);
+    if(s===null||e===null) return;
+    const S=dvToFrac(s), E=e===2400?1:dvToFrac(e);
+    if(S<=E){ t+=(E-S)*24; } else{ t+=(1-S)*24; }
+  });
+  (prevRows||[]).forEach(r=>{
+    const s=dvParseHour(r.start), e=dvParseHour(r.end);
+    if(s===null||e===null) return;
+    const S=dvToFrac(s), E=e===2400?1:dvToFrac(e);
+    if(S>E&&e!==2400) t+=E*24;
+  });
+  return t;
+}
 
-  const byShift={};
-  if(sched && di<dim(m,y)){
+/* ---------- day key ---------- */
+function dvKey(date) {
+  const d=date||_dayDate;
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function dvPrevKey(dateKey) {
+  const [y,m,d]=dateKey.split('-').map(Number);
+  const p=new Date(y,m-1,d-1);
+  return dvKey(p);
+}
+
+/* ---------- state helpers ---------- */
+function dvGetRows(dateKey) {
+  if (!S.dayData) S.dayData={};
+  if (S.dayData[dateKey]) return S.dayData[dateKey].rows;
+  // auto-populate from schedule
+  const y=parseInt(dateKey.slice(0,4)), m=parseInt(dateKey.slice(5,7))-1, d=parseInt(dateKey.slice(8,10))-1;
+  const rows=[];
+  if(S.schedule && m===S.month && y===S.year){
     for(let wi=0;wi<S.workers.length;wi++){
-      const code=sched[wi]?.[di]; if(!code) continue;
-      (byShift[code]=byShift[code]||[]).push(wi);
+      const code=S.schedule[wi]?.[d]; if(!code) continue;
+      const shift=S.shifts.find(s=>s.code===code);
+      if(!shift) continue;
+      const startRaw=(shift.od||'').replace(':','');
+      const endRaw=(shift.do||'').replace(':','');
+      rows.push({name:S.workers[wi].name, start:startRaw, end:endRaw, pos:code, fromSchedule:true});
     }
   }
-  const working=Object.values(byShift).reduce((a,b)=>a+b.length,0);
+  S.dayData[dateKey]={rows, sales:0};
+  return rows;
+}
+function dvSave() { saveState(); }
 
-  let html=`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+/* ---------- update / add / delete ---------- */
+function dvUpdateRow(dateKey, idx, field, val) {
+  if(!S.dayData?.[dateKey]?.rows) return;
+  S.dayData[dateKey].rows[idx][field] = String(val).trim();
+  // Don't refresh summary during live typing in time fields — only on blur
+  if(field==='name') dvRefreshSummary(dateKey);
+  dvSave();
+}
+function dvBlurRefresh(dateKey) { dvRefreshSummary(dateKey); dvSave(); }
+function dvAddRow() {
+  const dk=dvKey();
+  if(!S.dayData) S.dayData={};
+  if(!S.dayData[dk]) dvGetRows(dk);
+  const n=S.dayData[dk].rows.length+1;
+  S.dayData[dk].rows.push({name:'Pracownik '+n,start:'',end:'',pos:(S.shifts[0]?.code||''),fromSchedule:false});
+  renderDayView();
+  setTimeout(()=>{
+    const idx=S.dayData[dk].rows.length-1;
+    const el=document.getElementById('dv-name-'+idx);
+    if(el){el.focus();el.select();}
+  },50);
+}
+function dvDeleteRow(dateKey, idx) {
+  if(!S.dayData?.[dateKey]?.rows) return;
+  S.dayData[dateKey].rows.splice(idx,1);
+  renderDayView(); dvSave();
+}
+function dvClearExtra() {
+  const dk=dvKey();
+  if(S.dayData?.[dk]) delete S.dayData[dk];
+  renderDayView();
+}
+function dvUpdateSales(dateKey, val) {
+  if(!S.dayData) S.dayData={};
+  if(!S.dayData[dateKey]) dvGetRows(dateKey);
+  S.dayData[dateKey].sales = parseFloat(val)||0;
+  dvRefreshSummary(dateKey);
+  dvSave();
+}
+
+/* ---------- RENDER SUMMARY (hourly breakdown) ---------- */
+function dvRefreshSummary(dateKey) {
+  const el=document.getElementById('dvSummary'); if(!el) return;
+  const rows=dvGetRows(dateKey);
+  const prevRows=dvGetRows(dvPrevKey(dateKey));
+  const hasAny=rows.some(r=>dvParseHour(r.start)!==null&&dvParseHour(r.end)!==null);
+  if(!hasAny){el.innerHTML='';return;}
+
+  const hourly=[];
+  let maxV=0;
+  for(let h=0;h<24;h++){
+    const v=dvComputeForDay(rows,prevRows,h);
+    hourly.push(v); if(v>maxV) maxV=v;
+  }
+  const totalH=dvTotalHours(rows,prevRows);
+  const maxH=Math.max(...hourly);
+  const sales=S.dayData[dateKey]?.sales||0;
+
+  // SPMH
+  let spmhHtml='';
+  if(sales>0&&totalH>0){
+    const spmh=(sales/totalH).toFixed(2);
+    spmhHtml=`<div class="dv-spmh-result" style="margin-top:0"><div class="dv-spmh-val">${spmh}</div>
+      <div class="dv-spmh-unit">PLN / h (SPMH)</div>
+      <div class="dv-spmh-break">${sales.toLocaleString('pl-PL')} ÷ ${totalH.toFixed(2)} h</div></div>`;
+  }
+  document.getElementById('dvSpmhResult').innerHTML=spmhHtml;
+  document.getElementById('dvSpmhHours').textContent=totalH>0?totalH.toFixed(2)+' h':'–';
+
+  // hourly table — skip zero hours at start and end
+  let firstNZ=0, lastNZ=23;
+  for(let h=0;h<24;h++){if(hourly[h]>0){firstNZ=h;break;}}
+  for(let h=23;h>=0;h--){if(hourly[h]>0){lastNZ=h;break;}}
+  const from=Math.max(0,firstNZ-1), to=Math.min(23,lastNZ+1);
+
+  let tRows='';
+  for(let h=from;h<=to;h++){
+    const v=hourly[h];
+    const disp=v===0?'–':(Number.isInteger(v)?v:v.toFixed(2));
+    const barW=maxV>0?Math.round(v/maxV*80):0;
+    const bar=v>0?`<span class="dv-htbl dh-bar" style="width:${barW}px"></span>`:'';
+    const vClass=v===0?'dh-v0':v===maxH?'dh-v5':'';
+    tRows+=`<tr class="${vClass}"><td class="dh-hr">${String(h).padStart(2,'0')}:00 – ${String((h+1)%24).padStart(2,'0')}:00</td>
+      <td class="dh-val">${disp}${bar}</td></tr>`;
+  }
+  tRows+=`<tr class="sum-row"><td>Σ roboczogodziny</td><td class="dh-val">${totalH.toFixed(2)}</td></tr>
+    <tr class="sum-row"><td>MAX jednocześnie</td><td class="dh-val">${Number.isInteger(maxH)?maxH:maxH.toFixed(2)}</td></tr>`;
+
+  // position breakdown per shift code
+  const shiftHours={};
+  (S.shifts||[]).forEach(s=>{shiftHours[s.code]=0;});
+  rows.forEach(r=>{
+    const s=dvParseHour(r.start), e=dvParseHour(r.end); if(s===null||e===null) return;
+    const S2=dvToFrac(s), E2=e===2400?1:dvToFrac(e);
+    const h=S2<=E2?(E2-S2)*24:(1-S2)*24;
+    const key=r.pos||'?';
+    shiftHours[key]=(shiftHours[key]||0)+h;
+  });
+  let pbHtml='';
+  Object.entries(shiftHours).forEach(([code,hrs])=>{
+    if(hrs<0.01) return;
+    const shift=S.shifts.find(s=>s.code===code);
+    const col=shift?.color||'#6b7280';
+    const pct=totalH>0?(hrs/totalH*100).toFixed(0):0;
+    pbHtml+=`<div class="dv-pb-item" style="--c:${col}">
+      <div class="dv-pb-name">${code}${shift?' · '+shift.name:''}</div>
+      <div class="dv-pb-hrs">${hrs%1<0.01?Math.round(hrs):hrs.toFixed(2)}<span style="font-size:11px;color:var(--ink3)"> h</span></div>
+      <div class="dv-pb-sub">${pct}% obsady</div>
+    </div>`;
+  });
+
+  el.innerHTML=`<div class="dv-summary">
+    <div class="dv-sum-hd">
+      <span class="dv-sum-title">📊 Zestawienie godzinowe</span>
+      <span class="dv-sum-total" id="dvSpmhResult"></span>
+    </div>
+    <div style="overflow-x:auto"><table class="dv-htbl"><thead><tr><th>Godzina</th><th>Obsada</th></tr></thead><tbody>${tRows}</tbody></table></div>
+    ${pbHtml?`<div class="dv-pos-breakdown">${pbHtml}</div>`:''}
+  </div>`;
+  // re-inject SPMH result
+  document.getElementById('dvSpmhResult').innerHTML=spmhHtml;
+}
+
+/* ---------- MAIN RENDER ---------- */
+function renderDayView() {
+  const wrap=document.getElementById('dayWrap'); if(!wrap) return;
+  const dk=dvKey();
+  const y=_dayDate.getFullYear(), m=_dayDate.getMonth(), d=_dayDate.getDate();
+  const hols=polishHolidays(y);
+  const isHol=hols.has(dk), dw=new Date(y,m,d).getDay();
+  const todayKey=dvKey(new Date());
+
+  // nav header
+  let html=`<div class="dv-nav">
     <button class="btn-sm" onclick="_dayDate=new Date(_dayDate);_dayDate.setDate(_dayDate.getDate()-1);renderDayView()">← Poprzedni</button>
-    <div style="font-family:var(--mono);font-size:13px;font-weight:700;flex:1;text-align:center;">
-      ${_DOWfull[dw]}, ${d} ${_MPLgen[m]} ${y}${isHol?' 🔴':''}
+    <div class="dv-date">
+      <span class="dv-dow">${_DOWfull[dw]}</span>, ${d} ${_MPLgen[m]} ${y}
+      ${isHol?'<span class="dv-hol">🔴 Święto</span>':''}
     </div>
     <button class="btn-sm" onclick="_dayDate=new Date(_dayDate);_dayDate.setDate(_dayDate.getDate()+1);renderDayView()">Następny →</button>
-    ${todKey!==todayKey?`<button class="btn-sm ok" onclick="_dayDate=new Date();renderDayView()">Dziś</button>`:''}
+    ${dk!==todayKey?`<button class="btn-sm ok" onclick="_dayDate=new Date();renderDayView()">Dziś</button>`:''}
   </div>`;
 
-  html+=`<div class="dash-metrics">
-    <div class="metric blue"><div class="mv">${working}</div><div class="ml">pracuje</div></div>
-    <div class="metric"><div class="mv">${Math.max(0,S.workers.length-working)}</div><div class="ml">wolne</div></div>
+  // SPMH card
+  const sales=S.dayData?.[dk]?.sales||0;
+  html+=`<div class="dv-spmh">
+    <div class="dv-spmh-field">
+      <span class="dv-spmh-lbl">Planowana sprzedaż brutto (PLN)</span>
+      <input class="dv-spmh-inp" type="number" min="0" step="100" value="${sales||''}" placeholder="0"
+        oninput="dvUpdateSales('${dk}',this.value)">
+    </div>
+    <div class="dv-spmh-field">
+      <span class="dv-spmh-lbl">Zaplanowane godziny</span>
+      <div id="dvSpmhHours" style="font-family:var(--mono);font-size:15px;font-weight:600;color:var(--ink);padding:6px 0">–</div>
+    </div>
+    <div id="dvSpmhResult"></div>
   </div>`;
 
-  if(!sched){
-    html+=`<div class="notice info">Brak grafiku na ${MPL[m]} ${y}. Ułóż grafik w widoku Grafiku miesiąca.</div>`;
-  } else if(working===0){
-    html+=`<div class="notice info">Nikt nie ma przypisanej zmiany w tym dniu.</div>`;
-  } else {
-    html+=`<div class="dash-card" style="padding:14px;gap:8px;display:flex;flex-direction:column;">`;
-    S.shifts.forEach(s=>{
-      const list=byShift[s.code]; if(!list?.length) return;
-      html+=`<div class="shift-group">
-        <div class="sg-head" style="--gc:${s.color}">${_esc(s.code)} · ${_esc(s.name)} · ${s.od}–${s.do}</div>`;
-      list.forEach(wi=>{
-        const w=S.workers[wi], col=w.color||COLORS[wi%COLORS.length];
-        const ct=sameMonth?(S.customTimes?.[wi]?.[di]||null):null;
-        html+=`<div class="person-row">
-          <div class="pr-av" style="background:${col}">${_esc(_initials(w.name))}</div>
-          <div class="pr-name">${_esc(w.name)}${w.pos?` <span class="pr-pos">· ${_esc(w.pos)}</span>`:''}</div>
-          <div class="pr-time">${ct?.od||s.od}–${ct?.do||s.do}</div>
-        </div>`;
-      });
-      html+=`</div>`;
-    });
-    html+=`</div>`;
-  }
+  // worker table
+  const rows=dvGetRows(dk);
+  const posOptions=(S.shifts||[]).map(s=>`<option value="${s.code}">${s.code} – ${s.name}</option>`).join('');
 
-  // Coverage chips
-  const chips=[];
-  S.shifts.forEach(s=>{
-    const target=S.covPlan?.[s.code]?.[di]||0; if(!target) return;
-    const got=(byShift[s.code]||[]).length;
-    chips.push(`<span class="cov-chip ${got<target?'deficit':'full'}">
-      <span class="cc-dot" style="background:${s.color}"></span>${_esc(s.code)} ${got}/${target}${got<target?' ⚠':' ✓'}</span>`);
+  html+=`<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+    <table class="dv-wtbl"><thead><tr>
+      <th style="width:26px">#</th>
+      <th>Imię / Opis</th>
+      <th>Od</th><th>Do</th>
+      <th>Zmiana</th>
+      <th style="width:36px"></th>
+    </tr></thead><tbody>`;
+
+  rows.forEach((r,i)=>{
+    const rowCls=r.fromSchedule?'dv-from-sched':'';
+    const shift=S.shifts.find(s=>s.code===r.pos);
+    html+=`<tr class="${rowCls}">
+      <td class="dv-wrow-num">${i+1}</td>
+      <td><input class="dv-inp" type="text" id="dv-name-${i}" value="${(r.name||'').replace(/"/g,'&quot;')}"
+        placeholder="Pracownik ${i+1}"
+        onchange="dvUpdateRow('${dk}',${i},'name',this.value)"
+        oninput="dvUpdateRow('${dk}',${i},'name',this.value)"
+        onkeydown="if(event.key==='Enter'){const s=document.getElementById('dv-s-${i}');if(s){setTimeout(()=>{s.focus();s.select();},0);}}"></td>
+      <td><input class="dv-inp time-inp" type="text" id="dv-s-${i}" value="${r.start||''}"
+        placeholder="0600" maxlength="4"
+        onchange="dvUpdateRow('${dk}',${i},'start',this.value)"
+        oninput="dvUpdateRow('${dk}',${i},'start',this.value)"
+        onblur="dvBlurRefresh('${dk}')"
+        onkeydown="if(event.key==='Enter'){const e=document.getElementById('dv-e-${i}');if(e){setTimeout(()=>{e.focus();e.select();},0);}}"></td>
+      <td><input class="dv-inp time-inp" type="text" id="dv-e-${i}" value="${r.end||''}"
+        placeholder="1400" maxlength="4"
+        onchange="dvUpdateRow('${dk}',${i},'end',this.value)"
+        oninput="dvUpdateRow('${dk}',${i},'end',this.value)"
+        onblur="dvBlurRefresh('${dk}')"></td>
+      <td><select class="dv-pos-sel" onchange="dvUpdateRow('${dk}',${i},'pos',this.value)">
+        ${(S.shifts||[]).map(s=>`<option value="${s.code}"${r.pos===s.code?' selected':''}>${s.code} – ${s.name}</option>`).join('')}
+      </select></td>
+      <td><button class="dv-del" onclick="dvDeleteRow('${dk}',${i})" title="Usuń">✕</button></td>
+    </tr>`;
   });
-  if(chips.length){
-    html+=`<div class="dash-card" style="padding:14px"><div class="dc-title" style="margin-bottom:8px">📊 Obsada dnia</div>
-      <div class="cov-wrap">${chips.join('')}</div></div>`;
-  }
 
-  // Events
-  const evs=(S.events||[]).filter(e=>{const f=e.dateFrom||e.date||'',t=e.dateTo||f;return todKey>=f&&todKey<=t;});
-  if(evs.length){
-    html+=`<div class="dash-card" style="padding:14px"><div class="dc-title" style="margin-bottom:8px">📅 Wydarzenia</div>`;
-    evs.forEach(e=>{
-      html+=`<div class="dash-ev" style="--ec:${e.color||'var(--cyan)'}">
-        <div class="de-ic">${e.icon||'📌'}</div>
-        <div><div class="de-t">${_esc(e.title)}</div>${e.desc?`<div class="de-d">${_esc(e.desc)}</div>`:''}</div>
-      </div>`;
-    });
-    html+=`</div>`;
-  }
+  html+=`</tbody></table>
+    <button class="dv-add-btn" onclick="dvAddRow()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Dodaj pracownika
+    </button>
+  </div>`;
 
-  wrap.innerHTML = html;
+  html+=`<div id="dvSummary"></div>`;
+
+  wrap.innerHTML=html;
+  dvRefreshSummary(dk);
 }
+
 
 function reRenderAll(){
   renderWorkers();renderShiftEditor();renderCov();renderAvail();renderSchedule();
