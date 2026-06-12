@@ -1219,7 +1219,8 @@ body { padding-top:54px; }
   .dv-multi-tbl tr.dv-max-tr td{background:#fff8e1;color:#b45309;font-size:7pt;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .dv-multi-tbl tr.dv-sales-tr td{background:#e0f2fe;font-weight:700;font-size:8pt;color:#0369a1;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .dv-multi-tbl tr.dv-spmh-tr td{background:#dcfce7;font-weight:700;font-size:8pt;color:#166534;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  .dv-p-pos-section{margin-top:5mm;}
+  .dv-p-pos-section{margin-top:3mm;page-break-inside:avoid;break-inside:avoid;}
+  .dv-multi-tbl{page-break-after:avoid;}
   .dv-p-pos-title{font-size:8pt;font-weight:700;margin-bottom:2mm;color:#333;}
   .dv-p-pos-tbl{border-collapse:collapse;width:auto;}
   .dv-p-pos-tbl th,.dv-p-pos-tbl td{border:1px solid #ccc;padding:2px 5px;font-size:7pt;}
@@ -1501,7 +1502,7 @@ body { padding-top:54px; }
 
 <!-- ═══ NAVBAR ═══ -->
 <nav class="navbar" id="navbar">
-  <div class="nav-brand">Planista<span>/grafik</span></div>
+  <div class="nav-brand">Planista<span>/grafik</span>&nbsp;<span id="siteBadge" style="font-size:9px;color:var(--orange);letter-spacing:1px"></span></div>
 
   <!-- nav links desktop -->
   <div class="nav-links">
@@ -1512,7 +1513,7 @@ body { padding-top:54px; }
     <div class="navl" id="nlGrafik" onclick="toggleDrop(this)" data-group="grafik">
       Grafik <span class="nav-arr">▾</span>
       <div class="nav-sub">
-        <div class="nsi" onclick="navSub('tDay')">☀️ Widok dnia</div>
+        <div class="nsi" onclick="navSub('tDay')">☀️ Grafik dzień</div>
         <div class="nsi" onclick="navSub('tSched')">📋 Grafik miesiąca</div>
         <hr class="nav-sep">
         <div class="nsi" onclick="navSub('tCov')">🕑 Godziny stałe</div>
@@ -1565,10 +1566,11 @@ body { padding-top:54px; }
   <span class="sb-ctx" id="sbCtx"></span>
   <div style="flex:1;min-width:0"></div>
   <div class="sb-grp" id="sb-sched" style="display:none">
-    <button class="btn-go" onclick="runScheduler()">⚡ Ułóż grafik</button>
+    <button class="btn-go" id="btnGen" onclick="runScheduler()">⚡ Ułóż grafik</button>
     <div class="sb-sep"></div>
     <button class="btn-sm danger" onclick="clearResults()">✕ Wyczyść</button>
     <button class="btn-sm" onclick="unlockAll()">🔓 Odblokuj</button>
+    <button class="btn-sm" onclick="sortWorkers('hier')" title="Sortuj wg hierarchii">♛ Hierarchia</button>
     <button class="btn-sm exp" onclick="printSchedule()">🖨 Drukuj</button>
   </div>
   <div class="sb-grp" id="sb-day" style="display:none">
@@ -1595,6 +1597,7 @@ body { padding-top:54px; }
         <div style="display:flex;gap:3px;">
           <button class="btn-sm" id="sortNameBtn" onclick="sortWorkers('name')" title="Sortuj wg nazwiska">A↓</button>
           <button class="btn-sm" id="sortPosBtn"  onclick="sortWorkers('pos')"  title="Sortuj wg stanowiska">St↓</button>
+          <button class="btn-sm" id="sortHierBtn" onclick="sortWorkers('hier')" title="Sortuj wg hierarchii: Kierownik > Z-ca > Menadżer">♛↓</button>
           <button class="btn-sm" id="btnShowAll"  onclick="setAllVisible(true)"  title="Pokaż wszystkich">👁</button>
           <button class="btn-sm" id="btnHideSel"  onclick="setAllVisible(false)" title="Ukryj wszystkich">🚫</button>
         </div>
@@ -1610,7 +1613,12 @@ body { padding-top:54px; }
         <select id="nwEtat" style="font-family:var(--mono);font-size:10px;padding:3px;border:1px solid var(--border);background:var(--bg);color:var(--ink);border-radius:3px;outline:none;">
           <option value="1">1/1</option><option value="0.75">3/4</option><option value="0.5">1/2</option><option value="0.25">1/4</option>
         </select>
-        <input type="text" id="nwPos" placeholder="stanowisko" style="flex:1;font-size:10px;padding:3px 6px;border:1px solid var(--border);background:var(--bg);color:var(--ink);border-radius:3px;outline:none;">
+        <select id="nwPos" style="flex:1;font-size:10px;padding:3px 6px;border:1px solid var(--border);background:var(--bg);color:var(--ink);border-radius:3px;outline:none;">
+          <option value="">— stanowisko —</option>
+          <option value="Menadżer">Menadżer</option>
+          <option value="Zastępca kierownika">Zastępca kierownika</option>
+          <option value="Kierownik">Kierownik</option>
+        </select>
       </div>
     </div>
 
@@ -1675,7 +1683,11 @@ body { padding-top:54px; }
         <input type="file" accept=".xlsx" style="display:none" onchange="importMatrixFile(this)">
       </label>
       <div id="matrixStatus" style="font-family:var(--mono);font-size:10px;color:var(--ink2);line-height:1.8"></div>
-      <button class="btn-sm danger" style="align-self:flex-start" onclick="clearMatrix()">🗑 Wyczyść matrix</button>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn-sm" onclick="toggleMatrixPreview()">👁 Podgląd matrixu</button>
+        <button class="btn-sm danger" onclick="clearMatrix()">🗑 Wyczyść matrix</button>
+      </div>
+      <div id="matrixPreview" style="display:none"></div>
     </div>
 
   </div>
@@ -1685,7 +1697,7 @@ body { padding-top:54px; }
 <!-- ═══ MOBILE NAV OVERLAY + PANEL ═══ -->
 <div class="mobov" id="mobov" onclick="closeMobileNav()"></div>
 <div class="mobnav" id="mobnav">
-  <div class="mnb-brand">Planista<span>/grafik</span></div>
+  <div class="mnb-brand">Planista<span>/grafik</span> <span id="siteBadgeMob" style="font-size:9px;color:var(--orange)"></span></div>
 
   <!-- Pulpit -->
   <div class="mnb-item mnb-cur" id="mnbDash" onclick="navGo('tDash')">🏠 Pulpit</div>
@@ -1694,7 +1706,7 @@ body { padding-top:54px; }
   <div class="mnb-group">
     <div class="mnb-head" onclick="toggleMobGroup(this)">Grafik <span class="mna">▾</span></div>
     <div class="mnb-sub">
-      <div class="mnb-sub-item" onclick="navGo('tDay')">☀️ Widok dnia</div>
+      <div class="mnb-sub-item" onclick="navGo('tDay')">☀️ Grafik dzień</div>
       <div class="mnb-sub-item" onclick="navGo('tSched')">📋 Grafik miesiąca</div>
       <div class="mnb-sub-item" onclick="navGo('tCov')">🕑 Godziny stałe</div>
       <div class="mnb-sub-item" onclick="navGo('tAvail')">✉ Prośby</div>
@@ -1851,6 +1863,17 @@ body { padding-top:54px; }
         <div id="vatPreview" style="font-family:var(--mono);font-size:9px;color:var(--cyan);margin-top:4px;"></div>
       </div>
       <div class="settings-card">
+        <h4>Oddziały (SITE)</h4>
+        <div class="setting-desc" style="margin-bottom:8px">Każdy oddział ma w pełni niezależne dane: pracowników, grafiki, matrix, ustawienia. Przełączenie przeładuje aplikację.</div>
+        <div id="sitesList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px"></div>
+        <div style="display:flex;gap:6px">
+          <input type="text" id="newSiteId" placeholder="np. 736" maxlength="12"
+            style="flex:1;font-family:var(--mono);font-size:11px;padding:6px 9px;border:1px solid var(--border);background:var(--bg);color:var(--ink);border-radius:6px;outline:none"
+            onkeydown="if(event.key==='Enter')addSite()">
+          <button class="btn-sm ok" onclick="addSite()">+ Dodaj oddział</button>
+        </div>
+      </div>
+      <div class="settings-card">
         <h4>Parametry silnika</h4>
         <div class="setting-row">
           <div><div class="setting-label">Iteracje</div><div class="setting-desc">Więcej = lepszy grafik, dłuższe oczekiwanie</div></div>
@@ -1918,10 +1941,7 @@ body { padding-top:54px; }
           Silnik: CSP + losowość<br>
           localStorage: <span id="lsInfo" style="color:var(--cyan)">—</span>
         </div>
-        <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;">
-          <button class="btn-sm" onclick="unlockAll()">🔓 Odblokuj komórki</button>
-          <button class="btn-sm exp" onclick="printSchedule()">🖨 Drukuj / PDF</button>
-        </div>
+
       </div>
     </div>
   </div>
@@ -1938,7 +1958,56 @@ const MPL=['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sie
 const REST_DAY=11,REST_WEEK=35;
 const COLORS=['#3b82f6','#8b5cf6','#06b6d4','#0369a1','#0f766e','#b45309','#6b21a8','#dc2626','#d97706','#059669','#7c3aed','#db2777'];
 const ETAT_LBL={1:'1/1','0.75':'3/4','0.5':'1/2','0.25':'1/4'};
-const STORE_KEY='planista_v2';
+/* ── ODDZIAŁY (SITE) ── */
+const _SITES_KEY='planista_sites', _ASITE_KEY='planista_active_site';
+let _activeSite='735';
+try{ _activeSite=localStorage.getItem(_ASITE_KEY)||'735'; }catch(e){}
+const STORE_KEY=_activeSite==='735' ? 'planista_v2' : 'planista_v2__site_'+_activeSite;
+function getSites(){
+  try{
+    const raw=localStorage.getItem(_SITES_KEY);
+    const arr=raw?JSON.parse(raw):[];
+    if(!arr.includes('735')) arr.unshift('735');
+    return arr;
+  }catch(e){ return ['735']; }
+}
+function saveSites(arr){ try{ localStorage.setItem(_SITES_KEY,JSON.stringify(arr)); }catch(e){} }
+function addSite(){
+  const inp=document.getElementById('newSiteId');
+  const id=(inp?inp.value:'').trim().replace(/[^0-9A-Za-z_\-]/g,'');
+  if(!id){ alert('Podaj numer/nazwę oddziału (np. 736).'); return; }
+  const sites=getSites();
+  if(sites.includes(id)){ alert('Taki oddział już istnieje.'); return; }
+  sites.push(id); saveSites(sites);
+  if(inp) inp.value='';
+  renderSitesCard();
+  if(confirm('Oddział SITE '+id+' utworzony. Przełączyć się na niego teraz?')) switchSite(id);
+}
+function switchSite(id){
+  if(id===_activeSite) return;
+  try{ saveState(); }catch(e){}
+  try{ localStorage.setItem(_ASITE_KEY,id); }catch(e){}
+  location.reload();
+}
+function deleteSite(id){
+  if(id==='735'){ alert('Oddziału 735 nie można usunąć.'); return; }
+  if(!confirm('Usunąć oddział SITE '+id+' wraz z jego lokalnymi danymi? Nie można cofnąć.')) return;
+  try{ localStorage.removeItem('planista_v2__site_'+id); }catch(e){}
+  saveSites(getSites().filter(s=>s!==id));
+  if(id===_activeSite){ try{ localStorage.setItem(_ASITE_KEY,'735'); }catch(e){} location.reload(); return; }
+  renderSitesCard();
+}
+function renderSitesCard(){
+  const el=document.getElementById('sitesList'); if(!el) return;
+  el.innerHTML=getSites().map(s=>{
+    const act=s===_activeSite;
+    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 11px;border:1px solid ${act?'var(--blue)':'var(--border)'};border-radius:8px;background:${act?'rgba(59,130,246,.08)':'var(--card)'}">
+      <span style="font-family:var(--mono);font-size:12px;font-weight:700;${act?'color:var(--blue)':''}">SITE ${s}</span>
+      ${act?'<span style="font-family:var(--mono);font-size:9px;color:var(--blue)">● aktywny</span>':`<button class="btn-sm" onclick="switchSite('${s}')">Przełącz</button>`}
+      ${s!=='735'&&!act?`<button class="btn-sm danger" style="margin-left:auto" onclick="deleteSite('${s}')">×</button>`:''}
+    </div>`;
+  }).join('');
+}
 
 /* ══════════ STATE ══════════ */
 let S={
@@ -2075,6 +2144,14 @@ function sortWorkers(by){
     idx.sort((a,b) => (S.workers[a].pos||'').localeCompare(S.workers[b].pos||'', 'pl'));
   else if(order === 'pos_desc')
     idx.sort((a,b) => (S.workers[b].pos||'').localeCompare(S.workers[a].pos||'', 'pl'));
+  else if(order === 'hier' || order === 'hier_desc'){
+    const rank=p=>({'Kierownik':0,'Zastępca kierownika':1,'Menadżer':2}[p]??3);
+    idx.sort((a,b)=>{
+      const d=rank(S.workers[a].pos)-rank(S.workers[b].pos);
+      if(d!==0) return order==='hier'?d:-d;
+      return S.workers[a].name.localeCompare(S.workers[b].name,'pl');
+    });
+  }
   else {
     // reset — brak sortowania, zachowaj obecną kolejność
     updateSortBtns(); renderWorkers(); return;
@@ -2101,6 +2178,8 @@ function updateSortBtns(){
   if(!nb||!pb) return;
   nb.textContent = _sortWorkers==='name'?'A↑':_sortWorkers==='name_desc'?'A↓':'A↓';
   pb.textContent = _sortWorkers==='pos' ?'St↑':_sortWorkers==='pos_desc' ?'St↓':'St↓';
+  const hb = document.getElementById('sortHierBtn');
+  if(hb) hb.textContent = _sortWorkers==='hier'?'♛↑':'♛↓';
   nb.style.borderColor = _sortWorkers.startsWith('name') ? 'var(--blue)' : '';
   nb.style.color       = _sortWorkers.startsWith('name') ? 'var(--blue)' : '';
   pb.style.borderColor = _sortWorkers.startsWith('pos')  ? 'var(--blue)' : '';
@@ -2143,9 +2222,11 @@ function renderWorkers(){
             <input type="text" id="weN-${i}" value="${w.name.replace(/"/g,'&quot;')}"
               style="font-family:var(--sans);font-size:11px;padding:4px 7px;background:var(--bg);border:1px solid var(--border);color:var(--ink);border-radius:4px;outline:none;width:100%"
               onclick="event.stopPropagation()" placeholder="Imię i nazwisko">
-            <input type="text" id="weP-${i}" value="${(w.pos||'').replace(/"/g,'&quot;')}"
-              style="font-family:var(--sans);font-size:11px;padding:4px 7px;background:var(--bg);border:1px solid var(--border);color:var(--ink);border-radius:4px;outline:none;width:100%"
-              onclick="event.stopPropagation()" placeholder="Stanowisko">
+            <select id="weP-${i}" onclick="event.stopPropagation()"
+              style="font-family:var(--sans);font-size:11px;padding:4px 7px;background:var(--bg);border:1px solid var(--border);color:var(--ink);border-radius:4px;outline:none;width:100%">
+              ${['','Menadżer','Zastępca kierownika','Kierownik'].map(p=>`<option value="${p}" ${(w.pos||'')===p?'selected':''}>${p||'— stanowisko —'}</option>`).join('')}
+              ${w.pos&&!['Menadżer','Zastępca kierownika','Kierownik'].includes(w.pos)?`<option value="${w.pos}" selected>${w.pos}</option>`:''}
+            </select>
             <div style="display:flex;gap:6px;align-items:center;">
               <select id="weE-${i}" onclick="event.stopPropagation()"
                 style="font-family:var(--mono);font-size:11px;padding:4px 7px;background:var(--bg);border:1px solid var(--border);color:var(--ink);border-radius:4px;outline:none;flex:1">
@@ -2466,6 +2547,44 @@ function renderAvail(){
   el.innerHTML=html;
 }
 
+let _avtCtx=null;
+function openAvailTimeModal(wi,d){
+  _avtCtx={wi,d};
+  const w=S.workers[wi];
+  const who=document.getElementById('avtWho');
+  if(who) who.textContent=(w?w.name:'')+' · '+(d+1)+' '+MPL[S.month]+' '+S.year;
+  // wstaw aktualne wartości jeśli edycja
+  const cur=S.avail[wi]?.[d];
+  const to24=t=>{if(!t)return '';const[p1,p2]=String(t).split(':');return String(p1).padStart(2,'0')+':'+(p2||'00');};
+  document.getElementById('avtFrom').value=(cur&&typeof cur==='object')?to24(cur.from):'';
+  document.getElementById('avtTo').value  =(cur&&typeof cur==='object')?to24(cur.to):'';
+  // presety z godzin zmian
+  const pr=document.getElementById('avtPresets');
+  if(pr) pr.innerHTML=(S.shifts||[]).map(s=>
+    '<button class="btn-sm" onclick="avtPreset(\''+to24(s.od)+'\',\''+to24(s.do)+'\')">'+s.code+' '+s.od+'–'+s.do+'</button>'
+  ).join('');
+  document.getElementById('avtOv').classList.add('open');
+  setTimeout(()=>{const f=document.getElementById('avtFrom');if(f)f.focus();},60);
+}
+function avtPreset(f,t){
+  document.getElementById('avtFrom').value=f;
+  document.getElementById('avtTo').value=t;
+}
+function closeAvailTimeModal(){
+  document.getElementById('avtOv').classList.remove('open');
+  _avtCtx=null;
+}
+function confirmAvailRange(){
+  if(!_avtCtx) return;
+  const {wi,d}=_avtCtx;
+  const fRaw=document.getElementById('avtFrom').value;
+  const tRaw=document.getElementById('avtTo').value;
+  const fH=fmtIn(fRaw||''),tH=fmtIn(tRaw||'');
+  if(!S.avail[wi])S.avail[wi]=[];
+  S.avail[wi][d]=(fH||tH)?{from:fH,to:tH}:'C';
+  closeAvailTimeModal();
+  renderAvail();saveState();
+}
 function toggleAvail(wi,d){
   const role = window._fbRole || 'admin';
   // Pracownik może edytować tylko swój wiersz
@@ -2475,10 +2594,8 @@ function toggleAvail(wi,d){
   if(!S.avail[wi])S.avail[wi]=[];
   if(!cur){S.avail[wi][d]='N';}
   else if(cur==='N'){
-    const from=prompt('Dostępność częściowa OD (np. 1200):','');
-    const to=prompt('Dostępność częściowa DO (np. 2000):','');
-    const fH=fmtIn(from||''),tH=fmtIn(to||'');
-    S.avail[wi][d]=fH||tH?{from:fH,to:tH}:'C';
+    openAvailTimeModal(wi,d);
+    return; // zapis nastąpi w confirmAvailRange
   }
   else{S.avail[wi][d]='';}
   renderAvail();saveState();
@@ -2711,7 +2828,7 @@ async function runScheduler(){
   // log prev month info
   S.workers.forEach((w,wi)=>{const pm=S.prevMonth[wi]?.[0];if(pm&&pm.do)log(`  Granica: ${w.name} — dz.-1 do ${pm.do} (${pm.shift||'?'})`)});
   setSt('running','Obliczam…');setProg(0);
-  document.getElementById('btnGen').disabled=true;
+  {const _bg=document.getElementById('btnGen');if(_bg)_bg.disabled=true;}
   await sleep(10);
   const days=dim(m,y),nw=S.workers.length;
   while(S.avail.length<nw)S.avail.push(Array(days).fill(''));
@@ -2728,7 +2845,7 @@ async function runScheduler(){
     if(sc>bestSc){bestSc=sc;best=sol;}
   }
   setProg(95);await sleep(20);
-  if(!best){setSt('fail','Brak rozwiązania — złagodź ograniczenia');log('BŁĄD: Brak rozwiązania.','e');document.getElementById('btnGen').disabled=false;return;}
+  if(!best){setSt('fail','Brak rozwiązania — złagodź ograniczenia');log('BŁĄD: Brak rozwiązania.','e');{const _bg=document.getElementById('btnGen');if(_bg)_bg.disabled=false;}return;}
   S.schedule=best;
   S.comments=Array.from({length:nw},()=>Array(days).fill(''));
   const viols=findViolations(best,days,nw,m,y);
@@ -2737,7 +2854,7 @@ async function runScheduler(){
   log(`Wynik: ${bestSc.toFixed(0)} · Naruszenia: ${viols.length}`,viols.length?'w':'ok');
   renderSchedule();renderScores(bestSc,days,nw,m,y);renderStats();
   setSt('ok',`Gotowy · wynik ${bestSc.toFixed(0)} · ${viols.length} naruszeń`);
-  document.getElementById('btnGen').disabled=false;setProg(100);
+  {const _bg=document.getElementById('btnGen');if(_bg)_bg.disabled=false;}setProg(100);
   navGo('tSched');
   saveState();
 }
@@ -3759,7 +3876,7 @@ function renderSchedule(){
     const w=S.workers[wi];
     if(w.visible===false) continue; // ukryty pracownik — pomiń wiersz
     const norm=calcNorm(m,y,w.etat);let totalH=0;
-    html+=`<tr><td class="td-name">
+    html+=`<tr data-wi="${wi}"><td class="td-name">
       <div class="td-name-inner">
         <div class="tdn-name">${w.name}</div>
         <div class="tdn-pos">${w.pos||'—'}</div>
@@ -4443,7 +4560,10 @@ function saveState(){
     };
     const adminUid = window._fbAdminUid || window._fbUser.uid;
     const ref = window._fbDoc(window._fbDb, 'restauracje', adminUid);
-    window._fbSetDoc(ref, payload)
+    const fbData = _activeSite==='735'
+      ? Object.assign({sitesList:getSites()}, payload)
+      : { sitesList:getSites(), sites:{ [_activeSite]: payload } };
+    window._fbSetDoc(ref, fbData, {merge:true})
       .then(()=>{
         const ind = document.getElementById('fb-save-indicator');
         if(ind){ ind.style.display='inline'; setTimeout(()=>ind.style.display='none', 2000); }
@@ -4460,7 +4580,15 @@ async function loadStateFromFirestore(){
     const ref = window._fbDoc(window._fbDb, 'restauracje', adminUid);
     const snap = await window._fbGetDoc(ref);
     if(!snap.exists()) return;
-    const p = snap.data();
+    const p0 = snap.data();
+    // scal listę oddziałów z chmury
+    if(Array.isArray(p0.sitesList)){
+      const merged=[...new Set([...getSites(),...p0.sitesList])];
+      saveSites(merged);
+      renderSitesCard();
+    }
+    const p = _activeSite==='735' ? p0 : (p0.sites&&p0.sites[_activeSite]);
+    if(!p){ setSt('idle','SITE '+_activeSite+' — brak danych w chmurze (nowy oddział)'); return; }
     S.month=p.month??S.month;S.year=p.year??S.year;
     S.workers=p.workers||[];S.shifts=p.shifts||S.shifts;S.coverage=p.coverage||{};
     S.covPlan=p.covPlan||{};
@@ -4561,16 +4689,61 @@ function updateLsInfo(){
 }
 function printSchedule(){
   if(!S.schedule){alert('Najpierw ułóż grafik.');return;}
-  // set print title on schedWrap
+  // modal wyboru pracowników do wydruku
+  const list=document.getElementById('spmWorkers');
+  list.innerHTML=S.workers.map((w,i)=>{
+    const vis=w.visible!==false;
+    return `<label style="display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--border);border-radius:7px;background:var(--card);cursor:pointer;${vis?'':'opacity:.5'}">
+      <input type="checkbox" class="spm-chk" data-wi="${i}" ${vis?'checked':''}>
+      <span style="width:8px;height:8px;border-radius:50%;background:${w.color||'#6b7280'};flex-shrink:0"></span>
+      <span style="font-size:12px;font-weight:600;flex:1">${w.name}</span>
+      <span style="font-size:10px;color:var(--ink3)">${w.pos||''}</span>
+    </label>`;
+  }).join('');
+  document.getElementById('spmOv').classList.add('open');
+}
+function spmAll(on){document.querySelectorAll('.spm-chk').forEach(c=>c.checked=on);}
+function closeSchedPrintModal(){document.getElementById('spmOv').classList.remove('open');}
+function doPrintSchedule(){
+  const sel=new Set([...document.querySelectorAll('.spm-chk:checked')].map(c=>+c.dataset.wi));
+  if(!sel.size){alert('Zaznacz przynajmniej jednego pracownika.');return;}
+  closeSchedPrintModal();
+  document.querySelectorAll('#schedWrap tbody tr[data-wi]').forEach(tr=>{
+    tr.classList.toggle('print-hide-row', !sel.has(+tr.dataset.wi));
+  });
   const wrap=document.getElementById('schedWrap');
   if(wrap) wrap.setAttribute('data-print-title',
-    `GRAFIK PRACY — ${MPL[S.month].toUpperCase()} ${S.year}   ·   Pracownicy: ${S.workers.length}   ·   Wygenerowano: ${new Date().toLocaleDateString('pl-PL')}`
+    `GRAFIK PRACY — ${MPL[S.month].toUpperCase()} ${S.year}   ·   Pracownicy: ${sel.size}   ·   Wygenerowano: ${new Date().toLocaleDateString('pl-PL')}`
   );
-  // make sure tSched tab is active for print
-  document.querySelectorAll('.tab-content').forEach(t=>t.style.removeProperty('display'));
-  window.print();
+  // styl strony: zawsze A4 pozioma; pokaż tSched, ukryj print-area dnia
+  let ps=document.getElementById('dv-print-page-style');
+  if(!ps){ps=document.createElement('style');ps.id='dv-print-page-style';document.head.appendChild(ps);}
+  ps.textContent='@media print{@page{size:A4 landscape;margin:5mm 6mm;}#dv-print-area{display:none!important}#tSched{display:block!important}.print-hide-row{display:none!important}}';
+  // skalowanie do szerokości A4 landscape
+  const gw=wrap?wrap.querySelector('.grid-wrap'):null;
+  const tbl=gw?gw.querySelector('table'):null;
+  if(tbl&&gw){
+    gw.style.transform='';gw.style.width='';
+    const A4W=1090;
+    const actual=tbl.scrollWidth;
+    if(actual>A4W){
+      const sc=A4W/actual;
+      gw.style.transformOrigin='top left';
+      gw.style.transform='scale('+sc+')';
+      gw.style.width=(100/sc)+'%';
+    }
+  }
+  const origTitle=document.title;
+  document.title='Grafik_'+MPL[S.month]+'_'+S.year;
+  setTimeout(()=>{
+    window.print();
+    setTimeout(()=>{
+      document.title=origTitle;
+      if(gw){gw.style.transform='';gw.style.width='';}
+      document.querySelectorAll('#schedWrap .print-hide-row').forEach(tr=>tr.classList.remove('print-hide-row'));
+    },1200);
+  },80);
 }
-
 function clearResults(){
   if(!confirm('Usunąć wygenerowany grafik i wyniki?\nPracownicy, zmiany i obsada pozostaną.')) return;
   S.schedule=null; S.comments=null; S.violations=[];
@@ -4725,7 +4898,13 @@ function refreshMonth(newM, newY){
 
 /* ══════════ SIDEBAR TOGGLE ══════════ */
 function toggleSidebar(){ /* replaced by drawer */ }
+function initSiteBadge(){
+  const txt=_activeSite?('SITE '+_activeSite):'';
+  const b=document.getElementById('siteBadge'); if(b) b.textContent=txt;
+  const bm=document.getElementById('siteBadgeMob'); if(bm) bm.textContent=txt;
+}
 function initSidebarState(){
+  initSiteBadge();
   // Sync all month/year selectors
   ['selM','mob-selM'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=S.month;});
   ['selY','mob-selY'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=S.year;});
@@ -4765,7 +4944,7 @@ function navGo(panelId) {
   // subbar
   const _sbConf = {
     tSched:{ctx:'Grafik miesiąca', grp:'sb-sched', cal:true},
-    tDay:  {ctx:'Widok dnia',      grp:'sb-day',   cal:false},
+    tDay:  {ctx:'Grafik dzień',  grp:'sb-day',   cal:false},
     tCov:  {ctx:'Godziny stałe',   grp:null,        cal:false},
     tAvail:{ctx:'Prośby',          grp:null,        cal:true},
     tPrev: {ctx:'Poprzedni miesiąc',grp:null,       cal:false},
@@ -4827,7 +5006,7 @@ function navGo(panelId) {
     if (panelId === 'tPrev')      renderPrevMonth();
     if (panelId === 'tStats')     renderStats();
     if (panelId === 'tSettings')  {
-      updateLsInfo(); renderNightSettings();
+      updateLsInfo(); renderNightSettings(); renderSitesCard();
       const vi=document.getElementById('setVat'); if(vi) vi.value=S.vatRate||'';
       const pv=document.getElementById('vatPreview');
       if(pv) pv.textContent=S.vatRate>0?('netto = brutto ÷ '+(1+S.vatRate/100).toFixed(4)):'';
@@ -5182,8 +5361,19 @@ function dvRefreshSummary(dk){
     }
     tRows+=`<tr class="${vClass}${rowExtra}"><td class="dh-hr">${String(h).padStart(2,'0')}:00–${String((h+1)%24).padStart(2,'0')}:00</td><td class="dh-val">${disp}${bar}</td>${tgtCell}</tr>`;
   }
-  tRows+=`<tr class="sum-row"><td>Σ roboczogodziny</td><td class="dh-val">${totalH.toFixed(2)}</td>${mx?`<td class="dh-tgt">${sumTarget.toFixed(1)}</td>`:''}</tr>
-    <tr class="sum-row"><td>MAX jednocześnie</td><td class="dh-val">${Number.isInteger(maxH)?maxH:maxH.toFixed(2)}</td>${mx?'<td></td>':''}</tr>`;
+  let mxSumRow='';
+  if(mx){
+    const mxSum=Object.values(mx).reduce((a,b)=>a+(+b||0),0);
+    const dHrs=totalH-mxSum;
+    const near=Math.abs(dHrs)<0.01;
+    const dCol=near?'var(--green)':(dHrs<0?'var(--red)':'var(--orange)');
+    const dStr=near?'✓ zgodnie z matrixem':(dHrs>0?'+':'')+dHrs.toFixed(2)+' h '+(dHrs<0?'(niedobór)':'(nadwyżka)');
+    mxSumRow=`<tr class="sum-row"><td>Σ target (matrix)</td><td class="dh-val">${mxSum.toFixed(2)}</td><td></td></tr>
+      <tr class="sum-row"><td>Δ plan vs matrix</td><td class="dh-val" style="color:${dCol}">${dStr}</td><td></td></tr>`;
+  }
+  tRows+=`<tr class="sum-row"><td>Σ roboczogodziny</td><td class="dh-val">${totalH.toFixed(2)}</td>${mx?`<td class="dh-tgt">${sumTarget.toFixed(1)}</td>`:''}</tr>`;
+  tRows+=mxSumRow;
+  tRows+=`<tr class="sum-row"><td>MAX jednocześnie</td><td class="dh-val">${Number.isInteger(maxH)?maxH:maxH.toFixed(2)}</td>${mx?'<td></td>':''}</tr>`;
 
   // stanowiska
   const byPos=dvHoursByPos(rows,prevRows);
@@ -5375,7 +5565,47 @@ function updateMatrixStatus(){
   el.innerHTML='Załadowano: '+dates.length+' dni<br>'+
     Object.entries(months).map(([mk,n])=>mk+' — '+n+' dni').join('<br>');
 }
+function toggleMatrixPreview(sel){
+  const el=document.getElementById('matrixPreview'); if(!el) return;
+  if(typeof sel!=='string' && el.style.display!=='none'){el.style.display='none';el.innerHTML='';return;}
+  const dates=Object.keys(S.matrix||{}).sort();
+  if(!dates.length){el.style.display='block';el.innerHTML='<div style="font-size:11px;color:var(--ink3)">Brak danych matrixu.</div>';return;}
+  const months=[...new Set(dates.map(d=>d.slice(0,7)))];
+  const mk=(typeof sel==='string'&&months.includes(sel))?sel:months[0];
+  const mDates=dates.filter(d=>d.startsWith(mk));
+  const hoursSet=new Set();
+  mDates.forEach(d=>Object.keys(S.matrix[d]).forEach(h=>hoursSet.add(+h)));
+  const hours=[...hoursSet].sort((a,b)=>a-b);
+  let h='';
+  if(months.length>1){
+    h+='<div style="display:flex;gap:4px;margin-bottom:6px;flex-wrap:wrap">'+months.map(m=>
+      '<button class="btn-sm '+(m===mk?'ok':'')+'" onclick="toggleMatrixPreview(\''+m+'\')">'+m+'</button>').join('')+'</div>';
+  }
+  h+='<div style="overflow:auto;max-height:46dvh;border:1px solid var(--border);border-radius:7px"><table style="border-collapse:collapse;font-family:var(--mono);font-size:9px;min-width:100%">';
+  h+='<thead><tr><th style="position:sticky;top:0;left:0;z-index:3;background:var(--card);padding:4px 6px;border-bottom:1px solid var(--border)">Godz.</th>'+
+     mDates.map(d=>{
+       const dw=new Date(d).getDay();
+       const col=(dw===0||dw===6)?'var(--red)':'var(--ink2)';
+       return '<th style="position:sticky;top:0;z-index:2;background:var(--card);padding:4px 5px;border-bottom:1px solid var(--border);color:'+col+'">'+(+d.slice(8))+'</th>';
+     }).join('')+'</tr></thead><tbody>';
+  hours.forEach(hr=>{
+    h+='<tr><td style="position:sticky;left:0;background:var(--surface);padding:3px 6px;color:var(--ink2);border-right:1px solid var(--border);white-space:nowrap">'+hr+'\u2013'+((hr+1)%24)+'</td>'+
+      mDates.map(d=>{
+        const v=S.matrix[d][hr];
+        const disp=v!=null?(Number.isInteger(v)?v:v.toFixed(1)):'\u00b7';
+        return '<td style="padding:3px 5px;text-align:center;color:'+(v?'var(--ink)':'var(--ink3)')+'">'+disp+'</td>';
+      }).join('')+'</tr>';
+  });
+  h+='<tr><td style="position:sticky;left:0;background:var(--card);padding:3px 6px;font-weight:700;color:var(--blue);border-top:1px solid var(--border)">\u03a3</td>'+
+     mDates.map(d=>{
+       const s=Object.values(S.matrix[d]).reduce((a,b)=>a+b,0);
+       return '<td style="padding:3px 5px;text-align:center;font-weight:700;color:var(--blue);border-top:1px solid var(--border)">'+(Number.isInteger(s)?s:s.toFixed(1))+'</td>';
+     }).join('')+'</tr>';
+  h+='</tbody></table></div>';
+  el.style.display='block';el.innerHTML=h;
+}
 function clearMatrix(){
+
   if(!confirm('Wyczyścić wszystkie dane matrixu (targety godzinowe)?')) return;
   S.matrix={};
   saveState();
@@ -5816,7 +6046,7 @@ function renderDashboard(){
   html+=`<div class="dash-card"><div class="dc-title" style="margin-bottom:2px">⚡ Szybkie akcje</div>
     <div class="dash-actions">
       <button onclick="navGo('tSched')">📋 Grafik miesiąca</button>
-      <button onclick="navGo('tDay')">☀️ Widok dnia</button>
+      <button onclick="navGo('tDay')">☀️ Grafik dzień</button>
       <button onclick="navGo('tCov')">🕑 Godziny stałe</button>
       <button onclick="navGo('tAvail')">✉ Prośby</button>
       ${!sameMonth?`<button onclick="dashGoToToday()">📆 Przejdź do ${MPL[curM]} ${curY}</button>`:''}
@@ -6635,7 +6865,61 @@ async function loadProsbyFromFirestore(){
   </div>
 </div>
 
+<!-- ═══ AVAIL TIME MODAL ═══ -->
+<div class="dv-pm-ov" id="avtOv" onclick="if(event.target===this)closeAvailTimeModal()">
+  <div class="dv-pm-box" style="max-width:420px">
+    <div class="dv-pm-hd">
+      <div class="dv-pm-title">✉ Dostępność częściowa</div>
+      <button class="km-close" onclick="closeAvailTimeModal()">×</button>
+    </div>
+    <div class="dv-pm-body">
+      <div id="avtWho" style="font-size:12px;font-weight:600;color:var(--ink)"></div>
+      <div class="dv-pm-row">
+        <div class="dv-pm-field">
+          <span class="dv-pm-lbl">Dostępny OD</span>
+          <input class="dv-pm-inp" type="time" id="avtFrom" step="900" style="width:120px">
+        </div>
+        <div class="dv-pm-field">
+          <span class="dv-pm-lbl">Dostępny DO</span>
+          <input class="dv-pm-inp" type="time" id="avtTo" step="900" style="width:120px">
+        </div>
+      </div>
+      <div>
+        <div class="dv-pm-lbl" style="margin-bottom:6px">Szybki wybór (godziny zmian)</div>
+        <div id="avtPresets" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      </div>
+    </div>
+    <div class="dv-pm-ft">
+      <button class="btn-go" onclick="confirmAvailRange()" style="flex:1">✓ Zapisz</button>
+      <button class="btn-sm" onclick="closeAvailTimeModal()">Anuluj</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCHED PRINT MODAL ═══ -->
+<div class="dv-pm-ov" id="spmOv" onclick="if(event.target===this)closeSchedPrintModal()">
+  <div class="dv-pm-box">
+    <div class="dv-pm-hd">
+      <div class="dv-pm-title">🖨 Drukuj grafik — wybór pracowników</div>
+      <button class="km-close" onclick="closeSchedPrintModal()">×</button>
+    </div>
+    <div class="dv-pm-body">
+      <div style="display:flex;gap:8px">
+        <button class="btn-sm" onclick="spmAll(true)">✓ Wszyscy</button>
+        <button class="btn-sm" onclick="spmAll(false)">✗ Nikt</button>
+        <span style="font-family:var(--mono);font-size:9px;color:var(--ink3);margin-left:auto;align-self:center">A4 pozioma · auto-skalowanie</span>
+      </div>
+      <div id="spmWorkers" style="display:flex;flex-direction:column;gap:6px;max-height:50dvh;overflow-y:auto"></div>
+    </div>
+    <div class="dv-pm-ft">
+      <button class="btn-go" onclick="doPrintSchedule()" style="flex:1">🖨 Drukuj / Zapisz PDF</button>
+      <button class="btn-sm" onclick="closeSchedPrintModal()">Anuluj</button>
+    </div>
+  </div>
+</div>
+
 <!-- hidden print area -->
+
 <div id="dv-print-area"></div>
 
 </body>
