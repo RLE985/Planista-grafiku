@@ -882,8 +882,7 @@ body { padding-top:54px; }
 .nsi-role{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--blue);display:block;margin-bottom:2px;}
 .nsi-email{font-family:var(--mono);font-size:10px;color:var(--ink3);word-break:break-all;}
 /* nav controls area */
-.nav-ctrl{display:flex;align-items:center;gap:6px;margin-left:auto;padding:0 6px;flex-shrink:0;}
-.nav-ctrl label{font-size:11px;color:var(--ink3);}
+.nav-ctrl{display:none !important;}
 .nav-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
 /* hamburger */
 .nav-ham{
@@ -969,11 +968,9 @@ body { padding-top:54px; }
 .panel{display:none;padding:14px;flex-direction:column;gap:10px;}
 .panel.active{display:flex;}
 @media (max-width:1023px){
-  .nav-ctrl label{display:none;}
 }
 @media (max-width:768px){
   .nav-links{display:none;}
-  .nav-ctrl{display:none;}
   .nav-right .status-bar{max-width:120px;}
   .nav-ham{display:flex;}
 }
@@ -1543,18 +1540,7 @@ body { padding-top:54px; }
     </div>
   </div>
 
-  <!-- controls: miesiąc/rok + generate -->
-  <div class="nav-ctrl">
-    <label>Miesiąc</label>
-    <select class="msel" id="selM" onchange="refreshMonth()">
-      <option value="0">Styczeń</option><option value="1">Luty</option><option value="2">Marzec</option>
-      <option value="3">Kwiecień</option><option value="4">Maj</option><option value="5">Czerwiec</option>
-      <option value="6">Lipiec</option><option value="7">Sierpień</option><option value="8">Wrzesień</option>
-      <option value="9">Październik</option><option value="10">Listopad</option><option value="11">Grudzień</option>
-    </select>
-    <label>Rok</label>
-    <input type="number" class="yinp" id="selY" value="2026" min="2024" max="2030" onchange="refreshMonth()">
-  </div>
+
 
   <!-- right: status + konto + hamburger -->
   <div class="nav-right">
@@ -1582,6 +1568,17 @@ body { padding-top:54px; }
 
 <!-- ═══ SUBBAR ═══ -->
 <div class="subbar" id="subbar">
+  <!-- cal: month/year selector (shows for tSched + tAvail) -->
+  <div class="sb-grp" id="sb-cal" style="display:none">
+    <select class="msel" id="selM" onchange="refreshMonth()">
+      <option value="0">Styczeń</option><option value="1">Luty</option><option value="2">Marzec</option>
+      <option value="3">Kwiecień</option><option value="4">Maj</option><option value="5">Czerwiec</option>
+      <option value="6">Lipiec</option><option value="7">Sierpień</option><option value="8">Wrzesień</option>
+      <option value="9">Październik</option><option value="10">Listopad</option><option value="11">Grudzień</option>
+    </select>
+    <input type="number" class="yinp" id="selY" value="2026" min="2024" max="2030" onchange="refreshMonth()">
+    <div class="sb-sep"></div>
+  </div>
   <span class="sb-ctx" id="sbCtx"></span>
   <div style="flex:1;min-width:0"></div>
   <div class="sb-grp" id="sb-sched" style="display:none">
@@ -1595,7 +1592,6 @@ body { padding-top:54px; }
     <button class="btn-sm ok" onclick="dvAddRow()">+ Dodaj pracownika</button>
     <div class="sb-sep"></div>
     <button class="btn-sm exp" onclick="dvOpenPrintModal()">🖨 Drukuj / PDF</button>
-    <button class="btn-sm danger" onclick="dvClearExtra()">↩ Tylko grafik</button>
   </div>
 </div>
 
@@ -4731,12 +4727,12 @@ function navGo(panelId) {
 
   // subbar
   const _sbConf = {
-    tSched:{ctx:'Grafik miesiąca',grp:'sb-sched'},
-    tDay:  {ctx:'Widok dnia',grp:'sb-day'},
-    tCov:  {ctx:'Godziny stałe',grp:null},
-    tAvail:{ctx:'Prośby pracowników',grp:null},
-    tPrev: {ctx:'Poprzedni miesiąc',grp:null},
-    tStats:{ctx:'Statystyki',grp:null},
+    tSched:{ctx:'Grafik miesiąca', grp:'sb-sched', cal:true},
+    tDay:  {ctx:'Widok dnia',      grp:'sb-day',   cal:false},
+    tCov:  {ctx:'Godziny stałe',   grp:null,        cal:false},
+    tAvail:{ctx:'Prośby',          grp:null,        cal:true},
+    tPrev: {ctx:'Poprzedni miesiąc',grp:null,       cal:false},
+    tStats:{ctx:'Statystyki',      grp:null,        cal:false},
   };
   const sbCfg = _sbConf[panelId];
   const sbEl = document.getElementById('subbar');
@@ -4746,6 +4742,8 @@ function navGo(panelId) {
       const ctxEl = document.getElementById('sbCtx'); if(ctxEl) ctxEl.textContent = sbCfg.ctx||'';
       document.querySelectorAll('.sb-grp').forEach(g=>g.style.display='none');
       if (sbCfg.grp) { const g=document.getElementById(sbCfg.grp); if(g) g.style.display='flex'; }
+      const calEl = document.getElementById('sb-cal');
+      if (calEl) calEl.style.display = sbCfg.cal ? 'flex' : 'none';
     } else {
       sbEl.classList.remove('vis');
     }
@@ -4945,24 +4943,30 @@ function dvPrevKey(dateKey){
 /* ── state ── */
 function dvGetRows(dateKey){
   if(!S.dayData) S.dayData={};
-  if(S.dayData[dateKey]) return S.dayData[dateKey].rows;
+  // Always recalculate schedule rows from live S.schedule
   const y=parseInt(dateKey.slice(0,4)),m=parseInt(dateKey.slice(5,7))-1,di=parseInt(dateKey.slice(8,10))-1;
-  const rows=[];
+  const schedRows=[];
   if(S.schedule&&m===S.month&&y===S.year){
     for(let wi=0;wi<S.workers.length;wi++){
       const code=S.schedule[wi]?.[di]; if(!code) continue;
       const shift=S.shifts.find(s=>s.code===code); if(!shift) continue;
-      rows.push({
+      // respect custom times if set
+      const ct=S.customTimes?.[wi]?.[di];
+      const startRaw=(ct?.od||shift.od||'').replace(':','');
+      const endRaw  =(ct?.do||shift.do||'').replace(':','');
+      schedRows.push({
         name:S.workers[wi].name,
-        start:(shift.od||'').replace(':',''),
-        end:(shift.do||'').replace(':',''),
+        start:startRaw, end:endRaw,
         stanowisko:S.workers[wi].pos||dvGetStan()[0]||'Pracownik',
         fromSchedule:true
       });
     }
   }
-  S.dayData[dateKey]={rows,sales:0};
-  return rows;
+  // Preserve extra (user-added) rows from previous render
+  const extraRows=(S.dayData[dateKey]?.rows||[]).filter(r=>!r.fromSchedule);
+  if(!S.dayData[dateKey]) S.dayData[dateKey]={sales:0};
+  S.dayData[dateKey].rows=[...schedRows,...extraRows];
+  return S.dayData[dateKey].rows;
 }
 function dvSave(){saveState();}
 function dvUpdateRow(dk,idx,field,val){
@@ -4987,12 +4991,15 @@ function dvAddRow(){
 }
 function dvDeleteRow(dk,idx){
   if(!S.dayData?.[dk]?.rows) return;
+  if(S.dayData[dk].rows[idx]?.fromSchedule) return; // grafik — nie można usunąć
   S.dayData[dk].rows.splice(idx,1);
   renderDayView();dvSave();
 }
 function dvClearExtra(){
+  // usuń tylko wiersze dodatkowe (nie z grafiku)
   const dk=dvKey();
-  if(S.dayData?.[dk]) delete S.dayData[dk];
+  if(!S.dayData?.[dk]) return;
+  S.dayData[dk].rows=(S.dayData[dk].rows||[]).filter(r=>r.fromSchedule);
   renderDayView();
 }
 function dvUpdateSales(dk,val){
