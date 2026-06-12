@@ -1530,6 +1530,7 @@ body { padding-top:54px; }
         <div class="nsi" onclick="openKonfig('workers')">👥 Pracownicy</div>
         <div class="nsi" onclick="openKonfig('shifts')">🔄 Zmiany</div>
         <div class="nsi" onclick="openKonfig('events')">📅 Kalendarz wydarzeń</div>
+        <div class="nsi" onclick="openKonfig('matrix')">📈 Matrix obsady</div>
         <hr class="nav-sep">
         <div class="nsi" onclick="navSub('tSettings')">⚙ Ustawienia</div>
       </div>
@@ -1660,6 +1661,23 @@ body { padding-top:54px; }
 
     </div>
 
+
+    <!-- km-matrix -->
+    <div class="km-sec" id="km-matrix">
+      <div class="sec-head">Matrix obsady (target godzinowy)</div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--ink2);line-height:1.8;margin-bottom:4px">
+        Wgraj plik XLSX: wiersze = przedziały godzin (5-6, 6-7, …), kolumny = dni miesiąca,
+        znacznik miesiąca (np. <b>2026-6</b>) w pierwszym wierszu.<br>
+        Kolejne miesiące <b>dokładają się</b> do już wczytanych.
+      </div>
+      <label class="btn-sm exp" style="padding:8px;cursor:pointer;text-align:center">
+        ⬆ Wgraj matrix (.xlsx)
+        <input type="file" accept=".xlsx" style="display:none" onchange="importMatrixFile(this)">
+      </label>
+      <div id="matrixStatus" style="font-family:var(--mono);font-size:10px;color:var(--ink2);line-height:1.8"></div>
+      <button class="btn-sm danger" style="align-self:flex-start" onclick="clearMatrix()">🗑 Wyczyść matrix</button>
+    </div>
+
   </div>
 </div>
 </div>
@@ -1692,6 +1710,7 @@ body { padding-top:54px; }
       <div class="mnb-sub-item" onclick="openKonfig('workers');closeMobileNav()">👥 Pracownicy</div>
       <div class="mnb-sub-item" onclick="openKonfig('shifts');closeMobileNav()">🔄 Zmiany</div>
       <div class="mnb-sub-item" onclick="openKonfig('events');closeMobileNav()">📅 Kalendarz wydarzeń</div>
+      <div class="mnb-sub-item" onclick="openKonfig('matrix');closeMobileNav()">📈 Matrix obsady</div>
       <div class="mnb-sub-item" onclick="navGo('tSettings')">⚙ Ustawienia</div>
     </div>
   </div>
@@ -1824,6 +1843,14 @@ body { padding-top:54px; }
         </div>
       </div>
       <div class="settings-card">
+        <h4>Finanse — VAT</h4>
+        <div class="setting-row">
+          <div><div class="setting-label">Średni VAT (%)</div><div class="setting-desc">Do przeliczania SPMH netto z brutto w widoku dnia</div></div>
+          <input type="number" class="cnum" id="setVat" min="0" max="30" step="0.01" style="width:72px" oninput="saveVat(this.value)">
+        </div>
+        <div id="vatPreview" style="font-family:var(--mono);font-size:9px;color:var(--cyan);margin-top:4px;"></div>
+      </div>
+      <div class="settings-card">
         <h4>Parametry silnika</h4>
         <div class="setting-row">
           <div><div class="setting-label">Iteracje</div><div class="setting-desc">Więcej = lepszy grafik, dłuższe oczekiwanie</div></div>
@@ -1932,7 +1959,7 @@ let S={
   covPlan:{},
   // avail[wi][d] = ''|'N'|{from:'HH:MM',to:'HH:MM'}
   avail:[],
-  schedule:null,dayData:{}, comments:null, violations:[],
+  schedule:null,dayData:{},matrix:{},vatRate:0, comments:null, violations:[],
   prevMonth:[],
   events:[],  // [{date:'YYYY-MM-DD', title, icon, desc, color}]
   monthData:{}, // {'{year}-{month}': {schedule,avail,comments,customTimes,violations,prevMonth}}
@@ -4331,13 +4358,25 @@ function loadMonthData(m,y){
   const days=dim(m,y);
   const nw=S.workers.length;
   const d=S.monthData[key];
+  // normalizacja: dopasuj tablice do AKTUALNEJ liczby pracowników i dni miesiąca
+  // (grafik mógł być zapisany przy innym składzie zespołu — to powodowało błąd ładowania)
+  const _fitRows=(arr,fill)=>{
+    const a=Array.isArray(arr)?arr:[];
+    const res=[];
+    for(let i=0;i<nw;i++){
+      const row=Array.isArray(a[i])?a[i].slice(0,days):[];
+      while(row.length<days) row.push(fill);
+      res.push(row);
+    }
+    return res;
+  };
   if(d){
-    S.schedule   = d.schedule||null;
-    S.avail      = d.avail||Array.from({length:nw},()=>Array(days).fill(''));
-    S.comments   = d.comments||null;
-    S.customTimes= d.customTimes||[];
-    S.violations = d.violations||[];
-    S.prevMonth  = d.prevMonth||[];
+    S.schedule   = d.schedule ? _fitRows(d.schedule,'') : null;
+    S.avail      = _fitRows(d.avail,'');
+    S.comments   = d.comments ? _fitRows(d.comments,'') : null;
+    S.customTimes= Array.isArray(d.customTimes)?d.customTimes:[];
+    S.violations = (Array.isArray(d.violations)?d.violations:[]).filter(v=>typeof v==='string');
+    S.prevMonth  = Array.isArray(d.prevMonth)?d.prevMonth:[];
     S.lockedCells= d.lockedCells||{};
     S.customLabel = d.customLabel||{};
   } else {
@@ -4380,6 +4419,7 @@ function saveState(){
       workers:S.workers,shifts:S.shifts,coverage:S.coverage,covPlan:S.covPlan,
       settings:S.settings,events:S.events||[],monthData:S.monthData||{},
       dayData:S.dayData||{},
+      matrix:S.matrix||{},vatRate:S.vatRate||0,
       darkMode:document.getElementById('togDark')?.checked!==false
     };
     localStorage.setItem(STORE_KEY,JSON.stringify(payload));
@@ -4396,6 +4436,8 @@ function saveState(){
       settings:S.settings,events:S.events||[],
       monthDataJson: monthDataSafe,
       dayDataJson: dayDataSafe,
+      matrixJson: JSON.stringify(S.matrix||{}),
+      vatRate: S.vatRate||0,
       darkMode:document.getElementById('togDark')?.checked!==false,
       updatedAt: new Date().toISOString()
     };
@@ -4435,6 +4477,12 @@ async function loadStateFromFirestore(){
     } else {
       S.dayData = p.dayData||{};
     }
+    if(p.matrixJson){
+      try{ S.matrix = JSON.parse(p.matrixJson); }catch(e){ S.matrix={}; }
+    } else {
+      S.matrix = p.matrix||{};
+    }
+    S.vatRate = p.vatRate||0;
     loadMonthData(S.month,S.year);
     const dark=p.darkMode!==false;
     document.getElementById('togDark').checked=dark;
@@ -4484,6 +4532,8 @@ function loadState(){
     S.events=p.events||[];
     S.monthData=p.monthData||{};
     S.dayData=p.dayData||{};
+    S.matrix=p.matrix||{};
+    S.vatRate=p.vatRate||0;
     // obsługa starych danych (bez monthData)
     if(p.schedule||p.avail){
       const key=monthKey(S.month,S.year);
@@ -4662,9 +4712,11 @@ function refreshMonth(newM, newY){
   if(!S.schedule) document.getElementById('scoreBar').style.display='none';
   // każdy render osobno — błąd jednego widoku nie blokuje przełączenia miesiąca
   ensurePerms();
-  try{reRenderAll();}catch(e){console.warn('reRenderAll:',e);}
-  try{renderSchedule();}catch(e){console.warn('renderSchedule:',e);}
-  try{renderEvents();}catch(e){console.warn('renderEvents:',e);}
+  let _rerr=null;
+  try{reRenderAll();}catch(e){console.warn('reRenderAll:',e);_rerr=e;}
+  try{renderSchedule();}catch(e){console.warn('renderSchedule:',e);_rerr=e;}
+  try{renderEvents();}catch(e){console.warn('renderEvents:',e);_rerr=e;}
+  if(_rerr){setSt('err','Błąd widoku: '+_rerr.message);}
   saveState();
   const MNAMES=['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec',
     'Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
@@ -4765,21 +4817,39 @@ function navGo(panelId) {
     ['selM','mob-selM'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=S.month;});
     ['selY','mob-selY'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=S.year;});
   }
-  // render panel content
-  if (panelId === 'tSched')     renderSchedule();
-  if (panelId === 'tDash')      renderDashboard();
-  if (panelId === 'tDay')       renderDayView();
-  if (panelId === 'tAvail')     renderAvail();
-  if (panelId === 'tCov')       renderCov();
-  if (panelId === 'tPrev')      renderPrevMonth();
-  if (panelId === 'tStats')     renderStats();
-  if (panelId === 'tSettings')  { updateLsInfo(); renderNightSettings(); }
+  // render panel content (każdy w try/catch — błąd jednego panelu nie blokuje nawigacji)
+  try{
+    if (panelId === 'tSched')     renderSchedule();
+    if (panelId === 'tDash')      renderDashboard();
+    if (panelId === 'tDay')       renderDayView();
+    if (panelId === 'tAvail')     renderAvail();
+    if (panelId === 'tCov')       renderCov();
+    if (panelId === 'tPrev')      renderPrevMonth();
+    if (panelId === 'tStats')     renderStats();
+    if (panelId === 'tSettings')  {
+      updateLsInfo(); renderNightSettings();
+      const vi=document.getElementById('setVat'); if(vi) vi.value=S.vatRate||'';
+      const pv=document.getElementById('vatPreview');
+      if(pv) pv.textContent=S.vatRate>0?('netto = brutto ÷ '+(1+S.vatRate/100).toFixed(4)):'';
+    }
+  }catch(e){
+    console.error('Błąd renderowania '+panelId+':',e);
+    try{ setSt('err','Błąd widoku: '+e.message.slice(0,80)); }catch(_){}
+  }
 
   try { localStorage.setItem('planista_nav', panelId); } catch(e) {}
 }
 
 /* wrapper to keep backward compat */
 function navSub(panelId){ navGo(panelId); }
+
+/* ── globalne wyłapywanie błędów: pokaż w pasku statusu zamiast cichej awarii ── */
+window.addEventListener('error', e=>{
+  try{ setSt('err','Błąd: '+(e.message||'nieznany').slice(0,90)); }catch(_){}
+});
+window.addEventListener('unhandledrejection', e=>{
+  try{ setSt('err','Błąd: '+String(e.reason?.message||e.reason||'').slice(0,90)); }catch(_){}
+});
 
 function toggleDrop(navlEl) {
   const wasOpen = navlEl.classList.contains('open');
@@ -4797,7 +4867,7 @@ document.addEventListener('click', function(e) {
 });
 
 /* ══════════ KONFIG MODAL ══════════ */
-const _KM_TITLES = { workers:'Pracownicy', shifts:'Zmiany', events:'Kalendarz wydarzeń' };
+const _KM_TITLES = { workers:'Pracownicy', shifts:'Zmiany', events:'Kalendarz wydarzeń', matrix:'Matrix obsady' };
 
 function openKonfig(section) {
   closeAllDrops();
@@ -4810,6 +4880,7 @@ function openKonfig(section) {
   if (section === 'workers') renderWorkers();
   if (section === 'shifts')  renderShiftEditor();
   if (section === 'events')  renderEvents();
+  if (section === 'matrix')  updateMatrixStatus();
 }
 
 function closeKonfig() {
@@ -5058,7 +5129,8 @@ function dvRefreshSummary(dk){
   const rows=dvGetRows(dk);
   const prevRows=dvGetRows(dvPrevKey(dk));
   const hasAny=rows.some(r=>dvParseHour(r.start)!==null&&dvParseHour(r.end)!==null);
-  if(!hasAny){el.innerHTML='';return;}
+  const mx=(S.matrix&&S.matrix[dk])||null;
+  if(!hasAny&&!mx){el.innerHTML='';return;}
 
   const hourly=[];let maxV=0;
   for(let h=0;h<24;h++){const v=dvComputeForDay(rows,prevRows,h);hourly.push(v);if(v>maxV)maxV=v;}
@@ -5066,37 +5138,54 @@ function dvRefreshSummary(dk){
   const maxH=Math.max(...hourly);
   const sales=S.dayData[dk]?.sales||0;
 
-  // update SPMH row
+  // SPMH brutto + netto (z VAT)
   let spmhHtml='';
   if(sales>0&&totalH>0){
     const spmh=(sales/totalH).toFixed(2);
+    const net=netFromGross(sales);
     spmhHtml=`<div class="dv-spmh-result"><div class="dv-spmh-val">${spmh}</div>
-      <div class="dv-spmh-unit">PLN / h (SPMH)</div>
+      <div class="dv-spmh-unit">PLN / h (SPMH brutto)</div>
+      ${net!=null?`<div class="dv-spmh-break" style="color:var(--green)">netto: ${(net/totalH).toFixed(2)} PLN/h (VAT ${S.vatRate}%)</div>`:''}
       <div class="dv-spmh-break">${sales.toLocaleString('pl-PL')} ÷ ${totalH.toFixed(2)} h</div></div>`;
   }
-  const spmhR=document.getElementById('dvSpmhResult');
-  if(spmhR) spmhR.innerHTML=spmhHtml;
-  const spmhHours=document.getElementById('dvSpmhHours');
-  if(spmhHours) spmhHours.textContent=totalH>0?totalH.toFixed(2)+' h':'–';
+  const spmhR=document.getElementById('dvSpmhResult'); if(spmhR) spmhR.innerHTML=spmhHtml;
+  const spmhHours=document.getElementById('dvSpmhHours'); if(spmhHours) spmhHours.textContent=totalH>0?totalH.toFixed(2)+' h':'–';
 
-  // hourly table (trim silent hours)
-  let firstNZ=0,lastNZ=23;
-  for(let h=0;h<24;h++){if(hourly[h]>0){firstNZ=h;break;}}
-  for(let h=23;h>=0;h--){if(hourly[h]>0){lastNZ=h;break;}}
+  // zakres godzin: obsada LUB target
+  let firstNZ=24,lastNZ=-1;
+  for(let h=0;h<24;h++){
+    const has=hourly[h]>0||(mx&&mx[h]>0);
+    if(has){ if(h<firstNZ)firstNZ=h; if(h>lastNZ)lastNZ=h; }
+  }
+  if(lastNZ<0){el.innerHTML='';return;}
   const from=Math.max(0,firstNZ-1),to=Math.min(23,lastNZ+1);
+
+  let sumTarget=0; if(mx) Object.values(mx).forEach(v=>{sumTarget+=(+v||0);});
   let tRows='';
   for(let h=from;h<=to;h++){
     const v=hourly[h];
     const disp=v===0?'–':(Number.isInteger(v)?v:v.toFixed(2));
-    const barW=maxV>0?Math.round(v/maxV*80):0;
+    const barW=maxV>0?Math.round(v/maxV*70):0;
     const bar=v>0?`<span style="display:inline-block;width:${barW}px;height:3px;border-radius:2px;background:var(--blue);opacity:.55;vertical-align:middle;margin-left:8px"></span>`:'';
     const vClass=v===0?'dh-v0':v===maxH?'dh-v5':'';
-    tRows+=`<tr class="${vClass}"><td class="dh-hr">${String(h).padStart(2,'0')}:00–${String((h+1)%24).padStart(2,'0')}:00</td><td class="dh-val">${disp}${bar}</td></tr>`;
+    let tgtCell='',rowExtra='';
+    if(mx){
+      const t=+(mx[h]||0);
+      if(t>0){
+        const diff=v-t;
+        const near=Math.abs(diff)<0.01;
+        const dStr=near?'✓':(diff>0?'+':'')+(Number.isInteger(diff)?diff:diff.toFixed(2));
+        const col=near?'var(--green)':(diff<0?'var(--red)':'var(--orange)');
+        if(diff<-0.01) rowExtra=' dh-under'; else if(diff>0.01) rowExtra=' dh-over';
+        tgtCell=`<td class="dh-tgt" style="white-space:nowrap">${Number.isInteger(t)?t:t.toFixed(2)} <span style="color:${col};font-weight:700">${dStr}</span></td>`;
+      } else tgtCell=`<td class="dh-tgt">–</td>`;
+    }
+    tRows+=`<tr class="${vClass}${rowExtra}"><td class="dh-hr">${String(h).padStart(2,'0')}:00–${String((h+1)%24).padStart(2,'0')}:00</td><td class="dh-val">${disp}${bar}</td>${tgtCell}</tr>`;
   }
-  tRows+=`<tr class="sum-row"><td>Σ roboczogodziny</td><td class="dh-val">${totalH.toFixed(2)}</td></tr>
-    <tr class="sum-row"><td>MAX jednocześnie</td><td class="dh-val">${Number.isInteger(maxH)?maxH:maxH.toFixed(2)}</td></tr>`;
+  tRows+=`<tr class="sum-row"><td>Σ roboczogodziny</td><td class="dh-val">${totalH.toFixed(2)}</td>${mx?`<td class="dh-tgt">${sumTarget.toFixed(1)}</td>`:''}</tr>
+    <tr class="sum-row"><td>MAX jednocześnie</td><td class="dh-val">${Number.isInteger(maxH)?maxH:maxH.toFixed(2)}</td>${mx?'<td></td>':''}</tr>`;
 
-  // stanowisko breakdown
+  // stanowiska
   const byPos=dvHoursByPos(rows,prevRows);
   let pbHtml='';
   dvGetStan().forEach(st=>{
@@ -5112,13 +5201,186 @@ function dvRefreshSummary(dk){
 
   el.innerHTML=`<div class="dv-summary">
     <div class="dv-sum-hd">
-      <span class="dv-sum-title">📊 Zestawienie godzinowe</span>
+      <span class="dv-sum-title">📊 Zestawienie godzinowe${mx?' · target z matrixu':''}</span>
       <span class="dv-sum-total" id="dvSpmhResult"></span>
     </div>
-    <div style="overflow-x:auto"><table class="dv-htbl"><thead><tr><th>Godzina</th><th>Obsada</th></tr></thead><tbody>${tRows}</tbody></table></div>
+    <div style="overflow-x:auto"><table class="dv-htbl"><thead><tr><th>Godzina</th><th>Obsada</th>${mx?'<th>Target / Δ</th>':''}</tr></thead><tbody>${tRows}</tbody></table></div>
     ${pbHtml?`<div class="dv-pos-breakdown">${pbHtml}</div>`:''}
   </div>`;
   if(spmhHtml){const r=document.getElementById('dvSpmhResult');if(r)r.innerHTML=spmhHtml;}
+}
+
+/* ══════════════════════════════════════════════════════
+   VAT — średnia stawka do SPMH netto
+═══════════════════════════════════════════════════════ */
+function saveVat(val){
+  S.vatRate=parseFloat(String(val).replace(',','.'))||0;
+  const pv=document.getElementById('vatPreview');
+  if(pv) pv.textContent=S.vatRate>0?('netto = brutto ÷ '+(1+S.vatRate/100).toFixed(4)):'';
+  saveState();
+  if(_navActive==='tDay') dvRefreshSummary(dvKey());
+}
+function netFromGross(g){
+  if(!g||!S.vatRate) return null;
+  return g/(1+S.vatRate/100);
+}
+
+/* ══════════════════════════════════════════════════════
+   MATRIX OBSADY — import XLSX (parser ZIP+XML w przeglądarce)
+═══════════════════════════════════════════════════════ */
+async function _xlsxUnzip(buffer,nameRe){
+  const view=new DataView(buffer), bytes=new Uint8Array(buffer);
+  let eocd=-1;
+  for(let i=buffer.byteLength-22;i>=0;i--){
+    if(view.getUint32(i,true)===0x06054b50){eocd=i;break;}
+  }
+  if(eocd<0) throw new Error('Nieprawidłowy plik XLSX (brak struktury ZIP)');
+  const cdOff=view.getUint32(eocd+16,true), cnt=view.getUint16(eocd+10,true);
+  const td=new TextDecoder(); let p=cdOff;
+  for(let i=0;i<cnt;i++){
+    if(view.getUint32(p,true)!==0x02014b50) break;
+    const method=view.getUint16(p+10,true), csize=view.getUint32(p+20,true);
+    const nlen=view.getUint16(p+28,true), elen=view.getUint16(p+30,true), clen=view.getUint16(p+32,true);
+    const loff=view.getUint32(p+42,true);
+    const name=td.decode(bytes.subarray(p+46,p+46+nlen));
+    if(nameRe.test(name)){
+      const lnlen=view.getUint16(loff+26,true), lelen=view.getUint16(loff+28,true);
+      const start=loff+30+lnlen+lelen;
+      const data=bytes.slice(start,start+csize);
+      if(method===0) return td.decode(data);
+      if(method===8){
+        const ds=new DecompressionStream('deflate-raw');
+        const ab=await new Response(new Blob([data]).stream().pipeThrough(ds)).arrayBuffer();
+        return td.decode(ab);
+      }
+      throw new Error('Nieobsługiwana kompresja w XLSX');
+    }
+    p+=46+nlen+elen+clen;
+  }
+  return null;
+}
+function _xmlDec(s){
+  return String(s)
+    .replace(/_x([0-9A-Fa-f]{4})_/g,(m,h)=>String.fromCharCode(parseInt(h,16)))
+    .replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"')
+    .replace(/&apos;/g,"'").replace(/&amp;/g,'&');
+}
+function _xlsxStrings(xml){
+  const out=[]; if(!xml) return out;
+  const re=/<si[^>]*>([\s\S]*?)<\/si>/g; let m;
+  while((m=re.exec(xml))){
+    let t='', tr=/<t[^>]*>([\s\S]*?)<\/t>/g, x;
+    while((x=tr.exec(m[1]))) t+=x[1];
+    out.push(_xmlDec(t));
+  }
+  return out;
+}
+function _colNum(s){let n=0;for(const ch of s)n=n*26+(ch.charCodeAt(0)-64);return n;}
+function _xlsxCells(xml,strings){
+  const cells={}; const re=/<c\s([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g; let m;
+  while((m=re.exec(xml))){
+    const attrs=m[1], inner=m[2]||'';
+    const r=attrs.match(/r="([A-Z]+)(\d+)"/); if(!r) continue;
+    const col=_colNum(r[1]), row=+r[2];
+    const t=(attrs.match(/t="([^"]+)"/)||[])[1]||'';
+    let val=null;
+    const v=inner.match(/<v[^>]*>([\s\S]*?)<\/v>/);
+    if(v){ val = (t==='s') ? (strings[+v[1]]??'') : v[1]; }
+    else if(t==='inlineStr'){
+      const it=inner.match(/<t[^>]*>([\s\S]*?)<\/t>/);
+      if(it) val=_xmlDec(it[1]);
+    }
+    if(val!==null) cells[col+','+row]=val;
+  }
+  return cells;
+}
+async function parseMatrixXLSX(buffer){
+  const sheetXml = await _xlsxUnzip(buffer,/^xl\/worksheets\/sheet1\.xml$/)
+                || await _xlsxUnzip(buffer,/^xl\/worksheets\/sheet\d+\.xml$/);
+  if(!sheetXml) throw new Error('Brak arkusza w pliku XLSX');
+  const ssXml = await _xlsxUnzip(buffer,/^xl\/sharedStrings\.xml$/);
+  const strings=_xlsxStrings(ssXml);
+  const cells=_xlsxCells(sheetXml,strings);
+  // znacznik miesiąca: dowolna komórka 1. wiersza pasująca do "YYYY-M"
+  let year=null,mon=null;
+  Object.entries(cells).forEach(([k,v])=>{
+    const [c,r]=k.split(',').map(Number);
+    if(r!==1) return;
+    const mm=String(v).trim().match(/^(\d{4})-(\d{1,2})$/);
+    if(mm){year=+mm[1];mon=+mm[2];}
+  });
+  if(!year) throw new Error('Brak znacznika miesiąca (np. "2026-6") w 1. wierszu pliku');
+  // kolumny dni: nagłówki zaczynające się od numeru dnia
+  const dayCols={};
+  Object.entries(cells).forEach(([k,v])=>{
+    const [c,r]=k.split(',').map(Number);
+    if(r!==1||c===1) return;
+    const dm=String(v).trim().match(/^(\d{1,2})/);
+    if(dm){const dn=+dm[1];if(dn>=1&&dn<=31)dayCols[c]=dn;}
+  });
+  if(!Object.keys(dayCols).length) throw new Error('Brak kolumn dni w nagłówku');
+  // wiersze godzin: etykiety "H-H2" w kolumnie 1
+  const hourRows={};
+  Object.entries(cells).forEach(([k,v])=>{
+    const [c,r]=k.split(',').map(Number);
+    if(c!==1||r===1) return;
+    const hm=String(v).trim().match(/^(\d{1,2})\s*-/);
+    if(hm){const h=+hm[1];if(h>=0&&h<=23)hourRows[r]=h;}
+  });
+  if(!Object.keys(hourRows).length) throw new Error('Brak przedziałów godzin w 1. kolumnie');
+  // budowa matrixu
+  const out={};
+  Object.entries(hourRows).forEach(([r,h])=>{
+    Object.entries(dayCols).forEach(([c,dn])=>{
+      const v=parseFloat(cells[c+','+r]);
+      if(isNaN(v)||v<=0) return;
+      const dk=year+'-'+String(mon).padStart(2,'0')+'-'+String(dn).padStart(2,'0');
+      (out[dk]=out[dk]||{})[h]=v;
+    });
+  });
+  if(!Object.keys(out).length) throw new Error('Plik nie zawiera danych liczbowych > 0');
+  return {data:out,year,mon,days:Object.keys(out).length};
+}
+function importMatrixFile(input){
+  const file=input.files[0]; if(!file) return;
+  const st=document.getElementById('matrixStatus');
+  if(st){st.style.color='var(--ink2)';st.textContent='Parsowanie '+file.name+'…';}
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    try{
+      const res=await parseMatrixXLSX(e.target.result);
+      if(!S.matrix) S.matrix={};
+      Object.assign(S.matrix,res.data); // merge — kolejne miesiące dokładają się
+      saveState();
+      updateMatrixStatus();
+      if(st) st.style.color='var(--green)';
+      setSt('ok','✓ Matrix: '+res.days+' dni ('+res.year+'-'+String(res.mon).padStart(2,'0')+')');
+      setTimeout(()=>setSt('idle','Gotowy'),3000);
+      if(_navActive==='tDay') renderDayView();
+    }catch(err){
+      if(st){st.style.color='var(--red)';st.textContent='Błąd: '+err.message;}
+    }
+    input.value='';
+  };
+  reader.readAsArrayBuffer(file);
+}
+function updateMatrixStatus(){
+  const el=document.getElementById('matrixStatus'); if(!el) return;
+  el.style.color='var(--ink2)';
+  const dates=Object.keys(S.matrix||{}).sort();
+  if(!dates.length){el.textContent='Brak wczytanego matrixu.';return;}
+  // pogrupuj wg miesięcy
+  const months={};
+  dates.forEach(d=>{const mk=d.slice(0,7);months[mk]=(months[mk]||0)+1;});
+  el.innerHTML='Załadowano: '+dates.length+' dni<br>'+
+    Object.entries(months).map(([mk,n])=>mk+' — '+n+' dni').join('<br>');
+}
+function clearMatrix(){
+  if(!confirm('Wyczyścić wszystkie dane matrixu (targety godzinowe)?')) return;
+  S.matrix={};
+  saveState();
+  updateMatrixStatus();
+  if(_navActive==='tDay') renderDayView();
 }
 
 /* ── main render ── */
@@ -5331,15 +5593,29 @@ function dvDoPrint(){
   // spmh row
   html+=`<tr class="dv-spmh-tr"><th class="dv-hour-th">SPMH brutto</th>
     ${dates.map(d=>{const s=sales[d]?.sales,h=totals[d];return `<th>${s&&h?(s/h).toFixed(2):'–'}</th>`;}).join('')}</tr>`;
+  // spmh netto row (gdy ustawiony VAT)
+  if(S.vatRate>0){
+    html+=`<tr class="dv-spmh-tr"><th class="dv-hour-th">SPMH netto (VAT ${S.vatRate}%)</th>
+      ${dates.map(d=>{const s=sales[d]?.sales,h=totals[d];const n=s?netFromGross(s):null;
+        return `<th>${n&&h?(n/h).toFixed(2):'–'}</th>`;}).join('')}</tr>`;
+  }
 
   html+=`<tr style="background:#1f2535"><th class="dv-hour-th" style="font-size:9pt">Godzina</th>
     ${dates.map(d=>`<th>${fmtDow(d)}<br>${fmtShort(d)}</th>`).join('')}
   </tr></thead><tbody>`;
 
+  const anyMx=dates.some(d=>S.matrix&&S.matrix[d]);
   for(let h=hourFrom;h<=hourTo;h++){
     html+=`<tr><td class="dv-hour-td">${String(h).padStart(2,'0')}:00–${String((h+1)%24).padStart(2,'0')}:00</td>
       ${dates.map(d=>{const v=hourly[h][d];const vd=v===0?'–':(Number.isInteger(v)?v:v.toFixed(2));
-        return `<td style="${v>0?'font-weight:600;color:#1a56db':'color:#bbb'}">${vd}</td>`;}).join('')}
+        const t=anyMx?+((S.matrix[d]||{})[h]||0):0;
+        let style=v>0?'font-weight:600;color:#1a56db':'color:#bbb';
+        let cell=vd;
+        if(t>0){
+          if(v<t-0.01) style='font-weight:700;color:#dc2626;background:#fef2f2;-webkit-print-color-adjust:exact;print-color-adjust:exact';
+          cell=`${vd} <span style="font-size:5.5pt;color:#999">/${Number.isInteger(t)?t:t.toFixed(1)}</span>`;
+        }
+        return `<td style="${style}">${cell}</td>`;}).join('')}
     </tr>`;
   }
   html+=`<tr class="dv-sum-tr"><td>Σ godz.</td>${dates.map(d=>`<td>${totals[d].toFixed(1)}</td>`).join('')}</tr>
