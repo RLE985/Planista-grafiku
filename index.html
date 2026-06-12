@@ -994,6 +994,7 @@ body { padding-top:54px; }
 
 /* ════ SUBBAR ════ */
 .subbar {
+  display:none;
   position:sticky;top:54px;z-index:490;
   background:var(--surface);border-bottom:1px solid var(--border);
   padding:7px 14px;gap:8px;flex-wrap:wrap;align-items:center;
@@ -1542,7 +1543,7 @@ body { padding-top:54px; }
 </div>
 
 <!-- ═══ KONFIG MODAL ═══ -->
-<div class="km-ov" id="kmOv" onclick="if(event.target===this)closeKonfig()"></div>
+<div class="km-ov" id="kmOv" onclick="if(event.target===this)closeKonfig()">
 <div class="km-box" id="kmBox">
   <div class="km-hd">
     <div class="km-title" id="kmTitle">Konfiguracja</div>
@@ -1625,6 +1626,7 @@ body { padding-top:54px; }
     </div>
 
   </div>
+</div>
 </div>
 
 <!-- ═══ MOBILE NAV OVERLAY + PANEL ═══ -->
@@ -4759,7 +4761,6 @@ function openKonfig(section) {
   const t = document.getElementById('kmTitle');
   if (t) t.textContent = _KM_TITLES[section] || section;
   document.getElementById('kmOv').classList.add('open');
-  document.getElementById('kmBox').style.display = 'flex';
   if (section === 'workers') renderWorkers();
   if (section === 'shifts')  renderShiftEditor();
   if (section === 'events')  renderEvents();
@@ -4767,6 +4768,7 @@ function openKonfig(section) {
 
 function closeKonfig() {
   document.getElementById('kmOv')?.classList.remove('open');
+  document.querySelectorAll('.km-sec').forEach(s => s.classList.remove('open'));
 }
 
 /* backward compat */
@@ -5247,10 +5249,10 @@ function renderDashboard(){
   /* ── SZYBKIE AKCJE ── */
   html+=`<div class="dash-card"><div class="dc-title" style="margin-bottom:2px">⚡ Szybkie akcje</div>
     <div class="dash-actions">
-      <button class="primary" onclick="runScheduler()">⚡ Ułóż grafik</button>
-      <button onclick="switchTab('tSched',document.querySelector('.tab[onclick*=tSched]'))">📋 Otwórz grafik</button>
-      <button onclick="switchTab('tCov',document.querySelector('.tab[onclick*=tCov]'))">🕑 Godziny stałe</button>
-      <button onclick="switchTab('tAvail',document.querySelector('.tab[onclick*=tAvail]'))">✉ Prośby</button>
+      <button onclick="navGo('tSched')">📋 Grafik miesiąca</button>
+      <button onclick="navGo('tDay')">☀️ Widok dnia</button>
+      <button onclick="navGo('tCov')">🕑 Godziny stałe</button>
+      <button onclick="navGo('tAvail')">✉ Prośby</button>
       ${!sameMonth?`<button onclick="dashGoToToday()">📆 Przejdź do ${MPL[curM]} ${curY}</button>`:''}
     </div></div>`;
 
