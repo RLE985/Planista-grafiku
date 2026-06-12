@@ -827,6 +827,170 @@ tr.ev-row td.has-event{background:transparent;}
   .dash-grid{grid-template-columns:1fr;}
   .metric .mv{font-size:22px;}
 }
+
+/* ════════════════ LAYOUT OVERRIDE ════════════════ */
+body { padding-top:54px; }
+.shell,.topbar,.sidebar,.tabs { display:none !important; }
+
+/* ════════════════ NAVBAR ════════════════ */
+.navbar {
+  position:fixed;top:0;left:0;right:0;z-index:500;height:54px;
+  background:var(--surface);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 10px;gap:2px;
+  box-shadow:var(--shadow);
+}
+.nav-brand {
+  font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  font-weight:700;color:var(--ink);white-space:nowrap;padding:0 6px;margin-right:4px;
+}
+.nav-brand span{color:var(--blue);}
+.nav-links{display:flex;align-items:stretch;gap:0;flex:0 0 auto;}
+.navl {
+  position:relative;display:flex;align-items:center;gap:5px;
+  padding:0 13px;height:54px;cursor:pointer;
+  font-size:13px;font-weight:500;color:var(--ink2);white-space:nowrap;
+  transition:color .15s,background .15s;user-select:none;
+}
+.navl:hover,.navl.nl-on{color:var(--ink);background:rgba(255,255,255,.04);}
+.navl.nl-on::after{
+  content:"";position:absolute;bottom:0;left:10px;right:10px;
+  height:2px;border-radius:2px 2px 0 0;background:var(--blue);
+}
+.nav-arr{font-size:10px;color:var(--ink3);transition:transform .2s;}
+.navl.open .nav-arr{transform:rotate(180deg);}
+/* dropdown */
+.nav-sub {
+  display:none;position:absolute;top:calc(100% + 1px);left:0;
+  min-width:220px;background:var(--surface);
+  border:1px solid var(--border);border-radius:0 10px 10px 10px;
+  padding:6px 0;box-shadow:0 14px 36px rgba(0,0,0,.45);z-index:600;
+}
+.navl.open .nav-sub{display:block;}
+.nav-sub.sub-right{left:auto;right:0;border-radius:10px 0 10px 10px;}
+.nsi {
+  padding:10px 16px;font-size:13px;color:var(--ink2);cursor:pointer;
+  display:flex;align-items:center;gap:9px;
+  transition:background .1s,color .1s;white-space:nowrap;
+}
+.nsi:hover{background:rgba(59,130,246,.1);color:var(--ink);}
+.nsi.nsi-cur{color:var(--blue);font-weight:600;}
+.nav-sep{border:none;border-top:1px solid var(--border);margin:5px 0;}
+/* user menu info block */
+.nsi-info{
+  padding:10px 16px 8px;border-bottom:1px solid var(--border);margin-bottom:4px;
+}
+.nsi-role{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--blue);display:block;margin-bottom:2px;}
+.nsi-email{font-family:var(--mono);font-size:10px;color:var(--ink3);word-break:break-all;}
+/* nav controls area */
+.nav-ctrl{display:flex;align-items:center;gap:6px;margin-left:auto;padding:0 6px;flex-shrink:0;}
+.nav-ctrl label{font-size:11px;color:var(--ink3);}
+.nav-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+/* hamburger */
+.nav-ham{
+  display:none;margin-left:auto;
+  background:none;border:1px solid var(--border);color:var(--ink);
+  border-radius:7px;padding:6px 11px;cursor:pointer;font-size:15px;
+}
+/* ════════════════ DRAWER ════════════════ */
+.drawer-ov{
+  display:none;position:fixed;inset:0;z-index:700;
+  background:rgba(0,0,0,.5);backdrop-filter:blur(2px);
+}
+.drawer-ov.open{display:block;}
+.drawer{
+  position:fixed;top:0;right:0;bottom:0;z-index:701;
+  width:360px;max-width:96vw;
+  background:var(--surface);border-left:1px solid var(--border);
+  display:flex;flex-direction:column;
+  transform:translateX(100%);transition:transform .25s ease;
+  box-shadow:-10px 0 40px rgba(0,0,0,.35);
+}
+.drawer.open{transform:translateX(0);}
+.drawer-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid var(--border);flex:0 0 auto;
+}
+.dw-title{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:var(--ink);}
+.dw-close{background:none;border:none;color:var(--ink2);font-size:22px;cursor:pointer;line-height:1;padding:2px;}
+.dw-close:hover{color:var(--ink);}
+.drawer-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;}
+.dw-sec{display:none;flex-direction:column;gap:10px;}
+.dw-sec.open{display:flex;}
+/* ════════════════ MOBILE NAV ════════════════ */
+.mobov{display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.55);}
+.mobov.open{display:block;}
+.mobnav{
+  position:fixed;top:0;left:0;bottom:0;z-index:801;
+  width:290px;max-width:90vw;
+  background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow-y:auto;
+  transform:translateX(-100%);transition:transform .25s ease;
+  box-shadow:8px 0 32px rgba(0,0,0,.3);
+}
+.mobnav.open{transform:translateX(0);}
+.mnb-brand{
+  padding:18px 16px 14px;border-bottom:1px solid var(--border);
+  font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:700;
+}
+.mnb-brand span{color:var(--blue);}
+.mnb-item{
+  padding:13px 18px;font-size:14px;color:var(--ink2);cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,.04);
+  transition:background .1s,color .1s;
+}
+.mnb-item:hover,.mnb-item.mnb-cur{background:rgba(59,130,246,.08);color:var(--ink);}
+.mnb-item.mnb-cur{border-left:3px solid var(--blue);padding-left:15px;}
+.mnb-group{}
+.mnb-head{
+  padding:13px 18px;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,.04);
+  background:rgba(255,255,255,.02);transition:background .12s;
+}
+.mnb-head:hover{background:rgba(59,130,246,.06);}
+.mnb-head .mna{font-size:10px;color:var(--ink3);transition:transform .2s;}
+.mnb-head.exp .mna{transform:rotate(180deg);}
+.mnb-sub{display:none;background:var(--bg);}
+.mnb-sub.open{display:block;}
+.mnb-sub-item{
+  padding:11px 18px 11px 32px;font-size:13px;color:var(--ink2);cursor:pointer;
+  display:flex;align-items:center;gap:9px;
+  border-bottom:1px solid rgba(255,255,255,.03);
+  transition:background .1s,color .1s;
+}
+.mnb-sub-item:hover{background:rgba(59,130,246,.1);color:var(--ink);}
+.mnb-sub-item.mnb-cur{color:var(--blue);font-weight:600;}
+.mnb-ctrl{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px;}
+.mnb-ctrl-lbl{font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);margin-bottom:3px;}
+.mnb-ctrl-row{display:flex;gap:6px;align-items:center;}
+/* ════════════════ PANELS ════════════════ */
+.main-wrap{min-height:calc(100dvh - 54px);}
+.panel{display:none;padding:14px;flex-direction:column;gap:10px;}
+.panel.active{display:flex;}
+@media (max-width:1023px){
+  .nav-ctrl label{display:none;}
+}
+@media (max-width:768px){
+  .nav-links{display:none;}
+  .nav-ctrl{display:none;}
+  .nav-right .status-bar{max-width:120px;}
+  .nav-ham{display:flex;}
+}
+@media (max-width:639px){
+  body{padding-top:48px;}
+  .navbar{height:48px;}
+  .drawer{
+    width:100% !important;max-width:100% !important;
+    top:auto;bottom:0;height:88dvh;border-left:none;
+    border-top:1px solid var(--border);border-radius:16px 16px 0 0;
+    transform:translateY(100%) !important;
+  }
+  .drawer.open{transform:translateY(0) !important;}
+  .main-wrap{min-height:calc(100dvh - 48px);}
+  .panel{padding:8px;}
+}
+
 </style>
 
 <!-- Firebase SDK -->
@@ -907,21 +1071,25 @@ tr.ev-row td.has-event{background:transparent;}
         window._fbAdminUid = user.uid;
       }
 
-      // Zaktualizuj UI paska
+      // Zaktualizuj UI
       const roleLabels = { admin: '👑 Admin', manager: '🔑 Manager', pracownik: '👤 Pracownik' };
-      const roleEl = document.getElementById('fb-user-role');
-      if (roleEl) roleEl.textContent = roleLabels[window._fbRole] || window._fbRole;
-      // Karta konta w Ustawieniach
-      const setRole = document.getElementById('set-user-role');
-      if (setRole) setRole.textContent = roleLabels[window._fbRole] || window._fbRole;
+      const rl = roleLabels[window._fbRole] || window._fbRole;
+      // navbar user icon
+      const navRole = document.getElementById('nav-user-role'); if(navRole) navRole.textContent = rl;
+      const navUR = document.getElementById('nav-u-role'); if(navUR) navUR.textContent = rl;
+      const navUE = document.getElementById('nav-u-email'); if(navUE) navUE.textContent = window._fbUser.email;
+      // mobile nav
+      const mobUR = document.getElementById('mob-user-role'); if(mobUR) mobUR.textContent = rl;
+      // ustawienia karta
+      const setRole = document.getElementById('set-user-role'); if(setRole) setRole.textContent = rl;
+      const setEmail = document.getElementById('set-user-email'); if(setEmail) setEmail.textContent = window._fbUser.email;
       const setHint = document.getElementById('set-user-hint');
-      if (setHint) setHint.textContent = window._fbImie ? `Zalogowano jako ${window._fbImie}.` : 'Operacje na kontach i wylogowanie znajdują się tutaj.';
-
-      // Pokaż/ukryj panel zarządzania użytkownikami (tylko admin)
-      const mgmtBtn = document.getElementById('fb-mgmt-btn');
-      if (mgmtBtn) mgmtBtn.style.display = window._fbRole === 'admin' ? 'inline-block' : 'none';
-      const setMgmt = document.getElementById('set-mgmt-btn');
-      if (setMgmt) setMgmt.style.display = window._fbRole === 'admin' ? 'inline-flex' : 'none';
+      if(setHint) setHint.textContent = window._fbImie ? 'Zalogowano jako ' + window._fbImie + '.' : 'Operacje na kontach i wylogowanie.';
+      // admin buttons
+      const isAdmin = window._fbRole === 'admin';
+      ['nav-mgmt-btn','set-mgmt-btn','mob-mgmt-btn'].forEach(id=>{
+        const el=document.getElementById(id); if(el) el.style.display=isAdmin?'flex':'none';
+      });
 
       // Zastosuj ograniczenia ról
       if (typeof applyRoleRestrictions === 'function') applyRoleRestrictions();
@@ -1095,127 +1263,246 @@ tr.ev-row td.has-event{background:transparent;}
   </div>
 </div>
 
-<div class="shell">
-<div class="sb-overlay" onclick="toggleSidebar()"></div>
 
-<!-- TOPBAR -->
-<div class="topbar">
-  <div class="logo">Planista<span>/grafik</span></div>
-  <button class="btn-sb-toggle" id="btnSbToggle" onclick="toggleSidebar()" title="Pokaż/ukryj panel boczny">☰</button>
-  <label>Miesiąc</label>
-  <select class="msel" id="selM" onchange="refreshMonth()">
-    <option value="0">Styczeń</option><option value="1">Luty</option><option value="2">Marzec</option>
-    <option value="3">Kwiecień</option><option value="4">Maj</option><option value="5">Czerwiec</option>
-    <option value="6">Lipiec</option><option value="7">Sierpień</option><option value="8">Wrzesień</option>
-    <option value="9">Październik</option><option value="10">Listopad</option><option value="11">Grudzień</option>
-  </select>
-  <label>Rok</label>
-  <input type="number" class="yinp" id="selY" value="2026" min="2024" max="2030" onchange="refreshMonth()">
-  <button class="btn-go" id="btnGen" onclick="runScheduler()">⚡ Ułóż grafik</button>
-  <button class="btn-sm danger" onclick="clearResults()">✕ Wyczyść wyniki</button>
-  <button class="btn-sm" onclick="unlockAll()" title="Odblokuj wszystkie komórki">🔓 Odblokuj</button>
-  <button class="btn-sm exp" onclick="printSchedule()">🖨 Drukuj / PDF</button>
-  <button class="btn-sm" onclick="activateSettings()">⚙ Ustawienia</button>
-  <div id="statusBar" class="status-bar"><div class="sdot idle" id="sDot"></div><span id="sMsg">Gotowy</span></div>
-  <span id="fb-save-indicator" style="font-family:var(--mono);font-size:10px;color:var(--green);display:none;">✓ zapisano</span>
-</div>
+<!-- ═══ NAVBAR ═══ -->
+<nav class="navbar" id="navbar">
+  <div class="nav-brand">Planista<span>/grafik</span></div>
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-      <div class="sec-head" style="margin-bottom:0">Pracownicy</div>
-      <div style="display:flex;gap:3px;">
-        <button class="btn-sm" id="sortNameBtn" onclick="sortWorkers('name')" title="Sortuj wg nazwiska">A↓</button>
-        <button class="btn-sm" id="sortPosBtn"  onclick="sortWorkers('pos')"  title="Sortuj wg stanowiska">St↓</button>
-        <button class="btn-sm" id="btnShowAll"  onclick="setAllVisible(true)"  title="Pokaż wszystkich">👁</button>
-        <button class="btn-sm" id="btnHideSel"  onclick="setAllVisible(false)" title="Ukryj wszystkich">🚫</button>
+  <!-- nav links desktop -->
+  <div class="nav-links">
+    <!-- Pulpit -->
+    <div class="navl nl-on" id="nlDash" onclick="navGo('tDash',this)">Pulpit</div>
+
+    <!-- Grafik dropdown -->
+    <div class="navl" id="nlGrafik" onclick="toggleDrop(this)" data-group="grafik">
+      Grafik <span class="nav-arr">▾</span>
+      <div class="nav-sub">
+        <div class="nsi" onclick="navSub('tDay')">☀️ Widok dnia</div>
+        <div class="nsi" onclick="navSub('tSched')">📋 Grafik miesiąca</div>
+        <hr class="nav-sep">
+        <div class="nsi" onclick="navSub('tCov')">🕑 Godziny stałe</div>
+        <div class="nsi" onclick="navSub('tAvail')">✉ Prośby</div>
+        <div class="nsi" onclick="navSub('tPrev')">🔙 Poprzedni miesiąc</div>
+        <hr class="nav-sep">
+        <div class="nsi" onclick="navSub('tStats')">📊 Statystyki</div>
+        <div class="nsi" onclick="navSub('tLog')">📓 Dziennik</div>
       </div>
     </div>
-    <div id="workerList"></div>
-    <div style="display:flex;gap:5px;margin-top:7px;">
-      <input type="text" id="nwName" placeholder="Imię i nazwisko"
-        style="flex:1;font-size:11px;padding:4px 7px;border:1px solid var(--border);background:var(--bg);color:var(--ink);border-radius:3px;outline:none;"
-        onkeydown="if(event.key==='Enter')addWorker()">
-      <button class="btn-sm ok" onclick="addWorker()">+</button>
+
+    <!-- Konfiguracja dropdown -->
+    <div class="navl" id="nlKonfig" onclick="toggleDrop(this)" data-group="konfig">
+      Konfiguracja <span class="nav-arr">▾</span>
+      <div class="nav-sub">
+        <div class="nsi" onclick="openDrawer('workers')">👥 Pracownicy</div>
+        <div class="nsi" onclick="openDrawer('shifts')">🔄 Zmiany</div>
+        <div class="nsi" onclick="openDrawer('events')">📅 Kalendarz wydarzeń</div>
+        <hr class="nav-sep">
+        <div class="nsi" onclick="navSub('tSettings')">⚙ Ustawienia</div>
+      </div>
     </div>
-    <div style="display:flex;gap:5px;margin-top:4px;">
-      <select id="nwEtat" style="font-family:var(--mono);font-size:10px;padding:3px;border:1px solid var(--border);background:var(--bg);color:var(--ink);border-radius:3px;outline:none;">
-        <option value="1">1/1</option><option value="0.75">3/4</option><option value="0.5">1/2</option><option value="0.25">1/4</option>
+  </div>
+
+  <!-- controls: miesiąc/rok + generate -->
+  <div class="nav-ctrl">
+    <label>Miesiąc</label>
+    <select class="msel" id="selM" onchange="refreshMonth()">
+      <option value="0">Styczeń</option><option value="1">Luty</option><option value="2">Marzec</option>
+      <option value="3">Kwiecień</option><option value="4">Maj</option><option value="5">Czerwiec</option>
+      <option value="6">Lipiec</option><option value="7">Sierpień</option><option value="8">Wrzesień</option>
+      <option value="9">Październik</option><option value="10">Listopad</option><option value="11">Grudzień</option>
+    </select>
+    <label>Rok</label>
+    <input type="number" class="yinp" id="selY" value="2026" min="2024" max="2030" onchange="refreshMonth()">
+    <button class="btn-go" id="btnGen" onclick="runScheduler()">⚡ Ułóż grafik</button>
+  </div>
+
+  <!-- right: status + konto + hamburger -->
+  <div class="nav-right">
+    <div id="statusBar" class="status-bar"><div class="sdot idle" id="sDot"></div><span id="sMsg">Gotowy</span></div>
+    <span id="fb-save-indicator" style="font-family:var(--mono);font-size:10px;color:var(--green);display:none;">✓</span>
+  </div>
+
+  <!-- Konto dropdown -->
+  <div class="navl" id="nlKonto" onclick="toggleDrop(this)" style="padding:0 10px;">
+    <span id="nav-user-role" style="font-family:var(--mono);font-size:10px;">👤</span>
+    <span class="nav-arr">▾</span>
+    <div class="nav-sub sub-right" style="min-width:230px">
+      <div class="nsi-info">
+        <span class="nsi-role" id="nav-u-role">—</span>
+        <span class="nsi-email" id="nav-u-email">niezalogowany</span>
+      </div>
+      <div class="nsi" id="nav-mgmt-btn" style="display:none" onclick="fbShowMgmt()">👥 Zarządzaj użytkownikami</div>
+      <hr class="nav-sep">
+      <div class="nsi" onclick="fbLogout()">🚪 Wyloguj się</div>
+    </div>
+  </div>
+
+  <button class="nav-ham" id="navHam" onclick="toggleMobileNav()">☰</button>
+</nav>
+
+<!-- ═══ DRAWER OVERLAY + DRAWER ═══ -->
+<div class="drawer-ov" id="drawerOv" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-hd">
+    <div class="dw-title" id="dwTitle">Panel</div>
+    <button class="dw-close" onclick="closeDrawer()">×</button>
+  </div>
+  <div class="drawer-body">
+
+    <!-- dw-workers -->
+    <div class="dw-sec" id="dw-workers">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+        <div class="sec-head" style="margin-bottom:0">Pracownicy</div>
+        <div style="display:flex;gap:3px;">
+          <button class="btn-sm" id="sortNameBtn" onclick="sortWorkers('name')" title="Sortuj wg nazwiska">A↓</button>
+          <button class="btn-sm" id="sortPosBtn"  onclick="sortWorkers('pos')"  title="Sortuj wg stanowiska">St↓</button>
+          <button class="btn-sm" id="btnShowAll"  onclick="setAllVisible(true)"  title="Pokaż wszystkich">👁</button>
+          <button class="btn-sm" id="btnHideSel"  onclick="setAllVisible(false)" title="Ukryj wszystkich">🚫</button>
+        </div>
+      </div>
+      <div id="workerList"></div>
+      <div style="display:flex;gap:5px;margin-top:7px;">
+        <input type="text" id="nwName" placeholder="Imię i nazwisko"
+          style="flex:1;font-size:11px;padding:4px 7px;border:1px solid var(--border);background:var(--bg);color:var(--ink);border-radius:3px;outline:none;"
+          onkeydown="if(event.key==='Enter')addWorker()">
+        <button class="btn-sm ok" onclick="addWorker()">+</button>
+      </div>
+      <div style="display:flex;gap:5px;margin-top:4px;">
+        <select id="nwEtat" style="font-family:var(--mono);font-size:10px;padding:3px;border:1px solid var(--border);background:var(--bg);color:var(--ink);border-radius:3px;outline:none;">
+          <option value="1">1/1</option><option value="0.75">3/4</option><option value="0.5">1/2</option><option value="0.25">1/4</option>
+        </select>
+        <input type="text" id="nwPos" placeholder="stanowisko" style="flex:1;font-size:10px;padding:3px 6px;border:1px solid var(--border);background:var(--bg);color:var(--ink);border-radius:3px;outline:none;">
+      </div>
+    </div>
+
+    <!-- dw-shifts -->
+    <div class="dw-sec" id="dw-shifts">
+      <div class="sec-head">Zmiany <span style="font-weight:400;color:var(--ink3)">(edytowalne)</span></div>
+      <div id="shiftEditor"></div>
+      <div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;">
+        <div class="sec-head" style="margin-bottom:3px">Nowa zmiana</div>
+        <div style="display:flex;gap:3px;flex-wrap:wrap;">
+          <input id="ns_code" class="se-inp" style="width:36px" placeholder="Kod" maxlength="4">
+          <input id="ns_name" class="se-inp" style="flex:1;min-width:80px" placeholder="Nazwa">
+          <input id="ns_od"   class="se-inp" style="width:50px" placeholder="OD">
+          <input id="ns_do"   class="se-inp" style="width:50px" placeholder="DO">
+          <input type="color" id="ns_color" class="se-color" value="#22c55e">
+          <button class="btn-sm ok" onclick="addShift()">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- dw-events -->
+    <div class="dw-sec" id="dw-events">
+      <div class="sec-head">Kalendarz wydarzeń</div>
+      <div id="evList" class="ev-list"></div>
+      <div class="ev-form" id="evForm">
+        <div style="font-family:var(--mono);font-size:7px;color:var(--ink3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:2px">Nowe wydarzenie</div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <div style="flex:1"><div style="font-size:9px;color:var(--ink3);margin-bottom:2px">Od</div>
+            <input type="date" id="evDateFrom" style="font-family:var(--mono)"></div>
+          <div style="flex:1"><div style="font-size:9px;color:var(--ink3);margin-bottom:2px">Do</div>
+            <input type="date" id="evDateTo" style="font-family:var(--mono)"></div>
+        </div>
+        <input type="text" id="evTitle" placeholder="Tytuł (np. Audyt HACCP)" maxlength="60">
+        <textarea id="evDesc" placeholder="Opis szczegółowy (opcjonalnie)" rows="2"></textarea>
+        <div style="font-size:9px;color:var(--ink3);margin-top:2px">Ikona</div>
+        <div class="ev-icon-row" id="evIconRow"></div>
+        <div style="font-size:9px;color:var(--ink3);margin-top:4px">Kolor</div>
+        <div class="ev-color-row" id="evColorRow"></div>
+        <button class="btn-sm ok" style="margin-top:4px;align-self:flex-start" onclick="addEvent()">+ Dodaj</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ MOBILE NAV OVERLAY + PANEL ═══ -->
+<div class="mobov" id="mobov" onclick="closeMobileNav()"></div>
+<div class="mobnav" id="mobnav">
+  <div class="mnb-brand">Planista<span>/grafik</span></div>
+
+  <!-- Pulpit -->
+  <div class="mnb-item mnb-cur" id="mnbDash" onclick="navGo('tDash')">🏠 Pulpit</div>
+
+  <!-- Grafik group -->
+  <div class="mnb-group">
+    <div class="mnb-head" onclick="toggleMobGroup(this)">Grafik <span class="mna">▾</span></div>
+    <div class="mnb-sub">
+      <div class="mnb-sub-item" onclick="navGo('tDay')">☀️ Widok dnia</div>
+      <div class="mnb-sub-item" onclick="navGo('tSched')">📋 Grafik miesiąca</div>
+      <div class="mnb-sub-item" onclick="navGo('tCov')">🕑 Godziny stałe</div>
+      <div class="mnb-sub-item" onclick="navGo('tAvail')">✉ Prośby</div>
+      <div class="mnb-sub-item" onclick="navGo('tPrev')">🔙 Poprzedni miesiąc</div>
+      <div class="mnb-sub-item" onclick="navGo('tStats')">📊 Statystyki</div>
+      <div class="mnb-sub-item" onclick="navGo('tLog')">📓 Dziennik</div>
+    </div>
+  </div>
+
+  <!-- Konfiguracja group -->
+  <div class="mnb-group">
+    <div class="mnb-head" onclick="toggleMobGroup(this)">Konfiguracja <span class="mna">▾</span></div>
+    <div class="mnb-sub">
+      <div class="mnb-sub-item" onclick="openDrawer('workers');closeMobileNav()">👥 Pracownicy</div>
+      <div class="mnb-sub-item" onclick="openDrawer('shifts');closeMobileNav()">🔄 Zmiany</div>
+      <div class="mnb-sub-item" onclick="openDrawer('events');closeMobileNav()">📅 Kalendarz wydarzeń</div>
+      <div class="mnb-sub-item" onclick="navGo('tSettings')">⚙ Ustawienia</div>
+    </div>
+  </div>
+
+  <!-- Controls in mobile nav -->
+  <div class="mnb-ctrl">
+    <div class="mnb-ctrl-lbl">Miesiąc i rok</div>
+    <div class="mnb-ctrl-row">
+      <select class="msel" onchange="document.getElementById('selM').value=this.value;refreshMonth()" id="mob-selM">
+        <option value="0">Styczeń</option><option value="1">Luty</option><option value="2">Marzec</option>
+        <option value="3">Kwiecień</option><option value="4">Maj</option><option value="5">Czerwiec</option>
+        <option value="6">Lipiec</option><option value="7">Sierpień</option><option value="8">Wrzesień</option>
+        <option value="9">Październik</option><option value="10">Listopad</option><option value="11">Grudzień</option>
       </select>
-      <input type="text" id="nwPos" placeholder="stanowisko" style="flex:1;font-size:10px;padding:3px 6px;border:1px solid var(--border);background:var(--bg);color:var(--ink);border-radius:3px;outline:none;">
+      <input type="number" class="yinp" onchange="document.getElementById('selY').value=this.value;refreshMonth()" id="mob-selY" value="2026" min="2024" max="2030">
     </div>
+    <button class="btn-go" style="width:100%;margin-top:4px" onclick="runScheduler();closeMobileNav()">⚡ Ułóż grafik</button>
   </div>
 
-  <div>
-    <div class="sec-head">Zmiany <span style="font-weight:400;color:var(--ink3)">(edytowalne)</span></div>
-    <div id="shiftEditor"></div>
-    <div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;">
-      <div class="sec-head" style="margin-bottom:3px">Nowa zmiana</div>
-      <div style="display:flex;gap:3px;flex-wrap:wrap;">
-        <input id="ns_code" class="se-inp" style="width:36px" placeholder="Kod" maxlength="4">
-        <input id="ns_name" class="se-inp" style="flex:1;min-width:80px" placeholder="Nazwa">
-        <input id="ns_od"   class="se-inp" style="width:50px" placeholder="OD">
-        <input id="ns_do"   class="se-inp" style="width:50px" placeholder="DO">
-        <input type="color" id="ns_color" class="se-color" value="#22c55e">
-        <button class="btn-sm ok" onclick="addShift()">+</button>
-      </div>
+  <!-- Konto w mobile -->
+  <div class="mnb-group">
+    <div class="mnb-head" onclick="toggleMobGroup(this)">
+      <span id="mob-user-role" style="font-family:var(--mono);font-size:11px;">Konto</span>
+      <span class="mna">▾</span>
     </div>
-  </div>
-
-  <div>
-    <div class="sec-head">Kalendarz wydarzeń</div>
-    <div id="evList" class="ev-list"></div>
-    <div class="ev-form" id="evForm">
-      <div style="font-family:var(--mono);font-size:7px;color:var(--ink3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:2px">Nowe wydarzenie</div>
-      <div style="display:flex;gap:6px;align-items:center;">
-        <div style="flex:1"><div style="font-size:9px;color:var(--ink3);margin-bottom:2px">Od</div>
-          <input type="date" id="evDateFrom" style="font-family:var(--mono)"></div>
-        <div style="flex:1"><div style="font-size:9px;color:var(--ink3);margin-bottom:2px">Do</div>
-          <input type="date" id="evDateTo" style="font-family:var(--mono)"></div>
-      </div>
-      <input type="text" id="evTitle" placeholder="Tytuł (np. Audyt HACCP)" maxlength="60">
-      <textarea id="evDesc" placeholder="Opis szczegółowy (opcjonalnie)" rows="2"></textarea>
-      <div style="font-size:9px;color:var(--ink3);margin-top:2px">Ikona</div>
-      <div class="ev-icon-row" id="evIconRow"></div>
-      <div style="font-size:9px;color:var(--ink3);margin-top:4px">Kolor</div>
-      <div class="ev-color-row" id="evColorRow"></div>
-      <button class="btn-sm ok" style="margin-top:4px;align-self:flex-start" onclick="addEvent()">+ Dodaj</button>
+    <div class="mnb-sub">
+      <div class="mnb-sub-item" id="mob-mgmt-btn" style="display:none" onclick="fbShowMgmt()">👥 Zarządzaj użytkownikami</div>
+      <div class="mnb-sub-item" onclick="fbLogout()">🚪 Wyloguj się</div>
     </div>
   </div>
 </div>
 
-<!-- MAIN -->
-<div class="main">
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('tDash',this)">Pulpit</button>
-    <button class="tab" onclick="switchTab('tSched',this)">Grafik</button>
-    <button class="tab" onclick="switchTab('tCov',this)">Godziny stałe</button>
-    <button class="tab" onclick="switchTab('tAvail',this)">Prośby</button>
-    <button class="tab" onclick="switchTab('tPrev',this)">Poprz. miesiąc</button>
-    <button class="tab" onclick="switchTab('tStats',this)">Statystyki</button>
-    <button class="tab" onclick="switchTab('tLog',this)">Dziennik</button>
-  </div>
+<!-- ═══ MAIN CONTENT ═══ -->
+<div class="main-wrap">
 
   <!-- PULPIT -->
-  <div id="tDash" class="tab-content active">
+  <div id="tDash" class="panel active">
     <div id="dashWrap" class="dash"></div>
   </div>
 
+  <!-- WIDOK DNIA -->
+  <div id="tDay" class="panel">
+    <div id="dayWrap"></div>
+  </div>
+
   <!-- GRAFIK -->
-  <div id="tSched" class="tab-content">
+  <div id="tSched" class="panel">
     <div class="score-bar" id="scoreBar" style="display:none"></div>
     <div class="prog-wrap" id="progWrap" style="display:none;margin-top:4px;"><div class="prog-bar" id="progBar" style="width:0%"></div></div>
     <div id="schedWrap"><div class="notice info">Skonfiguruj pracowników, zmiany, obsadę — potem kliknij <b>⚡ Ułóż grafik</b>.</div></div>
   </div>
 
   <!-- GODZINY STAŁE -->
-  <div id="tCov" class="tab-content">
+  <div id="tCov" class="panel">
     <div class="notice info" style="margin-bottom:8px">
       Wpisz ile osób ma pracować na danej zmianie każdego dnia. <b>0</b> = planista nie przydzieli tej zmiany.
-      Planista będzie dążyć do wypełnienia dokładnie tej liczby — jeśli wpisujesz 2, chce 2 osoby.
     </div>
-    <!-- Fill toolbar -->
     <div class="fill-bar">
       <label>Zmiana:</label>
       <select id="fillShift" style="font-family:var(--mono);font-size:11px;padding:4px 7px;border:1px solid var(--border);background:var(--bg);color:var(--ink);border-radius:3px;outline:none;"></select>
@@ -1238,7 +1525,7 @@ tr.ev-row td.has-event{background:transparent;}
   </div>
 
   <!-- PROŚBY -->
-  <div id="tAvail" class="tab-content">
+  <div id="tAvail" class="panel">
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
       <button id="btn-prosby-lock" onclick="toggleProsbyLock()" style="
         padding:.4rem .9rem;border-radius:6px;border:1px solid #22c55e;
@@ -1251,14 +1538,13 @@ tr.ev-row td.has-event{background:transparent;}
         font-weight:600;cursor:pointer;">☁️ Wczytaj prośby z chmury</button>
     </div>
     <div class="notice info" style="margin-bottom:10px">
-      Kliknij komórkę: puste → <b style="color:var(--red)">N</b> (cały dzień wolny) → <b style="color:var(--orange)">C</b> (zakres godzin, kliknij by wpisać) → puste.<br>
-      Dla C system zaplanuje pracownika tylko w dostępnym zakresie.
+      Kliknij komórkę: puste → <b style="color:var(--red)">N</b> (cały dzień wolny) → <b style="color:var(--orange)">C</b> (zakres godzin) → puste.
     </div>
     <div id="availGrid"></div>
   </div>
 
   <!-- POPRZEDNI MIESIĄC -->
-  <div id="tPrev" class="tab-content">
+  <div id="tPrev" class="panel">
     <div class="notice warn" style="margin-bottom:10px">
       <b>Granica miesięcy:</b> wpisz godziny ostatniej zmiany poprzedniego miesiąca dla każdego pracownika.<br>
       Silnik sprawdzi 11h przerwy dobowej między końcem tamtej zmiany a początkiem pierwszej w bieżącym miesiącu.<br>
@@ -1267,8 +1553,18 @@ tr.ev-row td.has-event{background:transparent;}
     <div id="prevMonthPanel"></div>
   </div>
 
+  <!-- STATYSTYKI -->
+  <div id="tStats" class="panel">
+    <div id="statsWrap"><div class="notice info">Ułóż grafik, aby zobaczyć statystyki.</div></div>
+  </div>
+
+  <!-- DZIENNIK -->
+  <div id="tLog" class="panel">
+    <div id="logArea" style="font-family:var(--mono);font-size:9px;color:var(--ink2);background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:10px;max-height:70vh;overflow-y:auto;line-height:1.9;"></div>
+  </div>
+
   <!-- USTAWIENIA -->
-  <div id="tSettings" class="tab-content">
+  <div id="tSettings" class="panel">
     <div class="settings-grid">
       <div class="settings-card" id="acctCard">
         <h4>Konto i dostęp</h4>
@@ -1276,25 +1572,20 @@ tr.ev-row td.has-event{background:transparent;}
           <span class="acct-badge" id="set-user-role">—</span>
           <span class="acct-email" id="set-user-email">niezalogowany</span>
         </div>
-        <div class="setting-desc" id="set-user-hint">Operacje na kontach i wylogowanie znajdują się tutaj.</div>
+        <div class="setting-desc" id="set-user-hint">Operacje na kontach i wylogowanie.</div>
         <div class="acct-btns">
           <button class="ab-mgmt" id="set-mgmt-btn" style="display:none" onclick="fbShowMgmt()">👥 Zarządzaj użytkownikami</button>
           <button class="ab-out" onclick="fbLogout()">Wyloguj się</button>
         </div>
       </div>
+      <div class="settings-card">
         <h4>Parametry silnika</h4>
         <div class="setting-row">
-          <div>
-            <div class="setting-label">Iteracje</div>
-            <div class="setting-desc">Więcej = lepszy grafik, dłuższe oczekiwanie</div>
-          </div>
+          <div><div class="setting-label">Iteracje</div><div class="setting-desc">Więcej = lepszy grafik, dłuższe oczekiwanie</div></div>
           <input type="number" class="cnum" id="pIter" value="300" min="10" max="3000" style="width:64px">
         </div>
         <div class="setting-row">
-          <div>
-            <div class="setting-label">Max weekendów / os.</div>
-            <div class="setting-desc">Algorytm stara się nie przekroczyć tej liczby</div>
-          </div>
+          <div><div class="setting-label">Max weekendów / os.</div><div class="setting-desc">Algorytm stara się nie przekroczyć tej liczby</div></div>
           <input type="number" class="cnum" id="pWe" value="2" min="0" max="10" style="width:64px">
         </div>
       </div>
@@ -1315,33 +1606,21 @@ tr.ev-row td.has-event{background:transparent;}
       </div>
       <div class="settings-card">
         <h4>Reguły planowania</h4>
-        <div class="setting-row">
-          <div><div class="setting-label">Sprawdzaj 11h dobową</div></div>
-          <label class="toggle"><input type="checkbox" id="togR11" checked><span class="toggle-slider"></span></label>
-        </div>
-        <div class="setting-row">
-          <div><div class="setting-label">Sprawdzaj 35h tygodniową</div><div class="setting-desc">art. 133 KP · okna 7-dniowe od dnia 1 okresu</div></div>
-          <label class="toggle"><input type="checkbox" id="togR35" checked><span class="toggle-slider"></span></label>
-        </div>
-        <div class="setting-row">
-          <div><div class="setting-label">Sprawdzaj granicę miesięcy</div><div class="setting-desc">11h i 35h z uwzgl. poprz. miesiąca</div></div>
-          <label class="toggle"><input type="checkbox" id="togRBound" checked><span class="toggle-slider"></span></label>
-        </div>
-        <div class="setting-row">
-          <div><div class="setting-label">WN za niedzielę + czwarta wolna</div><div class="setting-desc">art. 151¹¹ §1 pkt 1 · art. 151¹² KP</div></div>
-          <label class="toggle"><input type="checkbox" id="togRSun" checked><span class="toggle-slider"></span></label>
-        </div>
-        <div class="setting-row">
-          <div><div class="setting-label">WS za pracę w święto (nie-niedzielę)</div><div class="setting-desc">art. 151¹¹ §1 pkt 2 KP</div></div>
-          <label class="toggle"><input type="checkbox" id="togRHol" checked><span class="toggle-slider"></span></label>
-        </div>
-        <div class="setting-row">
-          <div><div class="setting-label">DW za sobotę + święto w sobotę</div><div class="setting-desc">art. 129 §1 · art. 130 §2 KP</div></div>
-          <label class="toggle"><input type="checkbox" id="togRSat" checked><span class="toggle-slider"></span></label>
-        </div>
+        <div class="setting-row"><div><div class="setting-label">Sprawdzaj 11h dobową</div></div>
+          <label class="toggle"><input type="checkbox" id="togR11" checked><span class="toggle-slider"></span></label></div>
+        <div class="setting-row"><div><div class="setting-label">Sprawdzaj 35h tygodniową</div><div class="setting-desc">art. 133 KP</div></div>
+          <label class="toggle"><input type="checkbox" id="togR35" checked><span class="toggle-slider"></span></label></div>
+        <div class="setting-row"><div><div class="setting-label">Sprawdzaj granicę miesięcy</div></div>
+          <label class="toggle"><input type="checkbox" id="togRBound" checked><span class="toggle-slider"></span></label></div>
+        <div class="setting-row"><div><div class="setting-label">WN za niedzielę + czwarta wolna</div><div class="setting-desc">art. 151¹¹ §1 pkt 1 · art. 151¹² KP</div></div>
+          <label class="toggle"><input type="checkbox" id="togRSun" checked><span class="toggle-slider"></span></label></div>
+        <div class="setting-row"><div><div class="setting-label">WS za pracę w święto</div><div class="setting-desc">art. 151¹¹ §1 pkt 2 KP</div></div>
+          <label class="toggle"><input type="checkbox" id="togRHol" checked><span class="toggle-slider"></span></label></div>
+        <div class="setting-row"><div><div class="setting-label">DW za sobotę + święto w sobotę</div><div class="setting-desc">art. 129 §1 · art. 130 §2 KP</div></div>
+          <label class="toggle"><input type="checkbox" id="togRSat" checked><span class="toggle-slider"></span></label></div>
       </div>
       <div class="settings-card">
-        <h4>Eksport / Import danych planisty</h4>
+        <h4>Eksport / Import</h4>
         <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
           <button class="btn-sm exp" style="padding:7px" onclick="exportPlannerJSON()">⬇ Eksportuj dane planisty (.json)</button>
           <label class="btn-sm exp" style="padding:7px;cursor:pointer;text-align:center">
@@ -1357,7 +1636,6 @@ tr.ev-row td.has-event{background:transparent;}
         <h4>Godziny nocne (art. 151⁷ KP)</h4>
         <div style="font-family:var(--mono);font-size:9px;color:var(--ink2);margin-bottom:8px;line-height:1.7">
           Pracodawca określa 8-godzinne okno nocne w przedziale 21:00–7:00.<br>
-          System liczy godziny nocne per pracownik i pokazuje je w podsumowaniu.<br>
           Typowo dla gastronomii: <b>22:00–06:00</b>
         </div>
         <div id="nightSettingsEl"></div>
@@ -1366,26 +1644,18 @@ tr.ev-row td.has-event{background:transparent;}
         <div style="font-family:var(--mono);font-size:9px;color:var(--ink2);line-height:1.8;">
           Planista Grafiku v2.0 (v8.9)<br>
           Silnik: CSP + losowość<br>
-          Priorytety: 1. Obsada min.<br>
-          2. Balans godzin · 3. Preferencje<br>
-          4. Min. nadgodziny<br><br>
           localStorage: <span id="lsInfo" style="color:var(--cyan)">—</span>
+        </div>
+        <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;">
+          <button class="btn-sm" onclick="unlockAll()">🔓 Odblokuj komórki</button>
+          <button class="btn-sm exp" onclick="printSchedule()">🖨 Drukuj / PDF</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- STATYSTYKI -->
-  <div id="tStats" class="tab-content">
-    <div id="statsWrap"><div class="notice info">Ułóż grafik, aby zobaczyć statystyki.</div></div>
-  </div>
+</div>
 
-  <!-- DZIENNIK -->
-  <div id="tLog" class="tab-content">
-    <div id="logArea" style="font-family:var(--mono);font-size:9px;color:var(--ink2);background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:10px;max-height:600px;overflow-y:auto;line-height:1.9;"></div>
-  </div>
-</div>
-</div>
 
 <div id="popup" class="popup" style="display:none"></div>
 
@@ -1483,24 +1753,8 @@ function calcMaxHours(m, y, etat, maxOT){
 }
 
 /* ══════════ TABS ══════════ */
-function switchTab(id,btn){
-  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  if(btn) btn.classList.add('active');
-  if(id==='tDash')renderDashboard();
-  if(id==='tAvail')renderAvail();
-  if(id==='tCov')renderCov();
-  if(id==='tPrev')renderPrevMonth();
-  if(id==='tStats')renderStats();
-  if(id==='tSettings'){updateLsInfo();renderNightSettings();}
-}
-function activateSettings(){
-  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('tSettings').classList.add('active');
-  updateLsInfo();renderNightSettings();
-}
+function switchTab(id){ navGo(id); }
+function activateSettings(){ navGo('tSettings'); }
 
 /* ══════════ THEME ══════════ */
 function toggleTheme(){
@@ -2200,7 +2454,7 @@ async function runScheduler(){
   renderSchedule();renderScores(bestSc,days,nw,m,y);renderStats();
   setSt('ok',`Gotowy · wynik ${bestSc.toFixed(0)} · ${viols.length} naruszeń`);
   document.getElementById('btnGen').disabled=false;setProg(100);
-  switchTab('tSched',document.querySelector('.tab[onclick*="tSched"]'));
+  navGo('tSched');
   saveState();
 }
 
@@ -4147,30 +4401,236 @@ function refreshMonth(){
 }
 
 /* ══════════ SIDEBAR TOGGLE ══════════ */
-function toggleSidebar(){
-  const shell=document.querySelector('.shell');
-  const hidden=shell.classList.toggle('sb-hidden');
-  document.getElementById('btnSbToggle').textContent=hidden?'▶':'☰';
-  try{localStorage.setItem('planista_sb_hidden',hidden?'1':'0');}catch(e){}
-}
+function toggleSidebar(){ /* replaced by drawer */ }
 function initSidebarState(){
-  const isMobile=window.innerWidth<640;
-  const shell=document.querySelector('.shell');
-  let hidden;
+  // Mobile nav sync: sync month/year selects
+  const ms = document.getElementById('mob-selM');
+  const ys = document.getElementById('mob-selY');
+  if(ms) ms.value = S.month;
+  if(ys) ys.value = S.year;
+  // Restore last panel
   try{
-    const stored=localStorage.getItem('planista_sb_hidden');
-    // na mobile domyślnie ukryty jeśli brak zapisanego stanu
-    hidden = stored!==null ? stored==='1' : isMobile;
-  }catch(e){ hidden=isMobile; }
-  shell.classList.toggle('sb-hidden', hidden);
-  document.getElementById('btnSbToggle').textContent=hidden?'▶':'☰';
+    const saved = localStorage.getItem('planista_nav');
+    if(saved && document.getElementById(saved)) navGo(saved);
+    else navGo('tDash');
+  }catch(e){ navGo('tDash'); }
 }
 
 /* ══════════ RE-RENDER ══════════ */
+
+/* ══════════ NAVIGATION v2 — TOPBAR DROPDOWNS ══════════ */
+let _navActive = 'tDash';
+const _NAV_GROUPS = {
+  tDay:'grafik', tSched:'grafik', tCov:'grafik', tAvail:'grafik',
+  tPrev:'grafik', tStats:'grafik', tLog:'grafik',
+  tSettings:'konfig',
+};
+const _NAV_LABELS = {
+  grafik:'nlGrafik', konfig:'nlKonfig',
+};
+
+function navGo(panelId) {
+  // hide all panels
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const panel = document.getElementById(panelId);
+  if (panel) panel.classList.add('active');
+  _navActive = panelId;
+
+  // close overlays
+  closeAllDrops();
+  closeMobileNav();
+  closeDrawer();
+
+  // update desktop nav active state
+  document.querySelectorAll('.navl.nl-on').forEach(el => el.classList.remove('nl-on'));
+  if (panelId === 'tDash') {
+    const el = document.getElementById('nlDash'); if(el) el.classList.add('nl-on');
+  } else {
+    const grp = _NAV_GROUPS[panelId];
+    const nlId = _NAV_LABELS[grp];
+    if (nlId) { const el = document.getElementById(nlId); if(el) el.classList.add('nl-on'); }
+  }
+
+  // update mobile nav active state
+  document.querySelectorAll('.mnb-item.mnb-cur, .mnb-sub-item.mnb-cur').forEach(el => el.classList.remove('mnb-cur'));
+  if (panelId === 'tDash') {
+    const el = document.getElementById('mnbDash'); if(el) el.classList.add('mnb-cur');
+  } else {
+    document.querySelectorAll('.mnb-sub-item').forEach(el => {
+      if (el.getAttribute('onclick')?.includes("'" + panelId + "'")) el.classList.add('mnb-cur');
+    });
+  }
+
+  // mark nsi items in dropdowns
+  document.querySelectorAll('.nsi.nsi-cur').forEach(el => el.classList.remove('nsi-cur'));
+  document.querySelectorAll('.nsi').forEach(el => {
+    if (el.getAttribute('onclick')?.includes("'" + panelId + "'")) el.classList.add('nsi-cur');
+  });
+
+  // render panel content
+  if (panelId === 'tDash')      renderDashboard();
+  if (panelId === 'tDay')       renderDayView();
+  if (panelId === 'tAvail')     renderAvail();
+  if (panelId === 'tCov')       renderCov();
+  if (panelId === 'tPrev')      renderPrevMonth();
+  if (panelId === 'tStats')     renderStats();
+  if (panelId === 'tSettings')  { updateLsInfo(); renderNightSettings(); }
+
+  try { localStorage.setItem('planista_nav', panelId); } catch(e) {}
+}
+
+/* wrapper to keep backward compat */
+function navSub(panelId){ navGo(panelId); }
+
+function toggleDrop(navlEl) {
+  const wasOpen = navlEl.classList.contains('open');
+  closeAllDrops();
+  if (!wasOpen) navlEl.classList.add('open');
+}
+
+function closeAllDrops() {
+  document.querySelectorAll('.navl.open').forEach(el => el.classList.remove('open'));
+}
+
+// close dropdowns on outside click
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.navl')) closeAllDrops();
+});
+
+/* ══════════ DRAWER ══════════ */
+const _DW_TITLES = { workers:'Pracownicy', shifts:'Zmiany', events:'Kalendarz wydarzeń' };
+
+function openDrawer(section) {
+  closeAllDrops();
+  document.querySelectorAll('.dw-sec').forEach(s => s.classList.remove('open'));
+  const sec = document.getElementById('dw-' + section);
+  if (sec) sec.classList.add('open');
+  const t = document.getElementById('dwTitle');
+  if (t) t.textContent = _DW_TITLES[section] || section;
+  document.getElementById('drawerOv').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+  if (section === 'workers') renderWorkers();
+  if (section === 'shifts')  renderShiftEditor();
+  if (section === 'events')  renderEvents();
+}
+
+function closeDrawer() {
+  document.getElementById('drawerOv')?.classList.remove('open');
+  document.getElementById('drawer')?.classList.remove('open');
+}
+
+/* ══════════ MOBILE NAV ══════════ */
+function toggleMobileNav() {
+  document.getElementById('mobov').classList.toggle('open');
+  document.getElementById('mobnav').classList.toggle('open');
+}
+
+function closeMobileNav() {
+  document.getElementById('mobov')?.classList.remove('open');
+  document.getElementById('mobnav')?.classList.remove('open');
+}
+
+function toggleMobGroup(headEl) {
+  const sub = headEl.nextElementSibling;
+  const isOpen = sub.classList.contains('open');
+  document.querySelectorAll('.mnb-sub.open').forEach(s => s.classList.remove('open'));
+  document.querySelectorAll('.mnb-head.exp').forEach(h => h.classList.remove('exp'));
+  if (!isOpen) { sub.classList.add('open'); headEl.classList.add('exp'); }
+}
+
+/* ══════════ DAY VIEW ══════════ */
+let _dayDate = new Date();
+
+function renderDayView() {
+  const wrap = document.getElementById('dayWrap'); if(!wrap) return;
+  const y=_dayDate.getFullYear(), m=_dayDate.getMonth(), d=_dayDate.getDate(), di=d-1;
+  const todKey = y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+  const hols = polishHolidays(y);
+  const isHol = hols.has(todKey), dw = new Date(y,m,d).getDay();
+  const todayKey = (()=>{const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');})();
+  const sameMonth = (m===S.month && y===S.year);
+  const sched = sameMonth ? S.schedule : (S.monthData?.[monthKey(m,y)]?.schedule||null);
+
+  const byShift={};
+  if(sched && di<dim(m,y)){
+    for(let wi=0;wi<S.workers.length;wi++){
+      const code=sched[wi]?.[di]; if(!code) continue;
+      (byShift[code]=byShift[code]||[]).push(wi);
+    }
+  }
+  const working=Object.values(byShift).reduce((a,b)=>a+b.length,0);
+
+  let html=`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+    <button class="btn-sm" onclick="_dayDate=new Date(_dayDate);_dayDate.setDate(_dayDate.getDate()-1);renderDayView()">← Poprzedni</button>
+    <div style="font-family:var(--mono);font-size:13px;font-weight:700;flex:1;text-align:center;">
+      ${_DOWfull[dw]}, ${d} ${_MPLgen[m]} ${y}${isHol?' 🔴':''}
+    </div>
+    <button class="btn-sm" onclick="_dayDate=new Date(_dayDate);_dayDate.setDate(_dayDate.getDate()+1);renderDayView()">Następny →</button>
+    ${todKey!==todayKey?`<button class="btn-sm ok" onclick="_dayDate=new Date();renderDayView()">Dziś</button>`:''}
+  </div>`;
+
+  html+=`<div class="dash-metrics">
+    <div class="metric blue"><div class="mv">${working}</div><div class="ml">pracuje</div></div>
+    <div class="metric"><div class="mv">${Math.max(0,S.workers.length-working)}</div><div class="ml">wolne</div></div>
+  </div>`;
+
+  if(!sched){
+    html+=`<div class="notice info">Brak grafiku na ${MPL[m]} ${y}. Ułóż grafik w widoku Grafiku miesiąca.</div>`;
+  } else if(working===0){
+    html+=`<div class="notice info">Nikt nie ma przypisanej zmiany w tym dniu.</div>`;
+  } else {
+    html+=`<div class="dash-card" style="padding:14px;gap:8px;display:flex;flex-direction:column;">`;
+    S.shifts.forEach(s=>{
+      const list=byShift[s.code]; if(!list?.length) return;
+      html+=`<div class="shift-group">
+        <div class="sg-head" style="--gc:${s.color}">${_esc(s.code)} · ${_esc(s.name)} · ${s.od}–${s.do}</div>`;
+      list.forEach(wi=>{
+        const w=S.workers[wi], col=w.color||COLORS[wi%COLORS.length];
+        const ct=sameMonth?(S.customTimes?.[wi]?.[di]||null):null;
+        html+=`<div class="person-row">
+          <div class="pr-av" style="background:${col}">${_esc(_initials(w.name))}</div>
+          <div class="pr-name">${_esc(w.name)}${w.pos?` <span class="pr-pos">· ${_esc(w.pos)}</span>`:''}</div>
+          <div class="pr-time">${ct?.od||s.od}–${ct?.do||s.do}</div>
+        </div>`;
+      });
+      html+=`</div>`;
+    });
+    html+=`</div>`;
+  }
+
+  // Coverage chips
+  const chips=[];
+  S.shifts.forEach(s=>{
+    const target=S.covPlan?.[s.code]?.[di]||0; if(!target) return;
+    const got=(byShift[s.code]||[]).length;
+    chips.push(`<span class="cov-chip ${got<target?'deficit':'full'}">
+      <span class="cc-dot" style="background:${s.color}"></span>${_esc(s.code)} ${got}/${target}${got<target?' ⚠':' ✓'}</span>`);
+  });
+  if(chips.length){
+    html+=`<div class="dash-card" style="padding:14px"><div class="dc-title" style="margin-bottom:8px">📊 Obsada dnia</div>
+      <div class="cov-wrap">${chips.join('')}</div></div>`;
+  }
+
+  // Events
+  const evs=(S.events||[]).filter(e=>{const f=e.dateFrom||e.date||'',t=e.dateTo||f;return todKey>=f&&todKey<=t;});
+  if(evs.length){
+    html+=`<div class="dash-card" style="padding:14px"><div class="dc-title" style="margin-bottom:8px">📅 Wydarzenia</div>`;
+    evs.forEach(e=>{
+      html+=`<div class="dash-ev" style="--ec:${e.color||'var(--cyan)'}">
+        <div class="de-ic">${e.icon||'📌'}</div>
+        <div><div class="de-t">${_esc(e.title)}</div>${e.desc?`<div class="de-d">${_esc(e.desc)}</div>`:''}</div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  wrap.innerHTML = html;
+}
+
 function reRenderAll(){
-  renderWorkers();renderShiftEditor();renderCov();renderAvail();
-  renderSchedule();
-  if(document.getElementById('tDash')?.classList.contains('active')) renderDashboard();
+  renderWorkers();renderShiftEditor();renderCov();renderAvail();renderSchedule();
+  if(_navActive==='tDash') renderDashboard();
+  if(_navActive==='tDay')  renderDayView();
 }
 
 /* ══════════ PULPIT / DASHBOARD ══════════ */
@@ -4406,8 +4866,7 @@ function applyWorkerRequest(p){
     if(fd>=0)S.comments[wi][fd]=comment;
   }
   saveState();reRenderAll();if(S.schedule)renderSchedule();
-  const tb=document.querySelector('.tab[onclick*="tAvail"]');
-  if(tb)switchTab('tAvail',tb);
+  navGo('tAvail');
   setSt('ok',`✓ Wczytano prośby: ${name} · ${changed} dni`);
   setTimeout(()=>setSt('idle','Gotowy'),4000);
 }
