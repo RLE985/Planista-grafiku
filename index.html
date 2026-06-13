@@ -2107,14 +2107,20 @@ function toggleTheme(){
 function addWorker(){
   const name=document.getElementById('nwName').value.trim();if(!name)return;
   const etat=parseFloat(document.getElementById('nwEtat').value);
-  const pos=document.getElementById('nwPos').value.trim();
+  const posEl=document.getElementById('nwPos');
+  const pos=(posEl&&posEl.value?posEl.value:'').trim();
   const color=COLORS[S.workers.length%COLORS.length];
   const perms={};S.shifts.forEach(s=>perms[s.code]=true);
   S.workers.push({name,pos,etat,color,prefs:{},perms});
   const days=dim(S.month,S.year);
   S.avail.push(Array(days).fill(''));
   S.prevMonth.push([{od:'',do:'',shift:''},{od:'',do:'',shift:''},{od:'',do:'',shift:''}]);
+  // jeśli grafik już istnieje — dodaj pusty wiersz, by indeksy się zgadzały
+  if(S.schedule) S.schedule.push(Array(days).fill(''));
+  if(S.comments) S.comments.push(Array(days).fill(''));
+  if(S.customTimes) S.customTimes.push([]);
   document.getElementById('nwName').value='';
+  if(posEl) posEl.value='';
   reRenderAll();saveState();
 }
 function removeWorker(i){
@@ -2774,7 +2780,7 @@ function getPrevMonthStatus(wi){
   const earliest=fmtT(((prevEnd+REST_DAY)%24+24)%24);
   // also check consecutive days carry-over
   const streak=getPrevConsecutive(wi);
-  const streakWarn=streak&&S.schedule[wi][0]?' + seria dni z poprz. mies.':'';
+  const streakWarn=streak&&S.schedule?.[wi]?.[0]?' + seria dni z poprz. mies.':'';
   if(gap>=REST_DAY)
     return `<span style="color:var(--green)">✓ 11h OK — przerwa ${fmtD(gap)}h${streakWarn?'<br><span style=\"color:var(--cyan)\">'+ streak+'</span>':''}</span>`;
   else
