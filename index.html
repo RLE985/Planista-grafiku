@@ -2199,12 +2199,12 @@ function renderWorkers(){
   el.innerHTML=S.workers.map((w,i)=>{
     const vis = w.visible !== false; // domyślnie widoczny
     const permBtns=S.shifts.map(s=>{
-      const ok=w.perms[s.code]!==false;
+      const ok=(w.perms||{})[s.code]!==false;
       return `<button class="we-perm-btn ${ok?'perm-on':'perm-off'}" onclick="togglePermW(${i},'${s.code}',event)"
         title="${s.name} ${s.od}–${s.do}">${ok?'✓':'✗'} ${s.code}</button>`;
     }).join('');
     const prefBtns=S.shifts.map(s=>{
-      const p=w.prefs[s.code]||'n';
+      const p=(w.prefs||{})[s.code]||'n';
       const label=p==='preferred'?'▲ ':p==='excluded'?'▼ ':'· ';
       return `<button class="we-pref-btn pref-${p}" onclick="cyclePrefW(${i},'${s.code}',event)"
         title="${s.name}">${label}${s.code}</button>`;
@@ -2225,7 +2225,7 @@ function renderWorkers(){
         <div>
           <div class="we-head">Dane pracownika</div>
           <div style="display:flex;flex-direction:column;gap:5px;">
-            <input type="text" id="weN-${i}" value="${w.name.replace(/"/g,'&quot;')}"
+            <input type="text" id="weN-${i}" value="${(w.name||'').replace(/"/g,'&quot;')}"
               style="font-family:var(--sans);font-size:11px;padding:4px 7px;background:var(--bg);border:1px solid var(--border);color:var(--ink);border-radius:4px;outline:none;width:100%"
               onclick="event.stopPropagation()" placeholder="Imię i nazwisko">
             <select id="weP-${i}" onclick="event.stopPropagation()"
@@ -2318,7 +2318,7 @@ function cyclePrefW(wi,code,evt){
 
 /* ══════════ SHIFTS ══════════ */
 function ensureCoverage(code){if(!S.coverage[code])S.coverage[code]={wd:1,we:0};}
-function ensurePerms(){S.workers.forEach(w=>{if(!w.perms)w.perms={};if(!w.prefs)w.prefs={};S.shifts.forEach(s=>{if(w.perms[s.code]===undefined)w.perms[s.code]=true;});});normalizeArrays();}
+function ensurePerms(){const shifts=Array.isArray(S.shifts)?S.shifts:[];S.workers.forEach(w=>{if(!w.perms)w.perms={};if(!w.prefs)w.prefs={};shifts.forEach(s=>{if(w.perms[s.code]===undefined)w.perms[s.code]=true;});});normalizeArrays();}
 /* Naprawia rozjazd: każda tablica per-pracownik musi mieć tyle wierszy ile pracowników i tyle kolumn ile dni miesiąca. Chroni przed "Cannot read properties of undefined" gdy dane przyszły rozjechane (np. ze starego zapisu Firebase). */
 function normalizeArrays(){
   const nw=S.workers.length, days=dim(S.month,S.year);
@@ -2389,7 +2389,8 @@ function addShift(){
 /* ══════════ COVERAGE ══════════ */
 function ensureCovPlan(){
   const m=S.month,y=S.year,days=dim(m,y);
-  S.shifts.forEach(s=>{
+  if(!S.covPlan) S.covPlan={};
+  (Array.isArray(S.shifts)?S.shifts:[]).forEach(s=>{
     if(!S.covPlan[s.code]) S.covPlan[s.code]=Array(days).fill(0);
     while(S.covPlan[s.code].length<days) S.covPlan[s.code].push(0);
   });
@@ -3692,7 +3693,7 @@ function renderEmptySchedule(m,y,days,nw){
     if(w.visible===false) continue;
     const norm=calcNorm(m,y,w.etat);
     html+=`<tr><td class="td-name"><div class="td-name-inner">
-      <div class="tdn-name">${w.name}</div>
+      <div class="tdn-name">${w.name||''}</div>
       <div class="tdn-pos">${w.pos||'—'}</div>
       <div class="tdn-etat">${ETAT_LBL[String(w.etat)]||w.etat}</div>
     </div></td>`;
@@ -3895,7 +3896,7 @@ function renderSchedule(){
     const norm=calcNorm(m,y,w.etat);let totalH=0;
     html+=`<tr data-wi="${wi}"><td class="td-name">
       <div class="td-name-inner">
-        <div class="tdn-name">${w.name}</div>
+        <div class="tdn-name">${w.name||''}</div>
         <div class="tdn-pos">${w.pos||'—'}</div>
         <div class="tdn-etat">${ETAT_LBL[String(w.etat)]||w.etat}</div>
       </div></td>`;
@@ -5042,7 +5043,16 @@ function navSub(panelId){ navGo(panelId); }
 
 /* ── globalne wyłapywanie błędów: pokaż w pasku statusu zamiast cichej awarii ── */
 window.addEventListener('error', e=>{
-  try{ setSt('err','Błąd: '+(e.message||'nieznany').slice(0,90)); }catch(_){}
+  // Szczegółowa lokalizacja: linia:kolumna ze stacku — ułatwia namierzenie
+  let loc='';
+  try{
+    if(e.lineno) loc=' [L'+e.lineno+':'+e.colno+']';
+    const st=(e.error&&e.error.stack)?e.error.stack.split('\n'):[];
+    const fnLine=st.find(l=>/at \w+/.test(l));
+    if(fnLine){ const m=fnLine.match(/at (\w+)/); if(m) loc+=' @'+m[1]; }
+  }catch(_){}
+  try{ setSt('err','Błąd: '+(e.message||'nieznany').slice(0,70)+loc); }catch(_){}
+  try{ console.error('[PLANISTA ERROR]', e.message, e.error&&e.error.stack); }catch(_){}
 });
 window.addEventListener('unhandledrejection', e=>{
   try{ setSt('err','Błąd: '+String(e.reason?.message||e.reason||'').slice(0,90)); }catch(_){}
