@@ -1243,7 +1243,7 @@ body { padding-top:54px; }
            from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
   const firebaseConfig = {
-    apiKey: "AIzaSyDahG59ue0osvwSDho4SVyij265qXnlamw",
+    apiKey: "AIzaSyAjmlKahVrY7QQzN8isxvRqXfvsUGWBKMs",
     authDomain: "planista-grafiku-efc95.firebaseapp.com",
     projectId: "planista-grafiku-efc95",
     storageBucket: "planista-grafiku-efc95.firebasestorage.app",
@@ -2107,20 +2107,14 @@ function toggleTheme(){
 function addWorker(){
   const name=document.getElementById('nwName').value.trim();if(!name)return;
   const etat=parseFloat(document.getElementById('nwEtat').value);
-  const posEl=document.getElementById('nwPos');
-  const pos=(posEl&&posEl.value?posEl.value:'').trim();
+  const pos=document.getElementById('nwPos').value.trim();
   const color=COLORS[S.workers.length%COLORS.length];
   const perms={};S.shifts.forEach(s=>perms[s.code]=true);
   S.workers.push({name,pos,etat,color,prefs:{},perms});
   const days=dim(S.month,S.year);
   S.avail.push(Array(days).fill(''));
   S.prevMonth.push([{od:'',do:'',shift:''},{od:'',do:'',shift:''},{od:'',do:'',shift:''}]);
-  // jeśli grafik już istnieje — dodaj pusty wiersz, by indeksy się zgadzały
-  if(S.schedule) S.schedule.push(Array(days).fill(''));
-  if(S.comments) S.comments.push(Array(days).fill(''));
-  if(S.customTimes) S.customTimes.push([]);
   document.getElementById('nwName').value='';
-  if(posEl) posEl.value='';
   reRenderAll();saveState();
 }
 function removeWorker(i){
@@ -2199,12 +2193,12 @@ function renderWorkers(){
   el.innerHTML=S.workers.map((w,i)=>{
     const vis = w.visible !== false; // domyślnie widoczny
     const permBtns=S.shifts.map(s=>{
-      const ok=(w.perms||{})[s.code]!==false;
+      const ok=w.perms[s.code]!==false;
       return `<button class="we-perm-btn ${ok?'perm-on':'perm-off'}" onclick="togglePermW(${i},'${s.code}',event)"
         title="${s.name} ${s.od}–${s.do}">${ok?'✓':'✗'} ${s.code}</button>`;
     }).join('');
     const prefBtns=S.shifts.map(s=>{
-      const p=(w.prefs||{})[s.code]||'n';
+      const p=w.prefs[s.code]||'n';
       const label=p==='preferred'?'▲ ':p==='excluded'?'▼ ':'· ';
       return `<button class="we-pref-btn pref-${p}" onclick="cyclePrefW(${i},'${s.code}',event)"
         title="${s.name}">${label}${s.code}</button>`;
@@ -2225,7 +2219,7 @@ function renderWorkers(){
         <div>
           <div class="we-head">Dane pracownika</div>
           <div style="display:flex;flex-direction:column;gap:5px;">
-            <input type="text" id="weN-${i}" value="${(w.name||'').replace(/"/g,'&quot;')}"
+            <input type="text" id="weN-${i}" value="${w.name.replace(/"/g,'&quot;')}"
               style="font-family:var(--sans);font-size:11px;padding:4px 7px;background:var(--bg);border:1px solid var(--border);color:var(--ink);border-radius:4px;outline:none;width:100%"
               onclick="event.stopPropagation()" placeholder="Imię i nazwisko">
             <select id="weP-${i}" onclick="event.stopPropagation()"
@@ -2318,17 +2312,7 @@ function cyclePrefW(wi,code,evt){
 
 /* ══════════ SHIFTS ══════════ */
 function ensureCoverage(code){if(!S.coverage[code])S.coverage[code]={wd:1,we:0};}
-function ensurePerms(){const shifts=Array.isArray(S.shifts)?S.shifts:[];S.workers.forEach(w=>{if(!w.perms)w.perms={};if(!w.prefs)w.prefs={};shifts.forEach(s=>{if(w.perms[s.code]===undefined)w.perms[s.code]=true;});});normalizeArrays();}
-/* Naprawia rozjazd: każda tablica per-pracownik musi mieć tyle wierszy ile pracowników i tyle kolumn ile dni miesiąca. Chroni przed "Cannot read properties of undefined" gdy dane przyszły rozjechane (np. ze starego zapisu Firebase). */
-function normalizeArrays(){
-  const nw=S.workers.length, days=dim(S.month,S.year);
-  const fitRow=(arr,fill)=>{const a=Array.isArray(arr)?arr.slice(0,days):[];while(a.length<days)a.push(fill);return a;};
-  if(S.schedule){ const r=[]; for(let i=0;i<nw;i++) r.push(fitRow(S.schedule[i],'')); S.schedule=r; }
-  if(S.comments){ const r=[]; for(let i=0;i<nw;i++) r.push(fitRow(S.comments[i],'')); S.comments=r; }
-  { const r=[]; for(let i=0;i<nw;i++) r.push(fitRow(S.avail&&S.avail[i],'')); S.avail=r; }
-  if(S.customTimes){ const r=[]; for(let i=0;i<nw;i++) r.push(Array.isArray(S.customTimes[i])?S.customTimes[i]:[]); S.customTimes=r; }
-  { const r=[]; for(let i=0;i<nw;i++){ const pm=Array.isArray(S.prevMonth&&S.prevMonth[i])?S.prevMonth[i]:[]; while(pm.length<3)pm.push({od:'',do:'',shift:''}); r.push(pm); } S.prevMonth=r; }
-}
+function ensurePerms(){S.workers.forEach(w=>{if(!w.perms)w.perms={};if(!w.prefs)w.prefs={};S.shifts.forEach(s=>{if(w.perms[s.code]===undefined)w.perms[s.code]=true;});});}
 
 function renderShiftEditor(){
   const el=document.getElementById('shiftEditor');
@@ -2389,8 +2373,7 @@ function addShift(){
 /* ══════════ COVERAGE ══════════ */
 function ensureCovPlan(){
   const m=S.month,y=S.year,days=dim(m,y);
-  if(!S.covPlan) S.covPlan={};
-  (Array.isArray(S.shifts)?S.shifts:[]).forEach(s=>{
+  S.shifts.forEach(s=>{
     if(!S.covPlan[s.code]) S.covPlan[s.code]=Array(days).fill(0);
     while(S.covPlan[s.code].length<days) S.covPlan[s.code].push(0);
   });
@@ -2791,7 +2774,7 @@ function getPrevMonthStatus(wi){
   const earliest=fmtT(((prevEnd+REST_DAY)%24+24)%24);
   // also check consecutive days carry-over
   const streak=getPrevConsecutive(wi);
-  const streakWarn=streak&&S.schedule?.[wi]?.[0]?' + seria dni z poprz. mies.':'';
+  const streakWarn=streak&&S.schedule[wi][0]?' + seria dni z poprz. mies.':'';
   if(gap>=REST_DAY)
     return `<span style="color:var(--green)">✓ 11h OK — przerwa ${fmtD(gap)}h${streakWarn?'<br><span style=\"color:var(--cyan)\">'+ streak+'</span>':''}</span>`;
   else
@@ -3693,7 +3676,7 @@ function renderEmptySchedule(m,y,days,nw){
     if(w.visible===false) continue;
     const norm=calcNorm(m,y,w.etat);
     html+=`<tr><td class="td-name"><div class="td-name-inner">
-      <div class="tdn-name">${w.name||''}</div>
+      <div class="tdn-name">${w.name}</div>
       <div class="tdn-pos">${w.pos||'—'}</div>
       <div class="tdn-etat">${ETAT_LBL[String(w.etat)]||w.etat}</div>
     </div></td>`;
@@ -3738,7 +3721,6 @@ function openEmptyPopup(wi,d,cell){
 }
 
 function renderSchedule(){
-  normalizeArrays();
   const m=S.month,y=S.year,days=dim(m,y),nw=S.workers.length;
   const sched=S.schedule;
 
@@ -3896,7 +3878,7 @@ function renderSchedule(){
     const norm=calcNorm(m,y,w.etat);let totalH=0;
     html+=`<tr data-wi="${wi}"><td class="td-name">
       <div class="td-name-inner">
-        <div class="tdn-name">${w.name||''}</div>
+        <div class="tdn-name">${w.name}</div>
         <div class="tdn-pos">${w.pos||'—'}</div>
         <div class="tdn-etat">${ETAT_LBL[String(w.etat)]||w.etat}</div>
       </div></td>`;
@@ -4263,7 +4245,6 @@ function renderStats(){
   const el=document.getElementById('statsWrap');
   if(!el) return;
   if(!S.schedule){el.innerHTML='<div class="notice info">Ułóż grafik, aby zobaczyć statystyki.</div>';return;}
-  normalizeArrays();
   const m=S.month,y=S.year,days=dim(m,y),nw=S.workers.length;
   const sched=S.schedule;
 
@@ -5043,16 +5024,7 @@ function navSub(panelId){ navGo(panelId); }
 
 /* ── globalne wyłapywanie błędów: pokaż w pasku statusu zamiast cichej awarii ── */
 window.addEventListener('error', e=>{
-  // Szczegółowa lokalizacja: linia:kolumna ze stacku — ułatwia namierzenie
-  let loc='';
-  try{
-    if(e.lineno) loc=' [L'+e.lineno+':'+e.colno+']';
-    const st=(e.error&&e.error.stack)?e.error.stack.split('\n'):[];
-    const fnLine=st.find(l=>/at \w+/.test(l));
-    if(fnLine){ const m=fnLine.match(/at (\w+)/); if(m) loc+=' @'+m[1]; }
-  }catch(_){}
-  try{ setSt('err','Błąd: '+(e.message||'nieznany').slice(0,70)+loc); }catch(_){}
-  try{ console.error('[PLANISTA ERROR]', e.message, e.error&&e.error.stack); }catch(_){}
+  try{ setSt('err','Błąd: '+(e.message||'nieznany').slice(0,90)); }catch(_){}
 });
 window.addEventListener('unhandledrejection', e=>{
   try{ setSt('err','Błąd: '+String(e.reason?.message||e.reason||'').slice(0,90)); }catch(_){}
@@ -5823,8 +5795,24 @@ function dvDoPrint(){
   let html=`<div class="dv-p-title">Grafik obsady – ${fmtShort(from)}${from!==to?' – '+fmtShort(to):''}</div>
   <div class="dv-p-sub">Wydrukowano: ${new Date().toLocaleString('pl-PL')}</div>`;
 
-  // (lista pracowników celowo pominięta na wydruku — zgodnie z wymaganiem:
-  //  drukujemy tylko tabelę godzinową i podsumowanie wg stanowisk)
+  // workers table (only for single day or show per day if multiple)
+  if(dates.length===1){
+    const rows=dvGetRows(dates[0]);
+    const hasRows=rows.some(r=>r.name);
+    if(hasRows){
+      html+=`<table class="dv-p-workers-tbl"><thead><tr>
+        <th>#</th><th>Imię / Opis</th><th>Od</th><th>Do</th><th>Stanowisko</th>
+      </tr></thead><tbody>`;
+      rows.forEach((r,i)=>{
+        const cls=r.fromSchedule?'dv-p-from-sched':'';
+        const sH=dvParseHour(r.start),eH=dvParseHour(r.end);
+        const sDisp=sH!==null?dvFmtH(sH):(r.start||'–');
+        const eDisp=eH!==null?dvFmtH(eH):(r.end||'–');
+        html+=`<tr class="${cls}"><td>${i+1}</td><td>${r.name||'–'}</td><td>${sDisp}</td><td>${eDisp}</td><td>${r.stanowisko||'–'}</td></tr>`;
+      });
+      html+=`</tbody></table>`;
+    }
+  }
 
   // hourly multi-table
   html+=`<table class="dv-multi-tbl"><thead>`;
@@ -5904,7 +5892,6 @@ function dvDoPrint(){
 }
 
 function reRenderAll(){
-  ensurePerms();
   renderWorkers();renderShiftEditor();renderCov();renderAvail();renderSchedule();
   if(_navActive==='tDash') renderDashboard();
   if(_navActive==='tDay')  renderDayView();
