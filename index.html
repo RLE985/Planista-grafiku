@@ -2318,7 +2318,17 @@ function cyclePrefW(wi,code,evt){
 
 /* ══════════ SHIFTS ══════════ */
 function ensureCoverage(code){if(!S.coverage[code])S.coverage[code]={wd:1,we:0};}
-function ensurePerms(){S.workers.forEach(w=>{if(!w.perms)w.perms={};if(!w.prefs)w.prefs={};S.shifts.forEach(s=>{if(w.perms[s.code]===undefined)w.perms[s.code]=true;});});}
+function ensurePerms(){S.workers.forEach(w=>{if(!w.perms)w.perms={};if(!w.prefs)w.prefs={};S.shifts.forEach(s=>{if(w.perms[s.code]===undefined)w.perms[s.code]=true;});});normalizeArrays();}
+/* Naprawia rozjazd: każda tablica per-pracownik musi mieć tyle wierszy ile pracowników i tyle kolumn ile dni miesiąca. Chroni przed "Cannot read properties of undefined" gdy dane przyszły rozjechane (np. ze starego zapisu Firebase). */
+function normalizeArrays(){
+  const nw=S.workers.length, days=dim(S.month,S.year);
+  const fitRow=(arr,fill)=>{const a=Array.isArray(arr)?arr.slice(0,days):[];while(a.length<days)a.push(fill);return a;};
+  if(S.schedule){ const r=[]; for(let i=0;i<nw;i++) r.push(fitRow(S.schedule[i],'')); S.schedule=r; }
+  if(S.comments){ const r=[]; for(let i=0;i<nw;i++) r.push(fitRow(S.comments[i],'')); S.comments=r; }
+  { const r=[]; for(let i=0;i<nw;i++) r.push(fitRow(S.avail&&S.avail[i],'')); S.avail=r; }
+  if(S.customTimes){ const r=[]; for(let i=0;i<nw;i++) r.push(Array.isArray(S.customTimes[i])?S.customTimes[i]:[]); S.customTimes=r; }
+  { const r=[]; for(let i=0;i<nw;i++){ const pm=Array.isArray(S.prevMonth&&S.prevMonth[i])?S.prevMonth[i]:[]; while(pm.length<3)pm.push({od:'',do:'',shift:''}); r.push(pm); } S.prevMonth=r; }
+}
 
 function renderShiftEditor(){
   const el=document.getElementById('shiftEditor');
@@ -3727,6 +3737,7 @@ function openEmptyPopup(wi,d,cell){
 }
 
 function renderSchedule(){
+  normalizeArrays();
   const m=S.month,y=S.year,days=dim(m,y),nw=S.workers.length;
   const sched=S.schedule;
 
@@ -4251,6 +4262,7 @@ function renderStats(){
   const el=document.getElementById('statsWrap');
   if(!el) return;
   if(!S.schedule){el.innerHTML='<div class="notice info">Ułóż grafik, aby zobaczyć statystyki.</div>';return;}
+  normalizeArrays();
   const m=S.month,y=S.year,days=dim(m,y),nw=S.workers.length;
   const sched=S.schedule;
 
@@ -5801,24 +5813,8 @@ function dvDoPrint(){
   let html=`<div class="dv-p-title">Grafik obsady – ${fmtShort(from)}${from!==to?' – '+fmtShort(to):''}</div>
   <div class="dv-p-sub">Wydrukowano: ${new Date().toLocaleString('pl-PL')}</div>`;
 
-  // workers table (only for single day or show per day if multiple)
-  if(dates.length===1){
-    const rows=dvGetRows(dates[0]);
-    const hasRows=rows.some(r=>r.name);
-    if(hasRows){
-      html+=`<table class="dv-p-workers-tbl"><thead><tr>
-        <th>#</th><th>Imię / Opis</th><th>Od</th><th>Do</th><th>Stanowisko</th>
-      </tr></thead><tbody>`;
-      rows.forEach((r,i)=>{
-        const cls=r.fromSchedule?'dv-p-from-sched':'';
-        const sH=dvParseHour(r.start),eH=dvParseHour(r.end);
-        const sDisp=sH!==null?dvFmtH(sH):(r.start||'–');
-        const eDisp=eH!==null?dvFmtH(eH):(r.end||'–');
-        html+=`<tr class="${cls}"><td>${i+1}</td><td>${r.name||'–'}</td><td>${sDisp}</td><td>${eDisp}</td><td>${r.stanowisko||'–'}</td></tr>`;
-      });
-      html+=`</tbody></table>`;
-    }
-  }
+  // (lista pracowników celowo pominięta na wydruku — zgodnie z wymaganiem:
+  //  drukujemy tylko tabelę godzinową i podsumowanie wg stanowisk)
 
   // hourly multi-table
   html+=`<table class="dv-multi-tbl"><thead>`;
@@ -5898,6 +5894,7 @@ function dvDoPrint(){
 }
 
 function reRenderAll(){
+  ensurePerms();
   renderWorkers();renderShiftEditor();renderCov();renderAvail();renderSchedule();
   if(_navActive==='tDash') renderDashboard();
   if(_navActive==='tDay')  renderDayView();
