@@ -458,29 +458,23 @@ tr.ev-row td.has-event{background:transparent;}
     margin: 5mm 6mm;
   }
 
-  /* hide everything except the schedule table */
-  .topbar, .sidebar, .tabs, .score-bar, .prog-wrap,
-  .notice, .popup, #popup,
-  .shell > *:not(.main) { display: none !important; }
+  /* ukryj WSZYSTKO poza panelem grafiku (nowa struktura nawigacji) */
+  body > *:not(.main-wrap) { display: none !important; }
+  .navbar, .subbar, .mobnav, .mobov, .km-ov, .dv-pm-ov, .drawer, .drawer-ov,
+  #popup, .popup, .score-bar, .prog-wrap, .notice,
+  #fb-login-overlay, #fb-user-bar { display: none !important; }
 
-  .shell {
-    display: block !important;
-    min-height: unset;
-  }
+  .main-wrap { display: block !important; min-height: unset !important; padding: 0 !important; }
 
-  .main {
-    padding: 0 !important;
-    gap: 0 !important;
-    overflow: visible !important;
-  }
-
-  /* show only tSched tab */
-  .tab-content { display: none !important; }
-  #tSched { display: block !important; }
+  /* pokaż tylko panel grafiku */
+  .panel { display: none !important; }
+  #tSched { display: block !important; padding: 0 !important; }
+  #tSched > .score-bar, #tSched > .prog-wrap { display: none !important; }
 
   #schedWrap { overflow: visible !important; }
 
   body {
+    padding-top: 0 !important;
     background: #fff !important;
     color: #000 !important;
     font-family: 'Space Mono', monospace !important;
@@ -838,6 +832,7 @@ body { padding-top:54px; }
   background:var(--surface);border-bottom:1px solid var(--border);
   display:flex;align-items:center;padding:0 10px;gap:2px;
   box-shadow:var(--shadow);
+  flex-wrap:nowrap;overflow:hidden;
 }
 .nav-brand {
   font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;
@@ -971,12 +966,18 @@ body { padding-top:54px; }
 }
 @media (max-width:768px){
   .nav-links{display:none;}
-  .nav-right .status-bar{max-width:120px;}
-  .nav-ham{display:flex;}
+  .nav-brand{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .nav-right{flex-shrink:1;min-width:0;margin-left:auto;}
+  .nav-right .status-bar{max-width:90px;overflow:hidden;}
+  .nav-ham{display:flex !important;}
 }
 @media (max-width:639px){
   body{padding-top:48px;}
-  .navbar{height:48px;}
+  .navbar{height:48px;gap:6px;padding:0 8px;}
+  /* na wąskim telefonie status bar tylko zajmuje miejsce — chowamy, hamburger ma pierwszeństwo */
+  .nav-right{display:none !important;}
+  .nav-brand{font-size:10px;}
+  .nav-ham{margin-left:auto;}
   .drawer{
     width:100% !important;max-width:100% !important;
     top:auto;bottom:0;height:88dvh;border-left:none;
@@ -1243,7 +1244,7 @@ body { padding-top:54px; }
            from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
   const firebaseConfig = {
-    apiKey: "AIzaSyAjmlKahVrY7QQzN8isxvRqXfvsUGWBKMs",
+    apiKey: "AIzaSyDahG59ue0osvwSDho4SVyij265qXnlamw",
     authDomain: "planista-grafiku-efc95.firebaseapp.com",
     projectId: "planista-grafiku-efc95",
     storageBucket: "planista-grafiku-efc95.firebasestorage.app",
@@ -1510,7 +1511,7 @@ body { padding-top:54px; }
     <div class="navl nl-on" id="nlDash" onclick="navGo('tDash',this)">Pulpit</div>
 
     <!-- Grafik dropdown -->
-    <div class="navl" id="nlGrafik" onclick="toggleDrop(this)" data-group="grafik">
+    <div class="navl" id="nlGrafik" onclick="toggleDrop(this,event)" data-group="grafik">
       Grafik <span class="nav-arr">▾</span>
       <div class="nav-sub">
         <div class="nsi" onclick="navSub('tDay')">☀️ Grafik dzień</div>
@@ -1525,7 +1526,7 @@ body { padding-top:54px; }
     </div>
 
     <!-- Konfiguracja dropdown -->
-    <div class="navl" id="nlKonfig" onclick="toggleDrop(this)" data-group="konfig">
+    <div class="navl" id="nlKonfig" onclick="toggleDrop(this,event)" data-group="konfig">
       Konfiguracja <span class="nav-arr">▾</span>
       <div class="nav-sub">
         <div class="nsi" onclick="openKonfig('workers')">👥 Pracownicy</div>
@@ -2107,14 +2108,20 @@ function toggleTheme(){
 function addWorker(){
   const name=document.getElementById('nwName').value.trim();if(!name)return;
   const etat=parseFloat(document.getElementById('nwEtat').value);
-  const pos=document.getElementById('nwPos').value.trim();
+  const posEl=document.getElementById('nwPos');
+  const pos=(posEl&&posEl.value?posEl.value:'').trim();
   const color=COLORS[S.workers.length%COLORS.length];
   const perms={};S.shifts.forEach(s=>perms[s.code]=true);
   S.workers.push({name,pos,etat,color,prefs:{},perms});
   const days=dim(S.month,S.year);
   S.avail.push(Array(days).fill(''));
   S.prevMonth.push([{od:'',do:'',shift:''},{od:'',do:'',shift:''},{od:'',do:'',shift:''}]);
+  // jeśli grafik już istnieje — dodaj pusty wiersz, by indeksy się zgadzały
+  if(S.schedule) S.schedule.push(Array(days).fill(''));
+  if(S.comments) S.comments.push(Array(days).fill(''));
+  if(S.customTimes) S.customTimes.push([]);
   document.getElementById('nwName').value='';
+  if(posEl) posEl.value='';
   reRenderAll();saveState();
 }
 function removeWorker(i){
@@ -2193,12 +2200,12 @@ function renderWorkers(){
   el.innerHTML=S.workers.map((w,i)=>{
     const vis = w.visible !== false; // domyślnie widoczny
     const permBtns=S.shifts.map(s=>{
-      const ok=w.perms[s.code]!==false;
+      const ok=(w.perms||{})[s.code]!==false;
       return `<button class="we-perm-btn ${ok?'perm-on':'perm-off'}" onclick="togglePermW(${i},'${s.code}',event)"
         title="${s.name} ${s.od}–${s.do}">${ok?'✓':'✗'} ${s.code}</button>`;
     }).join('');
     const prefBtns=S.shifts.map(s=>{
-      const p=w.prefs[s.code]||'n';
+      const p=(w.prefs||{})[s.code]||'n';
       const label=p==='preferred'?'▲ ':p==='excluded'?'▼ ':'· ';
       return `<button class="we-pref-btn pref-${p}" onclick="cyclePrefW(${i},'${s.code}',event)"
         title="${s.name}">${label}${s.code}</button>`;
@@ -2219,7 +2226,7 @@ function renderWorkers(){
         <div>
           <div class="we-head">Dane pracownika</div>
           <div style="display:flex;flex-direction:column;gap:5px;">
-            <input type="text" id="weN-${i}" value="${w.name.replace(/"/g,'&quot;')}"
+            <input type="text" id="weN-${i}" value="${(w.name||'').replace(/"/g,'&quot;')}"
               style="font-family:var(--sans);font-size:11px;padding:4px 7px;background:var(--bg);border:1px solid var(--border);color:var(--ink);border-radius:4px;outline:none;width:100%"
               onclick="event.stopPropagation()" placeholder="Imię i nazwisko">
             <select id="weP-${i}" onclick="event.stopPropagation()"
@@ -2312,7 +2319,17 @@ function cyclePrefW(wi,code,evt){
 
 /* ══════════ SHIFTS ══════════ */
 function ensureCoverage(code){if(!S.coverage[code])S.coverage[code]={wd:1,we:0};}
-function ensurePerms(){S.workers.forEach(w=>{if(!w.perms)w.perms={};if(!w.prefs)w.prefs={};S.shifts.forEach(s=>{if(w.perms[s.code]===undefined)w.perms[s.code]=true;});});}
+function ensurePerms(){const shifts=Array.isArray(S.shifts)?S.shifts:[];S.workers.forEach(w=>{if(!w.perms)w.perms={};if(!w.prefs)w.prefs={};shifts.forEach(s=>{if(w.perms[s.code]===undefined)w.perms[s.code]=true;});});normalizeArrays();}
+/* Naprawia rozjazd: każda tablica per-pracownik musi mieć tyle wierszy ile pracowników i tyle kolumn ile dni miesiąca. Chroni przed "Cannot read properties of undefined" gdy dane przyszły rozjechane (np. ze starego zapisu Firebase). */
+function normalizeArrays(){
+  const nw=S.workers.length, days=dim(S.month,S.year);
+  const fitRow=(arr,fill)=>{const a=Array.isArray(arr)?arr.slice(0,days):[];while(a.length<days)a.push(fill);return a;};
+  if(S.schedule){ const r=[]; for(let i=0;i<nw;i++) r.push(fitRow(S.schedule[i],'')); S.schedule=r; }
+  if(S.comments){ const r=[]; for(let i=0;i<nw;i++) r.push(fitRow(S.comments[i],'')); S.comments=r; }
+  { const r=[]; for(let i=0;i<nw;i++) r.push(fitRow(S.avail&&S.avail[i],'')); S.avail=r; }
+  if(S.customTimes){ const r=[]; for(let i=0;i<nw;i++) r.push(Array.isArray(S.customTimes[i])?S.customTimes[i]:[]); S.customTimes=r; }
+  { const r=[]; for(let i=0;i<nw;i++){ const pm=Array.isArray(S.prevMonth&&S.prevMonth[i])?S.prevMonth[i]:[]; while(pm.length<3)pm.push({od:'',do:'',shift:''}); r.push(pm); } S.prevMonth=r; }
+}
 
 function renderShiftEditor(){
   const el=document.getElementById('shiftEditor');
@@ -2373,7 +2390,8 @@ function addShift(){
 /* ══════════ COVERAGE ══════════ */
 function ensureCovPlan(){
   const m=S.month,y=S.year,days=dim(m,y);
-  S.shifts.forEach(s=>{
+  if(!S.covPlan) S.covPlan={};
+  (Array.isArray(S.shifts)?S.shifts:[]).forEach(s=>{
     if(!S.covPlan[s.code]) S.covPlan[s.code]=Array(days).fill(0);
     while(S.covPlan[s.code].length<days) S.covPlan[s.code].push(0);
   });
@@ -2774,7 +2792,7 @@ function getPrevMonthStatus(wi){
   const earliest=fmtT(((prevEnd+REST_DAY)%24+24)%24);
   // also check consecutive days carry-over
   const streak=getPrevConsecutive(wi);
-  const streakWarn=streak&&S.schedule[wi][0]?' + seria dni z poprz. mies.':'';
+  const streakWarn=streak&&S.schedule?.[wi]?.[0]?' + seria dni z poprz. mies.':'';
   if(gap>=REST_DAY)
     return `<span style="color:var(--green)">✓ 11h OK — przerwa ${fmtD(gap)}h${streakWarn?'<br><span style=\"color:var(--cyan)\">'+ streak+'</span>':''}</span>`;
   else
@@ -3676,7 +3694,7 @@ function renderEmptySchedule(m,y,days,nw){
     if(w.visible===false) continue;
     const norm=calcNorm(m,y,w.etat);
     html+=`<tr><td class="td-name"><div class="td-name-inner">
-      <div class="tdn-name">${w.name}</div>
+      <div class="tdn-name">${w.name||''}</div>
       <div class="tdn-pos">${w.pos||'—'}</div>
       <div class="tdn-etat">${ETAT_LBL[String(w.etat)]||w.etat}</div>
     </div></td>`;
@@ -3721,6 +3739,7 @@ function openEmptyPopup(wi,d,cell){
 }
 
 function renderSchedule(){
+  normalizeArrays();
   const m=S.month,y=S.year,days=dim(m,y),nw=S.workers.length;
   const sched=S.schedule;
 
@@ -3878,7 +3897,7 @@ function renderSchedule(){
     const norm=calcNorm(m,y,w.etat);let totalH=0;
     html+=`<tr data-wi="${wi}"><td class="td-name">
       <div class="td-name-inner">
-        <div class="tdn-name">${w.name}</div>
+        <div class="tdn-name">${w.name||''}</div>
         <div class="tdn-pos">${w.pos||'—'}</div>
         <div class="tdn-etat">${ETAT_LBL[String(w.etat)]||w.etat}</div>
       </div></td>`;
@@ -4245,6 +4264,7 @@ function renderStats(){
   const el=document.getElementById('statsWrap');
   if(!el) return;
   if(!S.schedule){el.innerHTML='<div class="notice info">Ułóż grafik, aby zobaczyć statystyki.</div>';return;}
+  normalizeArrays();
   const m=S.month,y=S.year,days=dim(m,y),nw=S.workers.length;
   const sched=S.schedule;
 
@@ -4568,7 +4588,11 @@ function saveState(){
         const ind = document.getElementById('fb-save-indicator');
         if(ind){ ind.style.display='inline'; setTimeout(()=>ind.style.display='none', 2000); }
       })
-      .catch(e=>console.warn('Firestore save error:',e));
+      .catch(e=>{
+        console.warn('Firestore save error:',e);
+        // pokaż błąd widocznie — cichy błąd zapisu = "znikający" pracownicy
+        try{ setSt('err','⚠ Zapis do chmury nieudany: '+(e.code||e.message||'').slice(0,60)+' — dane tylko lokalnie'); }catch(_){}
+      });
   }
 }
 
@@ -4715,10 +4739,13 @@ function doPrintSchedule(){
   if(wrap) wrap.setAttribute('data-print-title',
     `GRAFIK PRACY — ${MPL[S.month].toUpperCase()} ${S.year}   ·   Pracownicy: ${sel.size}   ·   Wygenerowano: ${new Date().toLocaleDateString('pl-PL')}`
   );
-  // styl strony: zawsze A4 pozioma; pokaż tSched, ukryj print-area dnia
-  let ps=document.getElementById('dv-print-page-style');
-  if(!ps){ps=document.createElement('style');ps.id='dv-print-page-style';document.head.appendChild(ps);}
-  ps.textContent='@media print{@page{size:A4 landscape;margin:5mm 6mm;}#dv-print-area{display:none!important}#tSched{display:block!important}.print-hide-row{display:none!important}}';
+  // usuń styl wydruku DNIA, żeby nie kolidował (ukrywał #tSched)
+  const dayPs=document.getElementById('dv-print-page-style');
+  if(dayPs) dayPs.textContent='';
+  // styl strony dla wydruku MIESIĄCA: A4 pozioma, pokaż panel grafiku, ukryj resztę
+  let ps=document.getElementById('sched-print-page-style');
+  if(!ps){ps=document.createElement('style');ps.id='sched-print-page-style';document.head.appendChild(ps);}
+  ps.textContent='@media print{@page{size:A4 landscape;margin:5mm 6mm;}body>*:not(.main-wrap){display:none!important}.main-wrap{display:block!important}.panel{display:none!important}#tSched{display:block!important}#dv-print-area{display:none!important}.print-hide-row{display:none!important}}';
   // skalowanie do szerokości A4 landscape
   const gw=wrap?wrap.querySelector('.grid-wrap'):null;
   const tbl=gw?gw.querySelector('table'):null;
@@ -4745,14 +4772,31 @@ function doPrintSchedule(){
   },80);
 }
 function clearResults(){
-  if(!confirm('Usunąć wygenerowany grafik i wyniki?\nPracownicy, zmiany i obsada pozostaną.')) return;
-  S.schedule=null; S.comments=null; S.violations=[];
-  document.getElementById('scoreBar').style.display='none';
-  S.schedule=null; S.violations=[]; S.lockedCells={};
+  if(!S.schedule){ setSt('idle','Brak grafiku do wyczyszczenia'); return; }
+  const days=dim(S.month,S.year);
+  // policz ilu widocznych i ile komórek zostanie wyczyszczonych (z pominięciem zablokowanych)
+  let visCount=0, cleared=0, lockedSkipped=0;
+  for(let wi=0;wi<S.workers.length;wi++){
+    if(S.workers[wi]?.visible===false) continue;
+    visCount++;
+    for(let d=0;d<days;d++){
+      if(S.lockedCells[`${wi},${d}`]){ if(S.schedule[wi]?.[d]) lockedSkipped++; continue; }
+      if(S.schedule[wi] && S.schedule[wi][d]){ cleared++; }
+    }
+  }
+  if(!confirm(`Wyczyścić godziny dla widocznych pracowników (${visCount}) w miesiącu ${MPL[S.month]} ${S.year}?\n\n• Wyczyszczonych komórek: ${cleared}\n• Pominiętych (zablokowane 🔒): ${lockedSkipped}\n• Ukryci pracownicy i inne miesiące — bez zmian`)) return;
+  for(let wi=0;wi<S.workers.length;wi++){
+    if(S.workers[wi]?.visible===false) continue;
+    for(let d=0;d<days;d++){
+      if(S.lockedCells[`${wi},${d}`]) continue;       // nie ruszaj zablokowanych
+      if(S.schedule[wi]) S.schedule[wi][d]='';
+      if(S.comments && S.comments[wi]) S.comments[wi][d]='';
+      if(S.customTimes && S.customTimes[wi]) S.customTimes[wi][d]=undefined;
+    }
+  }
   renderSchedule();
   renderStats();
-  document.getElementById('progWrap').style.display='none';
-  setSt('idle','Gotowy');
+  setSt('idle',`Wyczyszczono ${cleared} komórek (${visCount} prac., ${lockedSkipped} zablokowanych pominięto)`);
   saveState();
 }
 
@@ -5024,13 +5068,24 @@ function navSub(panelId){ navGo(panelId); }
 
 /* ── globalne wyłapywanie błędów: pokaż w pasku statusu zamiast cichej awarii ── */
 window.addEventListener('error', e=>{
-  try{ setSt('err','Błąd: '+(e.message||'nieznany').slice(0,90)); }catch(_){}
+  // Szczegółowa lokalizacja: linia:kolumna ze stacku — ułatwia namierzenie
+  let loc='';
+  try{
+    if(e.lineno) loc=' [L'+e.lineno+':'+e.colno+']';
+    const st=(e.error&&e.error.stack)?e.error.stack.split('\n'):[];
+    const fnLine=st.find(l=>/at \w+/.test(l));
+    if(fnLine){ const m=fnLine.match(/at (\w+)/); if(m) loc+=' @'+m[1]; }
+  }catch(_){}
+  try{ setSt('err','Błąd: '+(e.message||'nieznany').slice(0,70)+loc); }catch(_){}
+  try{ console.error('[PLANISTA ERROR]', e.message, e.error&&e.error.stack); }catch(_){}
 });
 window.addEventListener('unhandledrejection', e=>{
   try{ setSt('err','Błąd: '+String(e.reason?.message||e.reason||'').slice(0,90)); }catch(_){}
 });
 
-function toggleDrop(navlEl) {
+function toggleDrop(navlEl, ev) {
+  // jeśli kliknięto pozycję wewnątrz rozwiniętej listy (.nsi) — nie przełączaj, pozwól jej zadziałać i zamknąć
+  if (ev && ev.target.closest('.nav-sub')) return;
   const wasOpen = navlEl.classList.contains('open');
   closeAllDrops();
   if (!wasOpen) navlEl.classList.add('open');
@@ -5668,12 +5723,12 @@ function renderDayView(){
         onchange="dvUpdateRow('${dk}',${i},'name',this.value)"
         oninput="dvUpdateRow('${dk}',${i},'name',this.value)"
         onkeydown="dvHandleKey(event,'${dk}',${i},'name')"></td>
-      <td><input class="dv-inp time-inp" type="text" id="dv-s-${i}" value="${r.start||''}" placeholder="0600" maxlength="4"
+      <td><input class="dv-inp time-inp" type="text" id="dv-s-${i}" value="${r.start||''}" placeholder="6:00" maxlength="5"
         onchange="dvUpdateRow('${dk}',${i},'start',this.value)"
         oninput="dvUpdateRow('${dk}',${i},'start',this.value)"
         onblur="dvBlurRefresh('${dk}')"
         onkeydown="dvHandleKey(event,'${dk}',${i},'start')"></td>
-      <td><input class="dv-inp time-inp" type="text" id="dv-e-${i}" value="${r.end||''}" placeholder="1400" maxlength="4"
+      <td><input class="dv-inp time-inp" type="text" id="dv-e-${i}" value="${r.end||''}" placeholder="14:00" maxlength="5"
         onchange="dvUpdateRow('${dk}',${i},'end',this.value)"
         oninput="dvUpdateRow('${dk}',${i},'end',this.value)"
         onblur="dvBlurRefresh('${dk}')"
@@ -5795,24 +5850,8 @@ function dvDoPrint(){
   let html=`<div class="dv-p-title">Grafik obsady – ${fmtShort(from)}${from!==to?' – '+fmtShort(to):''}</div>
   <div class="dv-p-sub">Wydrukowano: ${new Date().toLocaleString('pl-PL')}</div>`;
 
-  // workers table (only for single day or show per day if multiple)
-  if(dates.length===1){
-    const rows=dvGetRows(dates[0]);
-    const hasRows=rows.some(r=>r.name);
-    if(hasRows){
-      html+=`<table class="dv-p-workers-tbl"><thead><tr>
-        <th>#</th><th>Imię / Opis</th><th>Od</th><th>Do</th><th>Stanowisko</th>
-      </tr></thead><tbody>`;
-      rows.forEach((r,i)=>{
-        const cls=r.fromSchedule?'dv-p-from-sched':'';
-        const sH=dvParseHour(r.start),eH=dvParseHour(r.end);
-        const sDisp=sH!==null?dvFmtH(sH):(r.start||'–');
-        const eDisp=eH!==null?dvFmtH(eH):(r.end||'–');
-        html+=`<tr class="${cls}"><td>${i+1}</td><td>${r.name||'–'}</td><td>${sDisp}</td><td>${eDisp}</td><td>${r.stanowisko||'–'}</td></tr>`;
-      });
-      html+=`</tbody></table>`;
-    }
-  }
+  // (lista pracowników celowo pominięta na wydruku — zgodnie z wymaganiem:
+  //  drukujemy tylko tabelę godzinową i podsumowanie wg stanowisk)
 
   // hourly multi-table
   html+=`<table class="dv-multi-tbl"><thead>`;
@@ -5871,10 +5910,12 @@ function dvDoPrint(){
   printArea.innerHTML=`<div class="dv-p-scale-wrap" id="dvPrintScaleWrap">${html}</div>`;
   dvClosePrintModal();
 
-  // Set A4 orientation dynamically
+  // Set A4 orientation dynamically + wyczyść styl wydruku MIESIĄCA
+  const monthPs=document.getElementById('sched-print-page-style');
+  if(monthPs) monthPs.textContent='';
   let printStyle=document.getElementById('dv-print-page-style');
   if(!printStyle){printStyle=document.createElement('style');printStyle.id='dv-print-page-style';document.head.appendChild(printStyle);}
-  printStyle.textContent=`@media print{@page{size:A4 ${orient};margin:${orient==='landscape'?'5mm 6mm':'7mm 8mm'};}#tSched{display:none!important}}`;
+  printStyle.textContent=`@media print{@page{size:A4 ${orient};margin:${orient==='landscape'?'5mm 6mm':'7mm 8mm'};}body>*:not(#dv-print-area){display:none!important}#dv-print-area{display:block!important}}`;
 
   const origTitle=document.title;
   document.title='Grafik_obsady_'+fmtShort(from).replace(/\./g,'-')+(from!==to?'_-_'+fmtShort(to).replace(/\./g,'-'):'');
@@ -5892,6 +5933,7 @@ function dvDoPrint(){
 }
 
 function reRenderAll(){
+  ensurePerms();
   renderWorkers();renderShiftEditor();renderCov();renderAvail();renderSchedule();
   if(_navActive==='tDash') renderDashboard();
   if(_navActive==='tDay')  renderDayView();
